@@ -608,6 +608,7 @@
         </ul>
             </ol>
         </ul>
+        <button onclick="removePremium()" id="removePremiumButton">Убрать премиум</button>
         <h4>ℹ️Премиум выдается навсегда</h4>
         <h4>ℹ️Список со временнем будет пополняться</h4>
         <h4>ℹ️Если у вас уже есть премиум, все новые возможности для премиум, появляющиеся в будущих обновлениях, будут добавляться к вам автоматически.</h4>
@@ -1078,6 +1079,12 @@ ${autoTextStyleText}
                 document.getElementById('promoCom').innerHTML = "Спасибо за покупку премиума!<br>Поздравляем вас с покупкой!";
                 localStorage.setItem('premiumCongratsShown', 'true');
             }
+            if (localStorage.getItem('premium') === 'true') {
+                document.getElementById('removePremiumButton').style.display = 'block';
+            }
+            else {
+                document.getElementById('removePremiumButton').style.display = 'none';
+            }
             checkPremium()
         }
         function CheckPromoCodeToPremium(){
@@ -1106,6 +1113,16 @@ ${autoTextStyleText}
                     alert('Неверный промокод!');
                 }, 0.5);
             }
+            document.getElementById('promoCodeInput2').value = '';
+        }
+        function removePremium(){
+            if (confirm('Вы уверены, что хотите убрать премиум?\nЭто действие потом нельзя будет отменить\nДля повторного получения вам придется заново оплачивать!(1/4)') && prompt('Введите "Убрать премиум" для подтверждения:(2/4)') === 'Убрать премиум' && prompt('Это действие потом нельзя будет отменить\nДля повторного получения вам придется заново оплачивать!\nДля удаления введите "ПОДТВЕРЖДАЮ"(3/4)') === 'ПОДТВЕРЖДАЮ' && confirm('Вы уверены, что хотите убрать премиум?\nЭто действие потом нельзя будет отменить\nДля повторного получения вам придется заново оплачивать!(4/4)')) {
+                localStorage.removeItem('premium');
+                localStorage.removeItem('premiumCongratsShown');
+                checkPremium();
+                alert('Премиум успешно убран!');
+                GoBackToPremiumScreen();
+            }
         }
         function Goto(){
             document.getElementById('div1').style.display = 'none';
@@ -1120,7 +1137,7 @@ ${autoTextStyleText}
                 data.attempts = 0;
                 setStoredData(data);
                 attemptsDisplay.textContent = 999999;
-
+                document.getElementById('removePremiumButton').style.display = 'block';
                 document.getElementById('goto').style.display = 'none';
                 document.getElementById('sizeInput').disabled = false;
                 document.getElementById('sizeInput').placeholder = '';
@@ -1138,6 +1155,7 @@ ${autoTextStyleText}
                 });
             } else {
                 // Закрываем все премиум-поля и опции
+                document.getElementById('removePremiumButton').style.display = 'none';
                 document.getElementById('goto').style.display = 'block';
                 document.getElementById('sizeInput').disabled = true;
                 document.getElementById('sizeInput').placeholder = 'Купи Premium, чтобы писать здесь';
