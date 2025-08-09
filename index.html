@@ -456,7 +456,7 @@
                     document.getElementById('description').addEventListener('input', updateDescriptionLimit);
                 </script>
             </div>
-            <button onclick="generateImage()">Сгенерировать</button>
+            <button onclick="checkPremiumOptions()">Сгенерировать</button>
             <button onclick="BuyPremium()">Купить Premium</button>
             <div id="attemptsDisplay"><b>Осталось генераций: <span id="attemptsLeft"></span>/2</b></div>
         </div>
@@ -1117,9 +1117,37 @@ ${autoTextStyleText}
             }
             document.getElementById('promoCodeInput2').value = '';
         }
+        function checkPremiumOptions(){
+            // Получаем все селекты на странице
+            const selects = document.querySelectorAll('select');
+
+            let foundPremium = false;
+
+            selects.forEach(select => {
+            // Получаем текст выбранной опции
+            const selectedText = select.options[select.selectedIndex].text;
+
+            if (selectedText.includes('Premium')) {
+                foundPremium = true;
+            }
+            });
+
+            if (foundPremium) {
+                checkPremium();
+                if (localStorage.getItem('premium') !== 'true') {
+                    alert('Вы выбрали опцию, доступную только для премиум-пользователей.\nПожалуйста, купите премиум, чтобы использовать эту опцию.');
+                } else {
+                    generateImage()
+                }
+            } else {
+                generateImage()
+            }
+
+        }
         function removePremium(){
             if (confirm('Вы уверены, что хотите убрать премиум?\nЭто действие потом нельзя будет отменить\nДля повторного получения вам придется заново оплачивать!(1/4)') && prompt('Введите "Убрать"(2/4)') === 'Убрать' && prompt('Введите "ПОДТВЕРЖДАЮ"(3/4)') === 'ПОДТВЕРЖДАЮ' && confirm('Вы уверены, что хотите убрать премиум?\nЭто действие потом нельзя будет отменить\nДля повторного получения вам придется заново оплачивать!(4/4)')) {
                 localStorage.removeItem('premium');
+                localStorage.setItem('premium', 'false');
                 localStorage.removeItem('premiumCongratsShown');
                 alert('Премиум успешно убран!');
                 checkPremium();
@@ -1130,6 +1158,7 @@ ${autoTextStyleText}
                     }
                 }, 100);
                 document.getElementById('selector').disabled = true;
+                location.reload();
 
             }
         }
