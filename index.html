@@ -388,16 +388,18 @@
                     <option value="ultra" disabled>(Premium)Ультра</option>
                 </select>
             </div>
-            <label for="selector" style="margin-bottom: 0%">Выберите ИИ</label>
-            <select id="selector" style="margin-top: 0%;">
-                <option value="Собственный" selected>Собственный</option>
-                <option value="Grok 3">Grok 3</option>
-                <option value="Grok 4" disabled>(Premium)Grok 4</option>
-                <option value="ChatGPT-4o mini">ChatGPT-4o mini</option>  
-                <option value="ChanGPT5" disabled>(Premium)ChatGPT 5</option>
-                <option value="midjourney" disabled>(Premium)Midjourney</option>
-                <option value="stable-diffusion" disabled>(Premium)Stable Diffusion</option>
-            </select>
+            <div class="input-group">
+                <label for="selector" style="margin-bottom: 0%">Выберите ИИ</label>
+                <select id="selector" style="margin-top: 0%;">
+                    <option value="Собственный" selected>Собственный</option>
+                    <option value="Grok 3">Grok 3</option>
+                    <option value="Grok 4" disabled>(Premium)Grok 4</option>
+                    <option value="ChatGPT-4o mini">ChatGPT-4o mini</option>  
+                    <option value="ChanGPT5" disabled>(Premium)ChatGPT 5</option>
+                    <option value="midjourney" disabled>(Premium)Midjourney</option>
+                    <option value="stable-diffusion" disabled>(Premium)Stable Diffusion</option>
+                </select>
+            </div>
         </div>
         <div class="right-section">
             <div class="input-group">
@@ -1119,9 +1121,16 @@ ${autoTextStyleText}
             if (confirm('Вы уверены, что хотите убрать премиум?\nЭто действие потом нельзя будет отменить\nДля повторного получения вам придется заново оплачивать!(1/4)') && prompt('Введите "Убрать"(2/4)') === 'Убрать' && prompt('Введите "ПОДТВЕРЖДАЮ"(3/4)') === 'ПОДТВЕРЖДАЮ' && confirm('Вы уверены, что хотите убрать премиум?\nЭто действие потом нельзя будет отменить\nДля повторного получения вам придется заново оплачивать!(4/4)')) {
                 localStorage.removeItem('premium');
                 localStorage.removeItem('premiumCongratsShown');
-                checkPremium();
                 alert('Премиум успешно убран!');
-                GoBackToPremiumScreen();
+                checkPremium();
+                const waitForGonned = setInterval(() => {
+                    if (gonned === 1) {
+                        clearInterval(waitForGonned);
+                        GoBackToPremiumScreen();
+                    }
+                }, 100);
+                document.getElementById('selector').disabled = true;
+
             }
         }
         function Goto(){
@@ -1134,6 +1143,7 @@ ${autoTextStyleText}
             if (localStorage.getItem('premium') === 'true') {
                 // Открываем все премиум-поля и опции
                 let data = getStoredData();
+                gonned = 0;
                 data.attempts = 0;
                 setStoredData(data);
                 attemptsDisplay.textContent = 999999;
@@ -1163,6 +1173,7 @@ ${autoTextStyleText}
                 document.getElementById('exclusions').placeholder = 'Купи Premium, чтобы писать здесь';
                 document.getElementById('autoTextStyle').disabled = true;
                 document.getElementById('autoTextStyleLabel').classList.add('disabled-label');
+                
 
                 // Отключаем все premium option в select-ах
                 document.querySelectorAll('option').forEach(opt => {
@@ -1170,6 +1181,7 @@ ${autoTextStyleText}
                         opt.disabled = true;
                     }
                 });
+                const gonned = 1;
             }
         }
         checkPremium();
