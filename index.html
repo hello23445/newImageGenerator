@@ -388,6 +388,16 @@
                     <option value="ultra" disabled>(Premium)Ультра</option>
                 </select>
             </div>
+            <label for="selector" style="margin-bottom: 0%">Выберите ИИ</label>
+            <select id="selector" style="margin-top: 0%;">
+                <option value="Собственный" selected>Собственный</option>
+                <option value="Grok 3">Grok 3</option>
+                <option value="Grok 4" disabled>(Premium)Grok 4</option>
+                <option value="ChatGPT-4o mini">ChatGPT-4o mini</option>  
+                <option value="ChanGPT5" disabled>(Premium)ChatGPT 5</option>
+                <option value="midjourney" disabled>(Premium)Midjourney</option>
+                <option value="stable-diffusion" disabled>(Premium)Stable Diffusion</option>
+            </select>
         </div>
         <div class="right-section">
             <div class="input-group">
@@ -589,6 +599,10 @@
             </li>
             <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
             <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">10.</span>
+            Возможность выбирать ИИ (Grok 4, ChatGPT 5 и другие).
+            </li>
+            <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
+            <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">11.</span>
             Бесконечное количество генераций в день.
             </li>
         </ul>
@@ -968,12 +982,14 @@
         }
 
         function proceedToSend() {
+            const AI_selected = document.getElementById('selector').value;
             const selectedMessenger = document.querySelector('input[name="messenger"]:checked').value;
             const contact = contactInput.querySelector('input').value;
             const autoTextStyleText = autoTextStyle.checked ? 'Автоматический выбор стиля текста включено.' : 'Автоматический выбор стиля текста выключено.';
             const message = `
 Описание: ${descriptionInput.value}
-Текст: ${textInput.value || 'Not Specified'}
+ИИ: ${AI_selected}
+Текст на фото: ${textInput.value || 'Not Specified'}
 Исключения: ${exclusionsInput.value || 'Not Specified'}
 Качество: ${qualitySelect.value}
 Размер: ${sizeInput.value || sizeSelect.value}
@@ -1058,7 +1074,10 @@ ${autoTextStyleText}
             document.getElementById('div1').style.display = 'block';
             document.getElementById('goto').style.display = 'block';
             document.getElementById('promoCom').innerHTML = '';
-            document.getElementById('promoCom').innerHTML = "Спасибо за покупку премиума!<br>Поздравляем вас с покупкой!";
+            if (localStorage.getItem('premium') === 'true' && !localStorage.getItem('premiumCongratsShown')) {
+                document.getElementById('promoCom').innerHTML = "Спасибо за покупку премиума!<br>Поздравляем вас с покупкой!";
+                localStorage.setItem('premiumCongratsShown', 'true');
+            }
             checkPremium()
         }
         function CheckPromoCodeToPremium(){
