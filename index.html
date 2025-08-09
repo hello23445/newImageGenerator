@@ -714,8 +714,15 @@
                 data.promoCode = data.promoCode || null;
                 setStoredData(data);
             }
+            let attemptsLeft;
 
-            const attemptsLeft = data.promoCode === PROMO_CODE || localStorage.getItem('premium') === true ? 999999 - data.attempts : MAX_DAILY_ATTEMPTS - data.attempts;
+            if (localStorage.getItem('premium') === 'true') {
+                attemptsLeft = 999;
+            } else {
+            // здесь можно задать обычное количество попыток
+                attemptsLeft = MAX_DAILY_ATTEMPTS - data.attempts; 
+            }
+
             attemptsDisplay.textContent = attemptsLeft > 0 ? attemptsLeft : 0;
             if (data.promoCode === PROMO_CODE) {
                 if (data.attempts >= 6 && !hasShownPromoClear) {
@@ -1193,7 +1200,6 @@ ${autoTextStyleText}
                     opt.textContent = opt.textContent.replace('(Premium)', '').trim();
                 });
             } else {
-                // Закрываем все премиум-поля и опции
                 document.getElementById('removePremiumButton').style.display = 'none';
                 document.getElementById('goto').style.display = 'block';
                 document.getElementById('sizeInput').disabled = true;
@@ -1202,7 +1208,6 @@ ${autoTextStyleText}
                 document.getElementById('exclusions').placeholder = 'Купи Premium, чтобы писать здесь';
                 document.getElementById('autoTextStyle').disabled = true;
                 document.getElementById('autoTextStyleLabel').classList.add('disabled-label');
-                
 
                 // Отключаем все premium option в select-ах
                 document.querySelectorAll('option').forEach(opt => {
