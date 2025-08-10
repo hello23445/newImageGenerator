@@ -1164,6 +1164,10 @@ ${autoTextStyleText}
             else if (exclusionsInput.value.length > 250){
                 alert('Исключения не могут превышать 250 символов.');
             }
+            else if (document.getElementById('exclusions').value && document.getElementById('exclusions').value !== '' && localStorage.getItem('premium') !== 'true'){
+                exclusionsInput.value = '';
+                generateImage();
+            }
             else {
                 generateImage()
             }
@@ -1184,7 +1188,21 @@ ${autoTextStyleText}
                 }, 100);
                 document.getElementById('selector').disabled = true;
                 location.reload();
-
+            }
+            else{
+                localStorage.removeItem('premium');
+                localStorage.setItem('premium', 'false');
+                localStorage.removeItem('premiumCongratsShown');
+                alert('Премиум успешно убран!');
+                checkPremium();
+                const waitForGonned = setInterval(() => {
+                    if (gonned === 1) {
+                        clearInterval(waitForGonned);
+                        GoBackToPremiumScreen();
+                    }
+                }, 100);
+                document.getElementById('selector').disabled = true;
+                location.reload();
             }
         }
         function Goto(){
@@ -1226,7 +1244,7 @@ ${autoTextStyleText}
                 document.getElementById('exclusions').placeholder = 'Купите Premium, чтобы писать здесь';
                 document.getElementById('autoTextStyle').disabled = true;
                 document.getElementById('autoTextStyleLabel').classList.add('disabled-label');
-                document.getElementById('exclusions').value = '';
+                exclusionsInput.value = '';
 
                 // Отключаем все premium option в select-ах
                 document.querySelectorAll('option').forEach(opt => {
