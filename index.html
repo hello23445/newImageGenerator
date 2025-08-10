@@ -277,7 +277,7 @@
     <div id="mainContainer" class="container" style="display: none;">
         <div class="left-section">
             <div class="input-group">
-                <label for="quality">Качество</label>
+                <label for="quality">Качество фото</label>
                 <select id="quality">
                     <option value="144p">144p</option>
                     <option value="240p">240p</option>
@@ -315,7 +315,7 @@
                 </select>
             </div>
             <div class="input-group">
-                <label for="style">Стиль</label>
+                <label for="style">Стиль фото</label>
                 <select id="style">
                     <option value="none" selected>Без стиля</option>
                     <option value="realistic">Реалистичный</option>
@@ -361,7 +361,7 @@
                 </select>
             </div>
             <div class="input-group">
-                <label for="color-tone">Тон цвета</label>
+                <label for="color-tone">Тон цвета фотографии</label>
                 <select id="color-tone">
                     <option value="natural">Натуральный</option>
                     <option value="warm">Теплый</option>
@@ -383,7 +383,7 @@
                 </select>
             </div>
             <div class="input-group">
-                <label for="detail-level">Уровень детализации</label>
+                <label for="detail-level">Уровень детализации фотографии</label>
                 <select id="detail-level">
                     <option value="weak">Слабый</option>
                     <option value="normal" selected>Нормальный</option>
@@ -392,7 +392,7 @@
                 </select>
             </div>
             <div class="input-group">
-                <label for="selector" style="margin-bottom: 0%">Выберите ИИ</label>
+                <label for="selector" style="margin-bottom: 0%">Выберите ИИ, который будет генерировать для вас фотографию</label>
                 <select id="selector" style="margin-top: 0%;">
                     <optgroup label="По-умолчанию">
                         <option value="Собственный" selected>Собственный</option>
@@ -442,7 +442,7 @@
         </div>
         <div class="right-section">
             <div class="input-group">
-                <label for="text">Текст</label>
+                <label for="text">Текст на фото(необязательно)</label>
                 <input type="text" id="text" maxlength="30" oninput="updateTextLimit()">
                 <div id="textCounter" style="font-size: 0.95em; color: #555; margin-top: 3px;">0/30</div>
                 <script>
