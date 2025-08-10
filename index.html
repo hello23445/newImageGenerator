@@ -1189,21 +1189,6 @@ ${autoTextStyleText}
                 document.getElementById('selector').disabled = true;
                 location.reload();
             }
-            else{
-                localStorage.removeItem('premium');
-                localStorage.setItem('premium', 'false');
-                localStorage.removeItem('premiumCongratsShown');
-                alert('Премиум успешно убран!');
-                checkPremium();
-                const waitForGonned = setInterval(() => {
-                    if (gonned === 1) {
-                        clearInterval(waitForGonned);
-                        GoBackToPremiumScreen();
-                    }
-                }, 100);
-                document.getElementById('selector').disabled = true;
-                location.reload();
-            }
         }
         function Goto(){
             document.getElementById('div1').style.display = 'none';
