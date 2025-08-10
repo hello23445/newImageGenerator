@@ -1258,7 +1258,7 @@ ${autoTextStyleText}
                         clickCount = 0; // сброс
                         alert("Режим администратора активирован!");
                         checkAdmin();
-                        location.reload();
+                        document.getElementById('voz').textContent = 'Вы в режиме администратора!';
                     }
                     else{
                         location.reload();
@@ -1269,6 +1269,7 @@ ${autoTextStyleText}
                         clickCount = 0; // сброс
                         console.log("Режим администратора деактивирован!", admin);
                         alert("Режим администратора деактивирован!");
+                        document.getElementById('voz').textContent = 'Возможности Premium-версии';
                     }
                 }
             }
