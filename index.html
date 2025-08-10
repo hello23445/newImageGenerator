@@ -257,6 +257,9 @@
         .a1{
             color: darkblue;
         }
+        optgroup{
+            font-weight: normal;
+        }
     </style>
 </head>
 <body>
@@ -392,12 +395,21 @@
                 <label for="selector" style="margin-bottom: 0%">Выберите ИИ</label>
                 <select id="selector" style="margin-top: 0%;">
                     <option value="Собственный" selected>Собственный</option>
-                    <option value="Grok 3">Grok 3</option>
-                    <option value="Grok 4" disabled>(Premium)Grok 4</option>
-                    <option value="ChatGPT-4o mini">ChatGPT-4o mini</option>  
-                    <option value="ChanGPT5" disabled>(Premium)ChatGPT 5</option>
-                    <option value="midjourney" disabled>(Premium)Midjourney</option>
-                    <option value="stable-diffusion" disabled>(Premium)Stable Diffusion</option>
+                    <optgroup label="Grok">
+                        <option value="Grok 3">Grok 3</option>
+                        <option value="Grok 4" disabled>(Premium)Grok 4</option>
+                    </optgroup>
+                    <optgroup label="OpenAI(ChatGPT)">
+                        <option value="ChatGPT-4o mini">ChatGPT-4o mini</option>  
+                        <option value="ChanGPT5" disabled>(Premium)ChatGPT 5</option>
+                    </optgroup>
+                    <optgroup label="Google">
+                        <option value="Gemini">Gemini</option>
+                    </optgroup>
+                    <optgroup label="Другие">
+                        <option value="midjourney" disabled>(Premium)Midjourney</option>
+                        <option value="stable-diffusion" disabled>(Premium)Stable Diffusion</option>
+                    </optgroup>
                 </select>
             </div>
         </div>
@@ -560,12 +572,11 @@
         </div>
     </div>
     <div id="div1" style="display: none;">
-        <h1 style="color: white; text-align: center;">Здесь вы можете купить Premium</h1>
-        <h2 style="color: white; text-align: center;">Возможности премиума:</h3>
+        <h1 style="color: white; text-align: center;">Возможности Premium-версии</h1>
         <ul style="color: white; font-size: 1.15em; margin-top: 5%; padding-left: 0;">
             <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
             <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">1.</span>
-            Доступ к высоким разрешениям (2560x1440, 3840x2160, 4096x2160, и другие).
+            Доступ к высоким разрешениям фото(2560x1440, 3840x2160, 4096x2160, и другие).
             </li>
             <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
             <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">2.</span>
@@ -581,30 +592,26 @@
             </li>
             <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
             <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">5.</span>
-            Без ограничений на количество генераций.
-            </li>
-            <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
-            <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">6.</span>
             Возможность писать в закрытых полях.
             </li>
             <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
-            <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">7.</span>
+            <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">6.</span>
             Доступ к высоким качествам (2160p60(4K), 4320p(8K)).
             </li>
             <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
-            <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">8.</span>
+            <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">7.</span>
             Описание фото увеличевается с 250 до 1000 символов.
             </li>
             <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
-            <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">9.</span>
+            <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">8.</span>
             Текст на фото увеличевается с 250 до 500 символов.
             </li>
             <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
-            <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">10.</span>
+            <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">9.</span>
             Возможность выбирать ИИ (Grok 4, ChatGPT 5 и другие).
             </li>
             <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
-            <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">11.</span>
+            <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">10.</span>
             Бесконечное количество генераций в день.
             </li>
         </ul>
@@ -1143,10 +1150,21 @@ ${autoTextStyleText}
                 checkPremium();
                 if (localStorage.getItem('premium') !== 'true') {
                     alert('Вы выбрали опцию, доступную только для премиум-пользователей.\nПожалуйста, купите премиум, чтобы использовать эту опцию.');
-                } else {
+                }
+                else {
                     generateImage()
                 }
-            } else {
+            }
+            else if(descriptionInput.value.length > 250 && localStorage.getItem('premium') !== 'true') {
+                alert('Описание не может превышать 250 символов для обычных пользователей.\nПожалуйста, купите премиум, чтобы увеличить лимит до 1000 символов.');
+            }
+            else if (textInput.value.length > 250 && localStorage.getItem('premium') !== 'true') {
+                alert('Текст на фото не может превышать 250 символов для обычных пользователей.\nПожалуйста, купите премиум, чтобы увеличить лимит до 500 символов.');
+            }
+            else if (exclusionsInput.value.length > 250){
+                alert('Исключения не могут превышать 250 символов.');
+            }
+            else {
                 generateImage()
             }
 
@@ -1203,11 +1221,12 @@ ${autoTextStyleText}
                 document.getElementById('removePremiumButton').style.display = 'none';
                 document.getElementById('goto').style.display = 'block';
                 document.getElementById('sizeInput').disabled = true;
-                document.getElementById('sizeInput').placeholder = 'Купи Premium, чтобы писать здесь';
+                document.getElementById('sizeInput').placeholder = 'Купите Premium, чтобы писать здесь';
                 document.getElementById('exclusions').disabled = true;
-                document.getElementById('exclusions').placeholder = 'Купи Premium, чтобы писать здесь';
+                document.getElementById('exclusions').placeholder = 'Купите Premium, чтобы писать здесь';
                 document.getElementById('autoTextStyle').disabled = true;
                 document.getElementById('autoTextStyleLabel').classList.add('disabled-label');
+                document.getElementById('exclusions').value = '';
 
                 // Отключаем все premium option в select-ах
                 document.querySelectorAll('option').forEach(opt => {
@@ -1216,6 +1235,7 @@ ${autoTextStyleText}
                     }
                 });
                 const gonned = 1;
+
             }
         }
         checkPremium();
