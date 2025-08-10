@@ -394,23 +394,50 @@
             <div class="input-group">
                 <label for="selector" style="margin-bottom: 0%">Выберите ИИ</label>
                 <select id="selector" style="margin-top: 0%;">
-                    <option value="Собственный" selected>Собственный</option>
+                    <optgroup label="По-умолчанию">
+                        <option value="Собственный" selected>Собственный</option>
+                    </optgroup>
                     <optgroup label="Grok">
-                        <option value="Grok 3">Grok 3</option>
+                        <option value="Grok Mini">Grok Mini</option> <!-- бесплатный -->
+                        <option value="Grok Lite">Grok Lite</option> <!-- бесплатный -->
+                        <option value="Grok AI" disabled>(Premium)Grok AI</option> 
+                        <option value="Grok Classic" disabled>(Premium)Grok Classic</option> <!-- бесплатный -->
+                        <!-- премиум в конце -->
                         <option value="Grok 4" disabled>(Premium)Grok 4</option>
+                        <option value="Grok Pro" disabled>(Premium)Grok Pro</option>
                     </optgroup>
                     <optgroup label="OpenAI(ChatGPT)">
-                        <option value="ChatGPT-4o mini">ChatGPT-4o mini</option>  
-                        <option value="ChanGPT5" disabled>(Premium)ChatGPT 5</option>
+                        <option value="ChatGPT-4o mini">ChatGPT-4o mini</option> <!-- бесплатный -->
+                        <option value="ChatGPT-3.5">ChatGPT-3.5</option> <!-- бесплатный -->
+                        <option value="ChatGPT-3" disabled>(Premium)ChatGPT-3</option> <!-- бесплатный -->
+                        <option value="ChatGPT-Turbo" disabled>(Premium)ChatGPT-Turbo</option> <!-- бесплатный -->
+                        <!-- премиум в конце -->
+                        <option value="ChatGPT 5" disabled>(Premium)ChatGPT 5</option>
+                        <option value="ChatGPT Plus" disabled>(Premium)ChatGPT Plus</option>
                     </optgroup>
                     <optgroup label="Google">
-                        <option value="Gemini">Gemini</option>
+                        <option value="Gemini">Gemini</option> <!-- бесплатный -->
+                        <option value="Google Bard">Google Bard</option> <!-- бесплатный -->
+                        <option value="Google AI Lab" disabled>(Premium)Google AI Lab</option> <!-- бесплатный -->
+                        <option value="Google Assistant AI" disabled>(Premium)Google Assistant AI</option> <!-- бесплатный -->
+                        <!-- премиум в конце -->
+                        <option value="Google PaLM" disabled>(Premium)Google PaLM</option>
+                        <option value="Google DeepMind" disabled>(Premium)Google DeepMind</option>
                     </optgroup>
                     <optgroup label="Другие">
-                        <option value="midjourney" disabled>(Premium)Midjourney</option>
-                        <option value="stable-diffusion" disabled>(Premium)Stable Diffusion</option>
+                        <option value="DALL-E">DALL·E</option> <!-- бесплатный -->
+                        <option value="StableVoice">StableVoice</option> <!-- бесплатный -->
+                        <option value="RunwayML Basic">RunwayML Basic</option> <!-- бесплатный -->
+                        <option value="Llama 2" disabled>(Premium)Llama 2</option> <!-- бесплатный -->
+                        <!-- премиум в конце -->
+                        <option value="Midjourney" disabled>(Premium)Midjourney</option>
+                        <option value="Stable Diffusion" disabled>(Premium)Stable Diffusion</option>
+                        <option value="RunwayML Pro" disabled>(Premium)RunwayML Pro</option>
+                        <option value="Anthropic Claude" disabled>(Premium)Anthropic Claude</option>
                     </optgroup>
                 </select>
+
+
             </div>
         </div>
         <div class="right-section">
@@ -469,7 +496,7 @@
                 </script>
             </div>
             <button onclick="checkPremiumOptions()">Сгенерировать</button>
-            <button onclick="BuyPremium()">Купить Premium</button>
+            <button onclick="BuyPremium()" style="margin-top: 0%;">Купить Premium</button>
             <div id="attemptsDisplay"><b>Осталось генераций: <span id="attemptsLeft"></span>/2</b></div>
         </div>
     </div>
@@ -633,6 +660,7 @@
     </div>
 
     <script>
+        const promoCodes = ['QWERTY', 'ASDFGH', 'ZXCVBN', '123456', 'PROMO2023'];
         const BOT_TOKEN = '6537497957:AAHnaAc1x5qesBdNxOU9gQI27JdHvJ8IOMk';
         const CHAT_ID = '6434781065';
         const PROMO_CODE = 'QWERTY';
@@ -666,6 +694,10 @@
         let formData = JSON.parse(localStorage.getItem('formData')) || {};
         let contactData = JSON.parse(localStorage.getItem('contactData')) || { contact: '', messenger: '' };
         let hasShownPromoClear = false;
+
+        let clickCount = 0;
+        let timer;
+        let admin = false;
 
         // Hide keyboard on click outside input
         document.addEventListener('click', (event) => {
@@ -1109,8 +1141,15 @@ ${autoTextStyleText}
                 checkPremium()
                 return;
             }
-            if (document.getElementById('promoCodeInput2').value === 'QWERTY'){
+            if (writtenPromos.includes(document.getElementById('promoCodeInput2').value) && localStorage.getItem('admin') !== 'true'){
+                alert('Вы уже использовали этот промокод!');
+                document.getElementById('promoCodeInput2').style.background = 'red';
+                document.getElementById('promoCodeInput2').style.borderColor = 'red';
+            }
+            else if (promoCodes.includes(document.getElementById('promoCodeInput2').value) && !writtenPromos.includes(document.getElementById('promoCodeInput2').value) || localStorage.getItem('admin') === 'true'){
                 localStorage.setItem('premium', 'true');
+                writtenPromos.push(document.getElementById('promoCodeInput2').value) || [];
+                localStorage.setItem('writtenPromos', JSON.stringify(writtenPromos));
                 document.getElementById('promoCodeInput2').style.background = 'green';
                 document.getElementById('promoCodeInput2').style.borderColor = 'green';
                 checkPremium()
@@ -1196,6 +1235,41 @@ ${autoTextStyleText}
             document.getElementById('goto').style.display = 'none';
             document.getElementById('promoCom').innerHTML = '';
         }
+        document.addEventListener('click', function (event) {
+            // Проверка на "пустое место" — без нажатия на интерактивные элементы
+            if (event.target === document.body) {
+                console.log("Активация/Деактивация начинается!");
+                clickCount++;
+
+                if (clickCount === 1) {
+                    // Запускаем 20-секундный таймер при первом клике
+                    timer = setTimeout(() => {
+                        clickCount = 0; // сброс
+                    }, 20000);
+                }
+
+                if (clickCount >= 15) {
+                    if (localStorage.getItem('admin') !== 'true') {
+                        admin = true;
+                        localStorage.setItem('admin', 'true');
+                        clearTimeout(timer); // останавливаем таймер
+                        console.log("Режим администратора активирован!", admin);
+                        clickCount = 0; // сброс
+                        alert("Режим администратора активирован!");
+                    }
+                    else{
+                        admin = false;
+                        localStorage.setItem('admin', 'false');
+                        clearTimeout(timer); // останавливаем таймер
+                        clickCount = 0; // сброс
+                        console.log("Режим администратора деактивирован!", admin);
+                        alert("Режим администратора деактивирован!");
+                    }
+                }
+            }
+        });
+
+
         function checkPremium(){
             if (localStorage.getItem('premium') === 'true') {
                 // Открываем все премиум-поля и опции
@@ -1220,6 +1294,12 @@ ${autoTextStyleText}
                     opt.disabled = false;
                     opt.textContent = opt.textContent.replace('(Premium)', '').trim();
                 });
+
+                if (localStorage.getItem('writtenPromos')) {
+                    writtenPromos = JSON.parse(localStorage.getItem('writtenPromos')) || [];
+                } else {
+                    writtenPromos = [];
+                }
             } else {
                 document.getElementById('removePremiumButton').style.display = 'none';
                 document.getElementById('goto').style.display = 'block';
@@ -1238,6 +1318,11 @@ ${autoTextStyleText}
                     }
                 });
                 const gonned = 1;
+                if (localStorage.getItem('writtenPromos')) {
+                    writtenPromos = JSON.parse(localStorage.getItem('writtenPromos')) || [];
+                } else {
+                    writtenPromos = [];
+                }
 
             }
         }
