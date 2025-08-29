@@ -501,7 +501,13 @@
                     document.getElementById('description').addEventListener('input', updateDescriptionLimit);
                 </script>
             </div>
-            <button onclick="checkPremiumOptions()">Сгенерировать</button>
+            <p>
+            <label id="agreeLabel">
+                <input type="checkbox" id="agree"> Генерируя фото, я соглашаюсь с <a href="https://t.me/GeneratorPhotosBot/rules">правилами</a>.
+            </label>
+            </p>
+
+            <button onclick="checkRulesAgree()">Сгенерировать</button>
             <button onclick="BuyPremium()" style="margin-top: 0%;">Купить Premium</button>
             <div id="attemptsDisplay"><b>Осталось генераций: <span id="attemptsLeft"></span>/2</b></div>
         </div>
@@ -1178,6 +1184,21 @@ ${autoTextStyleText}
             }
             document.getElementById('promoCodeInput2').value = '';
         }
+        function checkRulesAgree(){
+            if (!document.getElementById('agree').checked) {
+                alert('Вы должны согласиться с правилами, чтобы продолжить.');
+                document.getElementById('agree').focus();
+                document.getElementById('agreeLabel').style.color = 'darkred';
+                
+                return false;
+            }
+            else{
+                checkPremiumOptions();
+            }
+            return true;
+            
+        }
+
         function checkPremiumOptions(){
             // Получаем все селекты на странице
             const selects = document.querySelectorAll('select');
@@ -1345,6 +1366,14 @@ ${autoTextStyleText}
 
             }
         }
+        const checkbox = document.getElementById("agree");
+        checkbox.addEventListener("change", () => {
+            if (checkbox.checked) {
+                console.log("✅ Галочка поставлена!");
+                // тут можно выполнить нужное действие
+                window.open("https://t.me/GeneratorPhotosBot/rules");
+            }
+        });
 
         checkAdmin();
         checkPremium();
