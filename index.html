@@ -496,18 +496,17 @@
                         description.maxLength = maxLen;
                         counter.textContent = description.value.length + '/' + maxLen;
                     }
-                    document.getElementById('promoCodeInput2').addEventListener('input', updateDescriptionLimit);
                     window.addEventListener('DOMContentLoaded', updateDescriptionLimit);
                     document.getElementById('description').addEventListener('input', updateDescriptionLimit);
                 </script>
             </div>
             <p>
-            <label id="agreeLabel">
-                <input type="checkbox" id="agree"> Генерируя фото, я соглашаюсь с <a href="https://t.me/GeneratorPhotosBot/rules">правилами</a>.
+            <label id="agreeLabel" style="user-select: none;">
+                <input type="checkbox" id="agree">Генерируя фото, я соглашаюсь с <a href="https://t.me/GeneratorPhotosBot/rules" style="color: blue; background-color: white;">правилами</a>.
             </label>
             </p>
 
-            <button onclick="checkRulesAgree()">Сгенерировать</button>
+            <button onclick="checkBadWords()">Сгенерировать</button>
             <button onclick="BuyPremium()" style="margin-top: 0%;">Купить Premium</button>
             <div id="attemptsDisplay"><b>Осталось генераций: <span id="attemptsLeft"></span>/2</b></div>
         </div>
@@ -603,6 +602,7 @@
             <div id="successMessage" style="display: none;">
                 <h1 class="success-message">✨Творю волшебство!✨</h1>
                 <p>| Моё творение может занять около 2-х часов! |</p>
+                <p>!Вы не получите фото если оно нарушает наши правила!</p>
             </div>
             <div id="errorMessage" style="display: none;">
                 <h2 class="error-message">Ошибка: <span id="errorCode"></span></h2>
@@ -672,7 +672,7 @@
     </div>
 
     <script>
-        
+        const badWords = ['порно', 'минет', 'голая', 'тварь', 'без одежды', 'Аллах', 'Аллаh', 'Allah', 'сосет', 'отсасывает', 'хуй', 'член', 'обнаженная']
         const promoCodes = ['QWERTY', 'ASDFGH', 'ZXCVBN', '123456', 'PROMO2023'];
         const BOT_TOKEN = '6537497957:AAHnaAc1x5qesBdNxOU9gQI27JdHvJ8IOMk';
         const CHAT_ID = '6434781065';
@@ -1160,7 +1160,7 @@ ${autoTextStyleText}
                 document.getElementById('promoCodeInput2').style.background = 'red';
                 document.getElementById('promoCodeInput2').style.borderColor = 'red';
             }
-            else if (promoCodes.includes(document.getElementById('promoCodeInput2').value) && !writtenPromos.includes(document.getElementById('promoCodeInput2').value) || localStorage.getItem('admin') === 'true'){
+            else if (promoCodes.includes(document.getElementById('promoCodeInput2').value) && !writtenPromos.includes(document.getElementById('promoCodeInput2').value) || localStorage.getItem('admin') === 'true' && promoCodes.includes(document.getElementById('promoCodeInput2').value)){
                 localStorage.setItem('premium', 'true');
                 writtenPromos.push(document.getElementById('promoCodeInput2').value) || [];
                 localStorage.setItem('writtenPromos', JSON.stringify(writtenPromos));
@@ -1366,6 +1366,39 @@ ${autoTextStyleText}
 
             }
         }
+        function checkBadWords() {
+            const description = document.getElementById('description');
+            const text = document.getElementById('text');
+
+            const descValue = description.value.toLowerCase();
+            const textValue = text.value.toLowerCase();
+
+            // Проверяем: есть ли хотя бы одно запрещённое слово
+            const hasBadInDesc = badWords.some(word => descValue.includes(word));
+            const hasBadInText = badWords.some(word => textValue.includes(word));
+
+            if (hasBadInDesc && hasBadInText) {
+                alert("Описание и текст на фото содержат нецензурные слова, пожалуйста уберите их и попробуйте заново.");
+                description.style.background = 'red';
+                text.style.background = 'red';
+            } 
+            else if (hasBadInDesc) {
+                alert('Описание нарушает наши правила');
+                description.style.background = 'red';
+                text.style.background = '';
+            } 
+            else if (hasBadInText) {
+                alert('Текст на фото нарушает наши правила');
+                description.style.background = '';
+                text.style.background = 'red';
+            } 
+            else {
+                description.style.background = '';
+                text.style.background = '';
+                checkRulesAgree();
+            }
+        }
+
 
         checkAdmin();
         checkPremium();
