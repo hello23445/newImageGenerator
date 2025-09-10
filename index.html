@@ -285,11 +285,12 @@
             <div class="input-group">
                 <label for="quality">Качество фото</label>
                 <select id="quality">
+                    <option value="none" selected disabled>Выберите качество фото</option>
                     <option value="144p">144p</option>
                     <option value="240p">240p</option>
                     <option value="360p">360p</option>
                     <option value="480p">480p</option>
-                    <option value="720p60" selected>720p60</option>
+                    <option value="720p60">720p60</option>
                     <option value="1080p60">1080p60 (HD)</option>
                     <option value="1440p60">1440p60 (HD)</option>
                     <option value="2160p60" disabled>(Premium)2160p60 (4K)</option>
@@ -364,6 +365,27 @@
                     <option value="flat" disabled>(Premium)Flat</option>
                     <option value="paper-cut" disabled>(Premium)Paper Cut</option>
                     <option value="digital-art" disabled>(Premium)Цифровое искусство</option>
+                    <option value="origami" disabled>(Premium) Оригами</option>
+                    <option value="neon" disabled>(Premium) Неон</option>
+                    <option value="fantastic-realism" disabled>(Premium) Фантастический реализм</option>
+                    <option value="bio-mechanic" disabled>(Premium) Биомеханика</option>
+                    <option value="medieval" disabled>(Premium) Средневековый</option>
+                    <option value="renaissance" disabled>(Premium) Ренессанс</option>
+                    <option value="ukiyo-e" disabled>(Premium) Укиё-э</option>
+                    <option value="low-light" disabled>(Premium) Низкая освещенность</option>
+                    <option value="dreamcore" disabled>(Premium) Dreamcore</option>
+                    <option value="gouache" disabled>(Premium) Гуашь</option>
+                    <option value="charcoal" disabled>(Premium) Угольный рисунок</option>
+                    <option value="hdr" disabled>(Premium) HDR</option>
+                    <option value="isometric" disabled>(Premium) Изометрия</option>
+                    <option value="luxury" disabled>(Premium) Люксовый стиль</option>
+                    <option value="tribal" disabled>(Premium) Трайбл</option>
+                    <option value="psy-art" disabled>(Premium) Психо-арт</option>
+                    <option value="space-art" disabled>(Premium) Космический стиль</option>
+                    <option value="holographic" disabled>(Premium) Голографический</option>
+                    <option value="ornamental" disabled>(Premium) Орнаментальный</option>
+                    <option value="mythology" disabled>(Premium) Мифология</option>
+
                 </select>
             </div>
             <div class="input-group">
@@ -391,6 +413,7 @@
             <div class="input-group">
                 <label for="detail-level">Уровень детализации фотографии</label>
                 <select id="detail-level">
+                    <option value="Низкий">Низкий</option>
                     <option value="weak">Слабый</option>
                     <option value="normal" selected>Нормальный</option>
                     <option value="high" disabled>(Premium)Высокий</option>
@@ -398,55 +421,105 @@
                 </select>
             </div>
             <div class="input-group">
-                <label for="selector" style="margin-bottom: 0%">Выберите ИИ, который будет генерировать для вас фотографию</label>
-                <select id="selector" style="margin-top: 0%;">
+                <label for="selector" style="margin-bottom: 0%;">Выберите ИИ, который будет генерировать для вас фотографию</label>
+                <select id="selector" style="margin-top: 0%; margin-block-end: 2%;">
                     <optgroup label="По-умолчанию">
                         <option value="Собственный" selected>Собственный</option>
                     </optgroup>
+
                     <optgroup label="Grok">
                         <option value="Grok Mini">Grok Mini</option> <!-- бесплатный -->
                         <option value="Grok Lite">Grok Lite</option> <!-- бесплатный -->
-                        <option value="Grok AI" disabled>(Premium)Grok AI</option> 
-                        <option value="Grok Classic" disabled>(Premium)Grok Classic</option> <!-- бесплатный -->
-                        <!-- премиум в конце -->
+                        <option value="Grok Nano">Grok Nano</option> <!-- бесплатный -->
+                        <option value="Grok Edge">Grok Edge</option> <!-- бесплатный -->
+                        <!-- премиум -->
+                        <option value="Grok AI" disabled>(Premium)Grok AI</option>
+                        <option value="Grok Classic" disabled>(Premium)Grok Classic</option>
                         <option value="Grok 4" disabled>(Premium)Grok 4</option>
                         <option value="Grok Pro" disabled>(Premium)Grok Pro</option>
                     </optgroup>
-                    <optgroup label="OpenAI(ChatGPT)">
+
+                    <optgroup label="OpenAI (ChatGPT)">
                         <option value="ChatGPT-4o mini">ChatGPT-4o mini</option> <!-- бесплатный -->
                         <option value="ChatGPT-3.5">ChatGPT-3.5</option> <!-- бесплатный -->
-                        <option value="ChatGPT-3" disabled>(Premium)ChatGPT-3</option> <!-- бесплатный -->
-                        <option value="ChatGPT-Turbo" disabled>(Premium)ChatGPT-Turbo</option> <!-- бесплатный -->
-                        <!-- премиум в конце -->
+                        <option value="ChatGPT-Free">ChatGPT Free</option> <!-- бесплатный -->
+                        <!-- премиум -->
+                        <option value="ChatGPT-3" disabled>(Premium)ChatGPT-3</option>
+                        <option value="ChatGPT-Turbo" disabled>(Premium)ChatGPT-Turbo</option>
+                        <option value="ChatGPT 4" disabled>(Premium)ChatGPT 4</option>
                         <option value="ChatGPT 5" disabled>(Premium)ChatGPT 5</option>
                         <option value="ChatGPT Plus" disabled>(Premium)ChatGPT Plus</option>
                     </optgroup>
+
                     <optgroup label="Google">
                         <option value="Gemini">Gemini</option> <!-- бесплатный -->
                         <option value="Google Bard">Google Bard</option> <!-- бесплатный -->
-                        <option value="Google AI Lab" disabled>(Premium)Google AI Lab</option> <!-- бесплатный -->
-                        <option value="Google Assistant AI" disabled>(Premium)Google Assistant AI</option> <!-- бесплатный -->
-                        <!-- премиум в конце -->
+                        <option value="Google Nano">Google Nano</option> <!-- бесплатный -->
+                        <!-- премиум -->
+                        <option value="Google AI Lab" disabled>(Premium)Google AI Lab</option>
+                        <option value="Google Assistant AI" disabled>(Premium)Google Assistant AI</option>
                         <option value="Google PaLM" disabled>(Premium)Google PaLM</option>
                         <option value="Google DeepMind" disabled>(Premium)Google DeepMind</option>
                     </optgroup>
+
+                    <optgroup label="Anthropic">
+                        <option value="Claude Haiku">Claude Haiku</option> <!-- бесплатный -->
+                        <option value="Claude Sonnet">Claude Sonnet</option> <!-- бесплатный -->
+                        <!-- премиум -->
+                        <option value="Claude 2" disabled>(Premium)Claude 2</option>
+                        <option value="Claude 3 Opus" disabled>(Premium)Claude 3 Opus</option>
+                    </optgroup>
+
                     <optgroup label="Другие">
                         <option value="DALL-E">DALL·E</option> <!-- бесплатный -->
                         <option value="StableVoice">StableVoice</option> <!-- бесплатный -->
                         <option value="RunwayML Basic">RunwayML Basic</option> <!-- бесплатный -->
-                        <option value="Llama 2" disabled>(Premium)Llama 2</option> <!-- бесплатный -->
-                        <!-- премиум в конце -->
+                        <option value="Perplexity AI">Perplexity AI</option> <!-- бесплатный -->
+                        <option value="Mistral Small">Mistral Small</option> <!-- бесплатный -->
+                        <option value="Ollama Lite">Ollama Lite</option> <!-- бесплатный -->
+                        <!-- премиум -->
+                        <option value="Llama 2" disabled>(Premium)Llama 2</option>
                         <option value="Midjourney" disabled>(Premium)Midjourney</option>
                         <option value="Stable Diffusion" disabled>(Premium)Stable Diffusion</option>
                         <option value="RunwayML Pro" disabled>(Premium)RunwayML Pro</option>
                         <option value="Anthropic Claude" disabled>(Premium)Anthropic Claude</option>
+                        <option value="Mistral Large" disabled>(Premium)Mistral Large</option>
+                        <option value="Ollama Pro" disabled>(Premium)Ollama Pro</option>
                     </optgroup>
                 </select>
 
+                <div>
+                    <label for="photo_theme" style="margin-bottom: 0%;">Выберите фон фото</label><br>
+                    <select id="photo_theme" style="margin-top: 0%; width: 100%;">
+                        <option value="Прозрачный" selected>Прозрачный</option>
+                        <option value="Темный">Темный</option>
+                        <option value="Статуя свободы">Статуя свободы</option>
+                        <option value="Заливка цветом">Заливка цветом</option>
+                        <option value="Эйфелева башня" disabled>(Premium)Эйфелева башня</option>
+                        <option value="Градиент" disabled>(Premium)Градиент</option>
+                        <option value="Случайный фон" disabled>(Premium)Случайный фон</option>
+                        <option value="Фон с случайным годом" disabled>(Premium)Фон с случайным городом</option>
+                    </select>
+                    <label for="razmitiyPHON" style="user-select: none;">
+                        <input type="checkbox" id="razmitiyPHON">
+                        Размытие фона
+                    </label>
+                </div>
 
+                
+                
             </div>
         </div>
         <div class="right-section">
+            <div>
+                <label for="soot">Соотношение сторон</label>
+                <select id="soot" style="margin-top:1%;width: 100%;">
+                    <option value="1:1">1:1</option>
+                    <option value="4:3" disabled>(Premium)4:3</option>
+                    <option value="9:16" selected>9:16</option>
+                    <option value="16:9" disabled>(Premium)16:9</option>
+                </select>
+            </div>
             <div class="input-group">
                 <label for="text">Текст на фото(необязательно)</label>
                 <input type="text" id="text" maxlength="30" oninput="updateTextLimit()">
@@ -507,6 +580,7 @@
             </p>
 
             <button onclick="checkBadWords()">Сгенерировать</button>
+            <button onclick="surpriseMode()">Режим: Удиви меня</button>
             <button onclick="BuyPremium()" style="margin-top: 0%;">Купить Premium</button>
             <div id="attemptsDisplay"><b>Осталось генераций: <span id="attemptsLeft"></span>/2</b></div>
         </div>
@@ -651,6 +725,14 @@
             </li>
             <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
             <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">10.</span>
+            Возможность выбирать другие фоны фото.
+            </li>
+            <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
+            <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">11.</span>
+            Возможность выбирать другие соотношения сторон.
+            </li>
+            <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
+            <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">12.</span>
             Бесконечное количество генераций в день.
             </li>
         </ul>
@@ -741,7 +823,7 @@
             autoTextStyleLabel.className = autoTextStyle.disabled ? 'disabled-label' : '';
             descriptionInput.value = formData.description || '';
             exclusionsInput.value = formData.exclusions || '';
-            qualitySelect.value = formData.quality || '720p60';
+            qualitySelect.value = formData.quality || 'none';
             sizeInput.value = formData.size || '';
             sizeSelect.value = formData.size || '';
             styleSelect.value = formData.style || 'none';
@@ -1059,6 +1141,9 @@
 Тон цвета: ${colorToneSelect.value}
 Уровень детализации: ${detailLevelInput.value || 'normal'}
 ${autoTextStyleText}
+Фон фото: ${document.getElementById('photo_theme').value}
+Размытие фона: ${document.getElementById('razmitiyPHON').checked ? 'Включено' : 'Выключено'}
+Соотношение сторон фото: ${document.getElementById('soot').value}
 Контакт: ${selectedMessenger} (${contact})
             `;
 
@@ -1200,6 +1285,7 @@ ${autoTextStyleText}
         }
 
         function checkPremiumOptions(){
+            document.getElementById('quality').style.borderColor = ''
             // Получаем все селекты на странице
             const selects = document.querySelectorAll('select');
 
@@ -1222,6 +1308,10 @@ ${autoTextStyleText}
                 else {
                     generateImage()
                 }
+            }
+            else if (document.getElementById('quality').value === 'none'){
+                alert('Пожалуйста выберите качество фото.')
+                document.getElementById('quality').style.borderColor = 'red'
             }
             else if(descriptionInput.value.length > 250 && localStorage.getItem('premium') !== 'true') {
                 alert('Описание не может превышать 250 символов для обычных пользователей.\nПожалуйста, купите премиум, чтобы увеличить лимит до 1000 символов.');
@@ -1397,6 +1487,145 @@ ${autoTextStyleText}
                 text.style.background = '';
                 checkRulesAgree();
             }
+        }
+
+        // New surprise mode functionality
+        let usedDescriptions = JSON.parse(localStorage.getItem('usedDescriptions')) || [];
+
+        const descriptions = [
+            { desc: 'Красивый закат над океаном с пальмами на переднем плане', category: 'nature' },
+            { desc: 'Футуристический город с летающими машинами и неоновыми огнями', category: 'sci-fi' },
+            { desc: 'Милый котенок, играющий с клубком ниток в уютной комнате', category: 'animals' },
+            { desc: 'Древний замок в тумане на вершине холма', category: 'fantasy' },
+            { desc: 'Абстрактная композиция из геометрических фигур в ярких цветах', category: 'abstract' },
+            { desc: 'Космический корабль, летящий через астероидное поле', category: 'space' },
+            { desc: 'Цветущий сад весной с бабочками и пчелами', category: 'nature' },
+            { desc: 'Супергерой в плаще, стоящий на крыше небоскреба ночью', category: 'comic' },
+            { desc: 'Подводный мир с коралловыми рифами и тропическими рыбами', category: 'ocean' },
+            { desc: 'Старинный паровоз, мчащийся по железной дороге в горах', category: 'vintage' },
+            { desc: 'Магический лес с светящимися грибами и феями', category: 'fantasy' },
+            { desc: 'Городской пейзаж с уличными музыкантами и прохожими', category: 'urban' },
+            { desc: 'Зимний лес с заснеженными деревьями и оленями', category: 'winter' },
+            { desc: 'Робот, танцующий в стиле диско под разноцветными огнями', category: 'fun' },
+            { desc: 'Древнеегипетская пирамида под звездным небом', category: 'historical' },
+            { desc: 'Веселый пикник на лужайке с друзьями и едой', category: 'lifestyle' },
+            { desc: 'Космическая станция с видом на Землю', category: 'space' },
+            { desc: 'Арт-деко интерьер с золотыми элементами и зеркалами', category: 'art' },
+            { desc: 'Дикий запад с ковбоями и лошадьми на фоне каньона', category: 'western' },
+            { desc: 'Мирный пруд с лилиями и лягушками на закате', category: 'nature' }
+            // Add more as needed to reduce repetitions
+        ];
+
+        function getRandomElement(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        function getAvailableOptions(selectId, isPremium) {
+            const select = document.getElementById(selectId);
+            const options = Array.from(select.options).filter(opt => !opt.disabled && opt.value !== 'none' && opt.value !== '');
+            if (isPremium) {
+                // Include all, but since checkPremium enables them, it's fine
+            }
+            return options.map(opt => opt.value);
+        }
+
+        function surpriseMode() {
+            const isPremium = localStorage.getItem('premium') === 'true';
+
+            // Filter unused descriptions
+            let availableDescs = descriptions.filter(d => !usedDescriptions.includes(d.desc));
+
+            if (availableDescs.length === 0) {
+                // Reset if all used
+                usedDescriptions = [];
+                availableDescs = descriptions;
+            }
+
+            const randomDescObj = getRandomElement(availableDescs);
+            const randomDesc = randomDescObj.desc;
+            const category = randomDescObj.category;
+
+            usedDescriptions.push(randomDesc);
+            localStorage.setItem('usedDescriptions', JSON.stringify(usedDescriptions));
+
+            // Set description
+            descriptionInput.value = randomDesc;
+            updateDescriptionLimit();
+
+            // Clear other fields
+            textInput.value = '';
+            updateTextLimit();
+            exclusionsInput.value = '';
+            updateExclusionsLimit();
+            autoTextStyle.checked = false;
+            document.getElementById('razmitiyPHON').checked = Math.random() > 0.5;
+
+            // Select parameters based on category
+            // Quality
+            const qualities = getAvailableOptions('quality', isPremium);
+            qualitySelect.value = getRandomElement(qualities);
+
+            // Size
+            const sizes = getAvailableOptions('sizeSelect', isPremium);
+            sizeSelect.value = getRandomElement(sizes);
+            sizeInput.value = sizeSelect.value;
+
+            // Style - try to match category
+            const styles = getAvailableOptions('style', isPremium);
+            let suitableStyle = 'none';
+            if (category === 'nature') suitableStyle = 'realistic';
+            else if (category === 'sci-fi') suitableStyle = 'cyberpunk' || 'futuristic';
+            else if (category === 'fantasy') suitableStyle = 'fantasy' || 'dark-fantasy';
+            else if (category === 'abstract') suitableStyle = 'abstract' || 'surreal';
+            else if (category === 'comic') suitableStyle = 'comic' || 'pop-art';
+            else if (category === 'vintage') suitableStyle = 'vintage' || 'retro';
+            else if (category === 'space') suitableStyle = 'space-art' || 'futuristic';
+            // Fallback to random if not found or not available
+            if (!styles.includes(suitableStyle)) {
+                suitableStyle = getRandomElement(styles);
+            }
+            styleSelect.value = suitableStyle;
+
+            // Color tone
+            const colorTones = getAvailableOptions('color-tone', isPremium);
+            let suitableTone = 'natural';
+            if (category === 'sci-fi' || category === 'space') suitableTone = 'neon' || 'cool';
+            else if (category === 'fantasy' || category === 'winter') suitableTone = 'cool' || 'monochrome';
+            else if (category === 'nature' || category === 'ocean') suitableTone = 'vibrant' || 'warm';
+            if (!colorTones.includes(suitableTone)) {
+                suitableTone = getRandomElement(colorTones);
+            }
+            colorToneSelect.value = suitableTone;
+
+            // Detail level
+            const detailLevels = getAvailableOptions('detail-level', isPremium);
+            detailLevelInput.value = getRandomElement(detailLevels);
+
+            // AI selector - random from available
+            const aiOptions = Array.from(document.getElementById('selector').options).filter(opt => !opt.disabled).map(opt => opt.value);
+            document.getElementById('selector').value = getRandomElement(aiOptions);
+
+            // Photo theme
+            const themes = getAvailableOptions('photo_theme', isPremium);
+            document.getElementById('photo_theme').value = getRandomElement(themes);
+
+            // Aspect ratio
+            const aspects = getAvailableOptions('soot', isPremium);
+            document.getElementById('soot').value = getRandomElement(aspects);
+
+            // If premium, maybe set exclusions or text
+            if (isPremium) {
+                if (Math.random() > 0.7) {
+                    exclusionsInput.value = 'Без людей';
+                }
+                if (Math.random() > 0.8) {
+                    textInput.value = 'Удивительно!';
+                    autoTextStyle.checked = true;
+                }
+            }
+
+            saveFormData();
+            alert('Готово! Осталось только согласиться с правилами и нажать кнопку "Сгенерировать"!');
         }
 
 
