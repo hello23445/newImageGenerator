@@ -182,7 +182,7 @@
         }
 
         .disabled-label {
-            color: #888;
+            color: white;
         }
 
         #noAttemptsMessage {
@@ -560,7 +560,7 @@
             <div class="input-group">
                 <label for="text">Текст на фото(необязательно)</label>
                 <input type="text" id="text" maxlength="30" oninput="updateTextLimit()">
-                <div id="textCounter" style="font-size: 0.95em; color: #555; margin-top: 3px;">0/30</div>
+                <div id="textCounter" style="font-size: 0.95em; color: white; margin-top: 3px;">0/30</div>
                 <script>
                     function updateTextLimit() {
                         const textInput = document.getElementById('text');
@@ -581,7 +581,7 @@
             <div class="input-group">
                 <label for="exclusions">Чего на фото не должно быть?</label>
                 <input type="text" id="exclusions" disabled placeholder="Buy Premium to type here" maxlength="250" oninput="if(this.value.length>250)this.value=this.value.slice(0,250);">
-                <div id="exclusionsCounter" style="font-size: 0.95em; color: #555; margin-top: 3px;">0/250</div>
+                <div id="exclusionsCounter" style="font-size: 0.95em; color: white; margin-top: 3px;">0/250</div>
                 <script>
                     function updateExclusionsLimit() {
                         const exclusionsInput = document.getElementById('exclusions');
@@ -597,7 +597,7 @@
             <div class="input-group">
                 <label for="description">Описание фото (обязательно)</label>
                 <textarea id="description" rows="4" required maxlength="250" oninput="updateDescriptionLimit()"></textarea>
-                <div id="descriptionCounter" style="font-size: 0.95em; color: #555; margin-top: 3px;">0/250</div>
+                <div id="descriptionCounter" style="font-size: 0.95em; color: white; margin-top: 3px;">0/250</div>
                 <script>
                     function updateDescriptionLimit() {
                         const description = document.getElementById('description');
@@ -832,6 +832,7 @@
         let clickCount = 0;
         let timer;
         let admin = false;
+
 
         // Hide keyboard on click outside input
         document.addEventListener('click', (event) => {
