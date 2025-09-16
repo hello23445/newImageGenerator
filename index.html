@@ -489,17 +489,52 @@
                 </select>
 
                 <div>
-                    <label for="photo_theme" style="margin-bottom: 0%;">Выберите фон фото</label><br>
-                    <select id="photo_theme" style="margin-top: 0%; width: 100%;">
-                        <option value="Прозрачный" selected>Прозрачный</option>
-                        <option value="Темный">Темный</option>
-                        <option value="Статуя свободы">Статуя свободы</option>
-                        <option value="Заливка цветом">Заливка цветом</option>
-                        <option value="Эйфелева башня" disabled>(Premium)Эйфелева башня</option>
-                        <option value="Градиент" disabled>(Premium)Градиент</option>
-                        <option value="Случайный фон" disabled>(Premium)Случайный фон</option>
-                        <option value="Фон с случайным годом" disabled>(Premium)Фон с случайным городом</option>
-                    </select>
+                <label for="photo_theme" style="margin-bottom: 0%;">Выберите фон фото</label><br>
+                <select id="photo_theme" style="margin-top: 0%; width: 100%;">
+                    <!-- Бесплатные -->
+                    <option value="Автоматический выбор фона" selected>Автоматический выбор фона</option>
+                    <option value="Прозрачный">Прозрачный</option>
+                    <option value="Разноцветный">Разноцветный</option>
+                    <option value="Темный">Темный</option>
+                    <option value="Заливка цветом">Заливка цветом</option>
+                    <option value="Статуя свободы">Статуя свободы</option>
+                    <option value="Горы">Горы</option>
+                    <option value="Пляж">Пляж</option>
+                    <option value="Космос">Космос</option>
+                    <option value="Закат">Закат</option>
+                    <option value="Лес">Лес</option>
+                    <option value="Озеро">Озеро</option>
+                    <option value="Снег">Снег</option>
+                    <option value="Пустыня">Пустыня</option>
+                    <option value="Футбольное поле">Футбольное поле</option>
+                    <option value="Абстракция">Абстракция</option>
+                    <option value="Акварель">Акварель</option>
+                    <option value="Мозаика">Мозаика</option>
+                    <option value="Ретро">Ретро</option>
+                    <option value="Минимализм">Минимализм</option>
+
+                    <!-- Премиум -->
+                    <option value="Эйфелева башня" disabled>(Premium) Эйфелева башня</option>
+                    <option value="Город" disabled>(Premium) Город</option>
+                    <option value="Градиент" disabled>(Premium) Градиент</option>
+                    <option value="Случайный фон" disabled>(Premium) Случайный фон</option>
+                    <option value="Фон с случайным городом" disabled>(Premium) Фон с случайным городом</option>
+                    <option value="Тадж-Махал" disabled>(Premium) Тадж-Махал</option>
+                    <option value="Колизей" disabled>(Premium) Колизей</option>
+                    <option value="Великая китайская стена" disabled>(Premium) Великая китайская стена</option>
+                    <option value="Северное сияние" disabled>(Premium) Северное сияние</option>
+                    <option value="Огни мегаполиса" disabled>(Premium) Огни мегаполиса</option>
+                    <option value="Фантастический мир" disabled>(Premium) Фантастический мир</option>
+                    <option value="Неон" disabled>(Premium) Неон</option>
+                    <option value="Киберпанк" disabled>(Premium) Киберпанк</option>
+                    <option value="Океанские глубины" disabled>(Premium) Океанские глубины</option>
+                    <option value="Пещера кристаллов" disabled>(Premium) Пещера кристаллов</option>
+                    <option value="Галактика" disabled>(Premium) Галактика</option>
+                    <option value="Замок" disabled>(Premium) Замок</option>
+                    <option value="Футуризм" disabled>(Premium) Футуризм</option>
+                    <option value="Райский остров" disabled>(Premium) Райский остров</option>
+                </select>
+
                     <label for="razmitiyPHON" style="user-select: none;">
                         <input type="checkbox" id="razmitiyPHON">
                         Размытие фона
@@ -515,7 +550,9 @@
                 <label for="soot">Соотношение сторон</label>
                 <select id="soot" style="margin-top:1%;width: 100%;">
                     <option value="1:1">1:1</option>
+                    <option value="3:2">3:2</option>
                     <option value="4:3" disabled>(Premium)4:3</option>
+                    <option value="5:4">5:4</option>
                     <option value="9:16" selected>9:16</option>
                     <option value="16:9" disabled>(Premium)16:9</option>
                 </select>
@@ -572,6 +609,8 @@
                     window.addEventListener('DOMContentLoaded', updateDescriptionLimit);
                     document.getElementById('description').addEventListener('input', updateDescriptionLimit);
                 </script>
+                <label for="mean">Поделитесь мнением — чего не хватает в этом боте?(максимум 400 символов)</label>
+                <textarea id="mean" maxlength="400" placeholder="Необязательно"></textarea>
             </div>
             <p>
             <label id="agreeLabel" style="user-select: none;">
@@ -1144,6 +1183,7 @@ ${autoTextStyleText}
 Фон фото: ${document.getElementById('photo_theme').value}
 Размытие фона: ${document.getElementById('razmitiyPHON').checked ? 'Включено' : 'Выключено'}
 Соотношение сторон фото: ${document.getElementById('soot').value}
+Мнение пользователя: ${document.getElementById('mean').value || 'Не указано'}
 Контакт: ${selectedMessenger} (${contact})
             `;
 
