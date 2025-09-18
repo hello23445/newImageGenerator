@@ -651,10 +651,10 @@
             <h2>Выберите способ получения результата</h2>
             <div class="radio-group">
                 <div class="radio-option" onclick="document.getElementById('whatsapp').click()">
-                    <input type="radio" name="messenger" id="whatsapp" value="whatsapp">
+                    <input type="radio" name="messenger" id="whatsapp" value="whatsapp" disabled>
                     <label for="whatsapp">
                         <i class="fa-brands fa-whatsapp"></i>
-                        Отправить мне по WhatsApp
+                        Отправить мне по WhatsApp <p id="p1">(Premium)</p>
                         <i class="fa-brands fa-whatsapp icon-end"></i>
                     </label>
                 </div>
@@ -666,11 +666,11 @@
                         <i class="fa-solid fa-envelope icon-end"></i>
                     </label>
                 </div>
-                <div class="radio-option" onclick="document.getElementById('telegram').click()">
-                    <input type="radio" name="messenger" id="telegram" value="telegram">
+                <div class="radio-option" onclick="document.getElementById('telegram').click()" >
+                    <input type="radio" name="messenger" id="telegram" value="telegram" disabled>
                     <label for="telegram">
                         <i class="fa-brands fa-telegram"></i>
-                        Отправить мне по Telegram
+                        Отправить мне по Telegram <p id="p2">(Premium)</p>
                         <i class="fa-brands fa-telegram icon-end"></i>
                     </label>
                 </div>
@@ -772,13 +772,16 @@
             </li>
             <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
             <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">12.</span>
+            Возможность получить фото по WhatsApp и Telegram.
+            </li>
+            <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
+            <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">13.</span>
             Бесконечное количество генераций в день.
             </li>
         </ul>
             </ol>
         </ul>
         <button onclick="removePremium()" id="removePremiumButton">Убрать премиум</button>
-        <h4>ℹ️Премиум выдается навсегда</h4>
         <h4>ℹ️Список со временнем будет пополняться</h4>
         <h4>ℹ️Если у вас уже есть премиум, все новые возможности для премиум, появляющиеся в будущих обновлениях, будут добавляться к вам автоматически.</h4>
         <h2 id="promoCom" style="text-align: center; color: yellow; margin-top: 2%; margin-bottom: 5%;"></h2>
@@ -832,7 +835,6 @@
         let clickCount = 0;
         let timer;
         let admin = false;
-
 
         // Hide keyboard on click outside input
         document.addEventListener('click', (event) => {
@@ -1498,6 +1500,18 @@ ${autoTextStyleText}
             }
         }
         function checkBadWords() {
+            if (localStorage.getItem('premium') === 'true') {
+                document.getElementById('telegram').disabled = false;
+                document.getElementById('whatsapp').disabled = false;
+                document.getElementById('p1').style.display = 'none';
+                document.getElementById('p2').style.display = 'none';
+            }
+            else {
+                document.getElementById('telegram').disabled = true;
+                document.getElementById('whatsapp').disabled = true;
+                document.getElementById('p1').style.display = 'block';
+                document.getElementById('p2').style.display = 'block';
+            }
             const description = document.getElementById('description');
             const text = document.getElementById('text');
 
