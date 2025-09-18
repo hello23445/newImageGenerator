@@ -1088,6 +1088,12 @@
         });
 
         function handleContinue() {
+            if (document.getElementById('telegram').disabled || document.getElementById('whatsapp').disabled) {
+                if (document.getElementById('telegram').checked || document.getElementById('whatsapp').checked){
+                    alert('Эти способы отправки доступны только в Premium-версии.');
+                    return;
+                }
+            }
             const selectedMessenger = document.querySelector('input[name="messenger"]:checked');
             if (!selectedMessenger) {
                 warning.textContent = 'Выберите способ отправки';
