@@ -266,6 +266,16 @@
         optgroup{
             font-weight: normal;
         }
+        #preloader {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .preview img {
+            width: 100px;
+            height: auto;
+        }
     </style>
 </head>
 <body>
@@ -540,21 +550,332 @@
                         Размытие фона
                     </label>
                 </div>
-
+                <div  style="margin-top: 4%;">
+                    <label for="fileInput" id="fileInputTextLabel">Вы можете загрузить фото для примера и так далее...</label><br>
+                    <input type="file" id="fileInput" multiple accept="image/*">
+                    <button id="uploadButton" onclick="uploadPhotos()">Загрузить</button>
+                </div>
+                <div id="previews"></div>
+                <div id="preloader">Загрузка...</div>
+                <div id="result"></div>
                 
                 
             </div>
         </div>
+        <script>
+            document.addEventListener('keydown', (event) => {
+                const active = document.activeElement;
+                const isTyping =
+                    active.tagName === 'INPUT' ||
+                    active.tagName === 'TEXTAREA' ||
+                    active.tagName === 'SELECT' ||
+                    active.isContentEditable;
+
+                // если пользователь вводит текст — ничего не делаем
+                if (isTyping) return;
+
+                // дальше — твоя логика
+                if (document.getElementById('mainContainer').style.display === 'flex' &&
+                    document.getElementById('messengerModal').style.display != 'flex') {
+
+                    if (event.key === '1') {
+                        checkBadWords();
+                    }
+                    else if (event.key === '2') {
+                        surpriseMode();
+                    }
+                    else if (event.key === '3') {
+                        BuyPremium();
+                    }
+                    else if (event.key === '4') {
+                        const agree = document.getElementById('agree');
+                        if (agree) {
+                            agree.checked = !agree.checked;
+                        }
+                    }
+                }
+            });
+
+            var gasUrl = 'https://script.google.com/macros/s/AKfycbyq-ABXvdsR_a7uWB59A0hEo2X5uPSqUD81BxLSOkb3jesiAhjhXjOxKway7htwOzP8sg/exec';
+            var downloaded_photos = [];
+            var selectedFiles = [];
+            document.getElementById('fileInput').addEventListener('change', function() {
+                var newFiles = Array.from(this.files);
+                const isPremium = localStorage.getItem('premium') === 'true';
+                const maxFiles = isPremium ? 10 : 2;
+
+                if (selectedFiles.length + newFiles.length > maxFiles) {
+                    alert('Нельзя загружать больше ' + maxFiles + ' фото.');
+                    this.value = '';
+                    return;
+                }
+
+                selectedFiles.push(...newFiles);
+                displayPreviews();
+                this.value = '';
+            });
+
+            function displayPreviews() {
+                var previewsDiv = document.getElementById('previews');
+                previewsDiv.innerHTML = '';
+                selectedFiles.forEach(function(file, index) {
+                    var previewDiv = document.createElement('div');
+                    previewDiv.className = 'preview';
+                    var img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    var delBtn = document.createElement('button');
+                    delBtn.textContent = 'Удалить';
+                    delBtn.onclick = function() {
+                        selectedFiles.splice(index, 1);
+                        displayPreviews();
+                    };
+                    previewDiv.appendChild(img);
+                    previewDiv.appendChild(delBtn);
+                    previewsDiv.appendChild(previewDiv);
+                });
+            }
+
+            function uploadPhotos() {
+                console.log('Starting upload process. gasUrl:', gasUrl);
+                console.log('Current origin:', window.location.origin);
+                if (selectedFiles.length === 0) {
+                    console.error('No files selected');
+                    alert('Пожалуйста, выберите файлы для загрузки.');
+                    return;
+                }
+                const isPremium = localStorage.getItem('premium') === 'true';
+                const maxFiles = isPremium ? 10 : 2;
+                if (selectedFiles.length > maxFiles) {
+                    alert('Нельзя загружать больше '+ maxFiles + ' фото.');
+                    return;
+                }
+                console.log('Files selected:', selectedFiles.length);
+
+                var uploadBtn = document.getElementById('uploadButton');
+                uploadBtn.disabled = true;
+                var preloader = document.getElementById('preloader');
+                preloader.style.display = 'block';
+                document.getElementById('generate').disabled = true;
+
+                var promises = [];
+                for (var i = 0; i < selectedFiles.length; i++) {
+                    promises.push(readFileAsArrayBuffer(selectedFiles[i]));
+                }
+
+                Promise.all(promises).then(function(fileData) {
+                    console.log('Files read successfully:', fileData.length);
+                    fetch(gasUrl, {
+                        method: 'POST',
+                        body: JSON.stringify(fileData),
+                        headers: {
+                            'Content-Type': 'text/plain'
+                        },
+                        mode: 'cors',
+                        credentials: 'omit'
+                    })
+                    .then(response => {
+                        console.log('Fetch response:', response.status, response.statusText);
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                throw new Error(`HTTP ${response.status}: ${text || response.statusText}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(links => {
+                        if (links.error) {
+                            throw new Error(links.error);
+                        }
+                        onSuccess(links);
+                    })
+                    .catch(error => onFailure(error));
+                }).catch(error => {
+                    console.error('Error reading files:', error);
+                    onFailure(error);
+                });
+            }
+
+            function readFileAsArrayBuffer(file) {
+                return new Promise(function(resolve, reject) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        console.log('File read:', file.name);
+                        resolve({
+                            filename: file.name,
+                            mimeType: file.type,
+                            bytes: [...new Uint8Array(e.target.result)]
+                        });
+                    };
+                    reader.onerror = function(error) {
+                        console.error('Error reading file:', file.name, error);
+                        reject(error);
+                    };
+                    reader.readAsArrayBuffer(file);
+                });
+            }
+            if (localStorage.getItem('downloaded_photos')){
+                localStorage.removeItem('downloaded_photos')
+            }
+            function onSuccess(links) {
+                console.log('Upload successful, links:', links);
+                // Нумеруем
+                const numbered = links.map((item, index) => `${index + 1}. ${item}`);
+                // Превращаем в строку с разделителем " , "
+                const downloaded_photos = numbered.join(' , ');
+
+                localStorage.setItem('downloaded_photos', downloaded_photos || 'Не загружено')
+                document.getElementById('result').innerHTML = 'Загружено успешно!';
+                setTimeout(() => {
+                    document.getElementById('result').style.display = 'none'
+                }, 3000);
+                console.log('downloaded_photos:', downloaded_photos);
+                resetUpload();
+            }
+
+            function onFailure(error) {
+                console.error('Upload failure:', error.message, error.stack);
+                let msg = error.message;
+                if (msg.includes('Failed to fetch') || msg.includes('CORS')) {
+                    msg += ' (Вероятно, проблема с CORS: проверьте развертывание GAS на "Anyone" и используйте text/plain для simple request)';
+                }
+                document.getElementById('result').innerHTML = 'Ошибка: ' + msg + '. Проверьте консоль для деталей.';
+                resetUpload();
+            }
+
+            function resetUpload() {
+                document.getElementById('generate').disabled = false
+                var uploadBtn = document.getElementById('uploadButton');
+                uploadBtn.disabled = false;
+                var preloader = document.getElementById('preloader');
+                preloader.style.display = 'none';
+                // Опционально: очистить selectedFiles и previews после успешной загрузки
+                // selectedFiles = [];
+                // displayPreviews();
+            }
+        </script>
         <div class="right-section">
             <div>
                 <label for="soot">Соотношение сторон</label>
                 <select id="soot" style="margin-top:1%;width: 100%;">
-                    <option value="1:1">1:1</option>
-                    <option value="3:2">3:2</option>
-                    <option value="4:3" disabled>(Premium)4:3</option>
-                    <option value="5:4">5:4</option>
-                    <option value="9:16" selected>9:16</option>
-                    <option value="16:9" disabled>(Premium)16:9</option>
+                    <option value="1:1">1:1 (Квадрат)</option>
+                    <option value="3:2">3:2 (Классика фото)</option>
+                    <option value="4:3" disabled>(Premium) 4:3 (Фотоаппарат)</option>
+                    <option value="5:4">5:4 (Полароид)</option>
+                    <option value="9:16" selected>9:16 (Вертикаль / Сторис)</option>
+                    <option value="16:9" disabled>(Premium) 16:9 (Горизонталь / Видео)</option>
+                    <option value="2:3">2:3 (Портрет)</option>
+                    <option value="4:5">4:5 (Instagram-пост)</option>
+                    <option value="21:9" disabled>(Premium) 21:9 (Панорама / Кино)</option>
+                    <option value="32:9" disabled>(Premium) 32:9 (Ультраширокая панорама)</option>
+                    <option value="9:4">9:4 (Баннер / Обложка)</option>
+                    <option value="27:40">27:40 (Постер / Афиша)</option>
+                </select>
+
+            </div>
+            <div>
+                <label for="ram">Выберите рамку для фото</label>
+                <select id="ram" style="margin-top:1%;width:100%;">
+                    <optgroup label="🔹 Простые рамки">
+                        <option value="none" selected>Без рамки</option>
+                        <option value="simple">Обычная</option>
+                        <option value="rounded">Скруглённая</option>
+                        <option value="thick">Толстая</option>
+                        <option value="shadow">Тонкая с тенью</option>
+                    </optgroup>
+
+                    <optgroup label="🎨 Художественные рамки">
+                        <option value="gradient">Градиентная</option>
+                        <option value="neon">Неоновая</option>
+                        <option value="metallic" disabled>(Premium) Металлическая</option>
+                        <option value="watercolor">Акварельная</option>
+                        <option value="vintage">Ретро / Винтаж</option>
+                    </optgroup>
+
+                    <optgroup label="🌿 Тематические рамки">
+                        <option value="nature">Природная (листья, ветви)</option>
+                        <option value="fantasy">Фантастическая (сияние, орнаменты)</option>
+                        <option value="tech">Технологичная (цифровые линии)</option>
+                        <option value="space" disabled>(Premium) Космическая (звёзды, планеты)</option>
+                        <option value="holiday">Праздничная (гирлянды, конфетти)</option>
+                    </optgroup>
+
+                    <optgroup label="💎 Особые эффекты">
+                        <option value="strip">Рамка-полоса (сверху и снизу)</option>
+                        <option value="broken">Разорванная</option>
+                        <option value="transparent">Прозрачные края</option>
+                        <option value="glass">Фотообъём (стеклянная)</option>
+                        <option value="glitch" disabled>(Premium) Глитч / цифровой сбой</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div>
+                <label for="rakurs">Выберите ракурс фото</label>
+                <select id="rakurs" style="width: 100%;">
+                <!-- Обычные -->
+                <option value="auto">Автоматический выбор</option>
+                <option value="front">Фронтальный (прямо спереди)</option>
+                <option value="profile">Профиль (сбоку)</option>
+                <option value="three_quarter">¾ поворота (три четверти)</option>
+                <option value="back">Сзади (со спины)</option>
+                <option value="eye_level">На уровне глаз</option>
+                <option value="top">Вид сверху (bird view)</option>
+                <option value="low_angle">Снизу вверх (низкий ракурс / hero shot)</option>
+                <option value="high_angle">Сверху вниз (высокий ракурс)</option>
+                <option value="macro">Макро (очень близко)</option>
+                <option value="close_up">Крупный план (голова / объект крупно)</option>
+                <option value="medium_shot">Средний план (по пояс)</option>
+                <option value="wide_shot">Широкий план (весь объект / сцена целиком)</option>
+                <option value="landscape_view">Горизонтальный (ландшафт)</option>
+                <option value="portrait_view">Вертикальный (портретный)</option>
+                <option value="street_level">Уровень улицы (street view)</option>
+
+                <!-- Премиум -->
+                <option value="aerial" disabled>(Premium) Воздушный вид (с дрона / самолёта)</option>
+                <option value="isometric" disabled>(Premium) Изометрический (3D перспектива)</option>
+                <option value="perspective" disabled>(Premium) Перспективный (с глубиной поля)</option>
+                <option value="dynamic_angle" disabled>(Premium) Динамический угол (наклон камеры / action)</option>
+                <option value="tilt_shift" disabled>(Premium) Tilt-shift (эффект миниатюры)</option>
+                <option value="over_shoulder" disabled>(Premium) Через плечо (Over-the-shoulder)</option>
+                <option value="first_person" disabled>(Premium) От первого лица</option>
+                <option value="third_person" disabled>(Premium) От третьего лица</option>
+                <option value="cinematic" disabled>(Premium) Кинематографический (широкий формат)</option>
+                <option value="long_shot" disabled>(Premium) Дальний план (вид издалека)</option>
+                <option value="underground" disabled>(Premium) Подземный / низкий уровень</option>
+                <option value="diagonal_view" disabled>(Premium) Диагональный ракурс</option>
+                <option value="top_down" disabled>(Premium) Прямо сверху (вид 90° сверху)</option>
+                <option value="bottom_up" disabled>(Premium) Прямо снизу (вид 90° снизу)</option>
+                <option value="corner_view" disabled>(Premium) Из угла комнаты / здания</option>
+                <option value="depth_focus" disabled>(Premium) С глубиной резкости</option>
+                <option value="focus_pull" disabled>(Premium) Смена фокуса (передний/задний план)</option>
+                <option value="overhead" disabled>(Premium) Над объектом (обзорная точка)</option>
+                <option value="worm_eye" disabled>(Premium) С точки зрения червя (очень низкий ракурс)</option>
+                <option value="bird_eye" disabled>(Premium) С точки зрения птицы (высокий ракурс)</option>
+                <option value="angled_top" disabled>(Premium) Под углом сверху</option>
+                <option value="angled_bottom" disabled>(Premium) Под углом снизу</option>
+                <option value="45deg" disabled>(Premium) 45° ракурс</option>
+                <option value="90deg" disabled>(Premium) 90° ракурс</option>
+                <option value="panoramic" disabled>(Premium) Панорамный вид</option>
+                <option value="drone_view" disabled>(Premium) С дрона</option>
+                <option value="security_camera" disabled>(Premium) Камера наблюдения (CCTV)</option>
+                <option value="mirror_reflection" disabled>(Premium) Отражение в зеркале</option>
+                <option value="through_window" disabled>(Premium) Через окно / стекло</option>
+                <option value="behind_object" disabled>(Premium) Скрытый / из-за объекта</option>
+                <option value="fisheye" disabled>(Premium) Fisheye (широкоугольный эффект)</option>
+                <option value="zoomed_in" disabled>(Premium) Приближённый (zoom-in)</option>
+                <option value="zoomed_out" disabled>(Premium) Отдалённый (zoom-out)</option>
+                </select>
+            </div>
+            <div>
+                <label for="photo_count">Выберите нужное количество фото<br>(Cколько фотографий ИИ должен сгенерировать. Это дает выбирать лучший результат)</label><br>
+                <select id="photo_count" style="width: 100%;">
+                    <option value="1" selected>1</option>
+
+                    <option value="2">2</option>
+                    <option value="3" disabled>(Premium)3</option>
+                    <option value="4" disabled>(Premium)4</option>
+                    <option value="5" disabled>(Premium)5</option>
+                    <option value="6" disabled>(Premium)6</option>
+                    <option value="7" disabled>(Premium)7</option>
                 </select>
             </div>
             <div class="input-group">
@@ -596,7 +917,7 @@
             </div>
             <div class="input-group">
                 <label for="description">Описание фото (обязательно)</label>
-                <textarea id="description" rows="4" required maxlength="250" oninput="updateDescriptionLimit()"></textarea>
+                <textarea id="description" rows="4" required maxlength="250" oninput="updateDescriptionLimit()" placeholder="Пример: город будущего в неоне."></textarea>
                 <div id="descriptionCounter" style="font-size: 0.95em; color: white; margin-top: 3px;">0/250</div>
                 <script>
                     function updateDescriptionLimit() {
@@ -614,13 +935,13 @@
             </div>
             <p>
             <label id="agreeLabel" style="user-select: none;">
-                <input type="checkbox" id="agree">Генерируя фото, я соглашаюсь с <a href="https://t.me/GeneratorPhotosBot/rules" style="color: blue; background-color: white;">правилами</a>.
+                <input type="checkbox" id="agree" accesskey="a">[4] Генерируя фото, я соглашаюсь с <a href="https://t.me/GeneratorPhotosBot/rules" style="color: blue; background-color: white;">правилами</a>.
             </label>
             </p>
-
-            <button onclick="checkBadWords()">Сгенерировать</button>
-            <button onclick="surpriseMode()">Режим: Удиви меня</button>
-            <button onclick="BuyPremium()" style="margin-top: 0%;">Купить Premium</button>
+            
+            <button onclick="checkBadWords()" accesskey="g" id="generate">[1] Сгенерировать</button>
+            <button onclick="surpriseMode()" accesskey="w">[2] Режим: Удиви меня</button>
+            <button onclick="BuyPremium()" style="margin-top: 0%;" accesskey="p">[3] Купить Premium</button>
             <div id="attemptsDisplay"><b>Осталось генераций: <span id="attemptsLeft"></span>/2</b></div>
         </div>
     </div>
@@ -776,6 +1097,22 @@
             </li>
             <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
             <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">13.</span>
+            Возможность выбирать другие рамки для фото.
+            </li>
+            <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
+            <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">14.</span>
+            Возможность выбирать другие ракурсы для фото.
+            </li>
+            <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
+            <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">15.</span>
+            Возможность выбирать количество фото.
+            </li>
+            <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
+            <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">16.</span>
+            Возможность загружать фотографии для примера или для других вещей.
+            </li>
+            <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
+            <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">17.</span>
             Бесконечное количество генераций в день.
             </li>
         </ul>
@@ -1179,21 +1516,25 @@
             const contact = contactInput.querySelector('input').value;
             const autoTextStyleText = autoTextStyle.checked ? 'Автоматический выбор стиля текста включено.' : 'Автоматический выбор стиля текста выключено.';
             const message = `
-Описание: ${descriptionInput.value}
-ИИ: ${AI_selected}
-Текст на фото: ${textInput.value || 'Not Specified'}
-Исключения: ${exclusionsInput.value || 'Not Specified'}
-Качество: ${qualitySelect.value}
-Размер: ${sizeInput.value || sizeSelect.value}
-Стиль: ${styleSelect.value}
-Тон цвета: ${colorToneSelect.value}
-Уровень детализации: ${detailLevelInput.value || 'normal'}
-${autoTextStyleText}
-Фон фото: ${document.getElementById('photo_theme').value}
-Размытие фона: ${document.getElementById('razmitiyPHON').checked ? 'Включено' : 'Выключено'}
-Соотношение сторон фото: ${document.getElementById('soot').value}
-Мнение пользователя: ${document.getElementById('mean').value || 'Не указано'}
-Контакт: ${selectedMessenger} (${contact})
+1. Описание: ${descriptionInput.value}
+2. ИИ: ${AI_selected}
+3. Текст на фото: ${textInput.value || 'Not Specified'}
+4. Исключения: ${exclusionsInput.value || 'Not Specified'}
+5. Качество: ${qualitySelect.value}
+6. Размер: ${sizeInput.value || sizeSelect.value}
+7. Стиль: ${styleSelect.value}
+8. Тон цвета: ${colorToneSelect.value}
+9. Уровень детализации: ${detailLevelInput.value || 'normal'}
+10. ${autoTextStyleText}
+11. Фон фото: ${document.getElementById('photo_theme').value}
+12. Размытие фона: ${document.getElementById('razmitiyPHON').checked ? 'Включено' : 'Выключено'}
+13. Соотношение сторон фото: ${document.getElementById('soot').value}
+14. Выбранная рамка: ${document.getElementById('ram').value}
+15. Выбранный ракурс: ${document.getElementById('rakurs').value}
+16. Выбранное количество фото: ${document.getElementById('photo_count').value}
+17. Выбранные фотографии: ${localStorage.getItem('downloaded_photos') || 'Не загружено'}
+18. Мнение пользователя: ${document.getElementById('mean').value || 'Не указано'}
+19. Контакт: ${selectedMessenger} (${contact})
             `;
 
             incrementAttempts();
@@ -1688,8 +2029,6 @@ ${autoTextStyleText}
             saveFormData();
             alert('Готово! Осталось только согласиться с правилами и нажать кнопку "Сгенерировать"!');
         }
-
-
         checkAdmin();
         checkPremium();
     </script>
