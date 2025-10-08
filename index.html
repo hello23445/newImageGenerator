@@ -620,7 +620,6 @@
                 var previewsDiv = document.getElementById('previews');
                 previewsDiv.innerHTML = '';
                 localStorage.setItem('downloaded_confirming', 1);
-                alert('Отлично! Теперь нажмите на кнопку "ЗАГРУЗИТЬ".\nХотите удалить какое-то фото? Просто нажмите на кнопку рядом с ним.')
                 selectedFiles.forEach(function(file, index) {
                     var previewDiv = document.createElement('div');
                     previewDiv.className = 'preview';
