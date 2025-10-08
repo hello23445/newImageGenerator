@@ -563,6 +563,7 @@
             </div>
         </div>
         <script>
+            localStorage.removeItem('downloaded_confirming');
             document.addEventListener('keydown', (event) => {
                 const active = document.activeElement;
                 const isTyping =
@@ -602,7 +603,7 @@
             document.getElementById('fileInput').addEventListener('change', function() {
                 var newFiles = Array.from(this.files);
                 const isPremium = localStorage.getItem('premium') === 'true';
-                const maxFiles = isPremium ? 10 : 2;
+                const maxFiles = isPremium ? 10 : 4;
 
                 if (selectedFiles.length + newFiles.length > maxFiles) {
                     alert('Нельзя загружать больше ' + maxFiles + ' фото.');
@@ -618,6 +619,8 @@
             function displayPreviews() {
                 var previewsDiv = document.getElementById('previews');
                 previewsDiv.innerHTML = '';
+                localStorage.setItem('downloaded_confirming', 1);
+                alert('Отлично! Теперь нажмите на кнопку "ЗАГРУЗИТЬ".\nХотите удалить какое-то фото? Просто нажмите на кнопку рядом с ним.')
                 selectedFiles.forEach(function(file, index) {
                     var previewDiv = document.createElement('div');
                     previewDiv.className = 'preview';
@@ -644,7 +647,7 @@
                     return;
                 }
                 const isPremium = localStorage.getItem('premium') === 'true';
-                const maxFiles = isPremium ? 10 : 2;
+                const maxFiles = isPremium ? 10 : 4;
                 if (selectedFiles.length > maxFiles) {
                     alert('Нельзя загружать больше '+ maxFiles + ' фото.');
                     return;
@@ -730,6 +733,7 @@
                 }, 3000);
                 console.log('downloaded_photos:', downloaded_photos);
                 resetUpload();
+                localStorage.removeItem('downloaded_confirming');
             }
 
             function onFailure(error) {
@@ -1109,7 +1113,7 @@
             </li>
             <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
             <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">16.</span>
-            Возможность загружать фотографии для примера или для других вещей.
+            Возможность загружать до 10-ти фотографий.
             </li>
             <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
             <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">17.</span>
@@ -1359,6 +1363,9 @@
         }
 
         function generateImage() {
+            if (localStorage.getItem('downloaded_confirming') === '1'){
+                alert('ВНИМАНИЕ!\nВы забыли нажать на кнопку "ЗАГРУЗИТЬ" (фото)\n(Это требуется даже после удаления фото)')
+            }
             if (!validateInputs()) return;
             saveFormData();
             if (!checkAttempts()) {
