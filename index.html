@@ -749,8 +749,8 @@
                     <option value="Океанские глубины" disabled>(Premium) Океанские глубины</option>
                     <option value="Пещера кристаллов" disabled>(Premium) Пещера кристаллов</option>
                     <option value="Галактика" disabled>(Premium) Галактика</option>
-                    <option value="Замок (устройство)" disabled>(Premium) 🔒 Замок</option>
-                    <option value="Замок (здание)" disabled>(Premium) 🏰 Замок</option>
+                    <option value="Замок (устройство)" disabled>(Premium) 🔒 Замок (устройство для запирания)</option>
+                    <option value="Замок (здание)" disabled>(Premium) 🏰 Замок (здание)</option>
                     <option value="Футуризм" disabled>(Premium) Футуризм</option>
                     <option value="Райский остров" disabled>(Premium) Райский остров</option>
                     <option value="Подводный город" disabled>(Premium) Подводный город</option>
@@ -1002,7 +1002,7 @@
             <button accesskey="g" onclick="checkBadWords()" id="generate">[1] Сгенерировать</button>
             <button accesskey="w" onclick="surpriseMode()">[2] Режим: Удиви меня</button>
             <button accesskey="p" onclick="BuyPremium()" style="margin-top: 0%;">[3] Купить Premium</button>
-            <div id="attemptsDisplay"><b>Осталось генераций: <span id="attemptsLeft"></span>/<span id="maxAttempts">2</span></b></div>
+            <div id="attemptsDisplay"><b>Осталось генераций: <span id="attemptsLeft"></span>/2</b></div>
         </div>
     </div>
 
@@ -1913,41 +1913,45 @@ function proceedToSend(messenger, contact) {
     document.getElementById('successMessage').style.display = 'block';
     document.getElementById('errorMessage').style.display = 'none';
 
-    const userToken = getUserToken();
-    const data = {
-        action: 'write',
-        token: userToken,
-        params: params
-    };
-
-    fetch(GAS_URL, {
-        method: 'POST',
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(result => {
-        if (result.status === 'success') {
-            localStorage.setItem('pendingRequest', JSON.stringify({token: userToken, params: params.join('\n')}));
-            pendingRequest = {token: userToken, params: params.join('\n')};
-            showRequestScreen();
-            setInterval(checkStatus, 30000); // Check every 30 seconds
-            if (messenger === 'app') {
-                const message = params.join('\n');
-                fetch(`https://api.telegram.org/bot${telegramBotToken}/sendMessage?chat_id=${telegramChatId}&text=${encodeURIComponent(message)}`);
-            }
-        } else {
-            throw new Error(result.error);
-        }
-    })
+    const message = params.join('\n');
+    fetch(`https://api.telegram.org/bot${telegramBotToken}/sendMessage?chat_id=${telegramChatId}&text=${encodeURIComponent(message)}`)
     .catch(error => {
-        const storedData = getStoredData();
-        storedData.attempts = Math.max(0, (storedData.attempts || 0) - 1);
-        setStoredData(storedData);
-        checkAttempts();
-        document.getElementById('successMessage').style.display = 'none';
-        document.getElementById('errorMessage').style.display = 'block';
-        document.getElementById('errorCode').textContent = error.message || 'Ошибка';
+        console.error('Telegram send error:', error);
     });
+
+    if (messenger === 'app') {
+        const userToken = getUserToken();
+        const data = {
+            action: 'write',
+            token: userToken,
+            params: params
+        };
+
+        fetch(GAS_URL, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.status === 'success') {
+                localStorage.setItem('pendingRequest', JSON.stringify({token: userToken, params: params.join('\n')}));
+                pendingRequest = {token: userToken, params: params.join('\n')};
+                showRequestScreen();
+                setInterval(checkStatus, 30000); // Check every 30 seconds
+            } else {
+                throw new Error(result.error);
+            }
+        })
+        .catch(error => {
+            const storedData = getStoredData();
+            storedData.attempts = Math.max(0, (storedData.attempts || 0) - 1);
+            setStoredData(storedData);
+            checkAttempts();
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('errorCode').textContent = error.message || 'Ошибка';
+        });
+    }
 }
 
 function checkStatus() {
