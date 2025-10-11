@@ -1951,6 +1951,11 @@ function proceedToSend(messenger, contact) {
             document.getElementById('errorMessage').style.display = 'block';
             document.getElementById('errorCode').textContent = error.message || 'Ошибка';
         });
+    } else {
+        setTimeout(() => {
+            resultModal.style.display = 'none';
+            mainContainer.style.display = 'flex';
+        }, 3000); // Show magic for 3 seconds then back to main
     }
 }
 
