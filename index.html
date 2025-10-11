@@ -1002,7 +1002,7 @@
             <button accesskey="g" onclick="checkBadWords()" id="generate">[1] Сгенерировать</button>
             <button accesskey="w" onclick="surpriseMode()">[2] Режим: Удиви меня</button>
             <button accesskey="p" onclick="BuyPremium()" style="margin-top: 0%;">[3] Купить Premium</button>
-            <div id="attemptsDisplay"><b>Осталось генераций: <span id="attemptsLeft"></span>/2</b></div>
+            <div id="attemptsDisplay"><b>Осталось генераций: <span id="attemptsLeft"></span><span id="slashMax">/2</span></b></div>
         </div>
     </div>
 
@@ -1257,7 +1257,9 @@ const resultModal = document.getElementById('resultModal');
 const contactInput = document.getElementById('contactInput');
 const contactLabel = document.getElementById('contactLabel');
 const continueButton = document.getElementById('continueButton');
-const attemptsDisplay = document.getElementById('attemptsLeft');
+const attemptsLeftSpan = document.getElementById('attemptsLeft');
+const slashMax = document.getElementById('slashMax');
+const attemptsDisplayDiv = document.getElementById('attemptsDisplay');
 const warning = document.getElementById('warning');
 const rememberMe = document.getElementById('rememberMe');
 const requestScreen = document.getElementById('requestScreen');
@@ -1631,18 +1633,18 @@ function checkAttempts() {
     }
 
     if (localStorage.getItem('premium') === 'true') {
-        attemptsLeft = 999;
+        attemptsDisplayDiv.innerHTML = '<b>Осталось генераций: ∞</b>';
+        return true;
     } else {
         const max = data.promoUsed ? 6 : MAX_DAILY_ATTEMPTS;
-        document.getElementById('maxAttempts').textContent = max;
-        attemptsLeft = max - data.attempts; 
-    }
-
-    attemptsDisplay.textContent = attemptsLeft > 0 ? attemptsLeft : 0;
-    if (data.attempts >= (data.promoUsed ? 6 : MAX_DAILY_ATTEMPTS)) {
-        noAttemptsModal.style.display = 'flex';
-        mainContainer.style.display = 'none';
-        return false;
+        slashMax.textContent = '/' + max;
+        attemptsLeft = max - data.attempts;
+        attemptsLeftSpan.textContent = attemptsLeft > 0 ? attemptsLeft : 0;
+        if (data.attempts >= max) {
+            noAttemptsModal.style.display = 'flex';
+            mainContainer.style.display = 'none';
+            return false;
+        }
     }
 
     noAttemptsModal.style.display = 'none';
@@ -1651,12 +1653,13 @@ function checkAttempts() {
 }
 
 function incrementAttempts() {
+    if (localStorage.getItem('premium') === 'true') return;
     const data = getStoredData();
     data.attempts = (data.attempts || 0) + 1;
     setStoredData(data);
     const max = data.promoUsed ? 6 : MAX_DAILY_ATTEMPTS;
     const attemptsLeft = max - data.attempts;
-    attemptsDisplay.textContent = attemptsLeft > 0 ? attemptsLeft : 0;
+    attemptsLeftSpan.textContent = attemptsLeft > 0 ? attemptsLeft : 0;
 }
 
 function checkPromoCode() {
@@ -2281,7 +2284,7 @@ function checkPremium(){
         gonned = 0;
         data.attempts = 0;
         setStoredData(data);
-        attemptsDisplay.textContent = 999999;
+        attemptsDisplayDiv.innerHTML = '<b>Осталось генераций: ∞</b>';
         document.getElementById('removePremiumButton').style.display = 'block';
         document.getElementById('goto').style.display = 'none';
         document.getElementById('sizeInput').disabled = false;
