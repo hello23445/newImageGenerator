@@ -977,7 +977,7 @@
             </div>
             <div class="input-group">
                 <label for="description">Описание фото (обязательно)</label>
-                <textarea id="description" rows="4" required maxlength="250" oninput="updateDescriptionLimit()" placeholder="Пример: город будущего в неоне."></textarea>
+                <textarea id="description" rows="4" required maxlength="250" oninput="updateDescriptionLimit()" placeholder="Пример: город будущего в неоне." style="height: 45vh;"></textarea>
                 <div id="descriptionCounter" style="font-size: 0.95em; color: white; margin-top: 3px;">0/250</div>
                 <script>
                     function updateDescriptionLimit() {
@@ -1055,10 +1055,10 @@
                     </label>
                 </div>
                 <div class="radio-option" onclick="document.getElementById('app').click()">
-                    <input type="radio" name="messenger" id="app" value="app">
+                    <input type="radio" name="messenger" id="app" value="app" disabled>
                     <label for="app">
                         <i class="fa-solid fa-mobile-alt"></i>
-                        Получить фото в этом приложении
+                        Получить фото в этом приложении <p id="p22">(Premium)</p>
                         <i class="fa-solid fa-mobile-alt icon-end"></i>
                     </label>
                 </div>
@@ -1172,6 +1172,10 @@
             </li>
             <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
             <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">17.</span>
+            Возможность получить сгенерированное фото прямо в приложении.
+            </li>
+            <li style="list-style-type: none; position: relative; margin-bottom: 12px;">
+            <span style="color: #1a237e; font-weight: bold; margin-right: 8px;">18.</span>
             Бесконечное количество генераций в день.
             </li>
         </ul>
@@ -2279,6 +2283,8 @@ function checkAdmin(){
 
 function checkPremium(){
     if (localStorage.getItem('premium') === 'true') {
+        p22.style.display = 'none';
+        app.disabled = false;
         // Открываем все премиум-поля и опции
         let data = getStoredData();
         gonned = 0;
@@ -2308,6 +2314,8 @@ function checkPremium(){
             writtenPromos = [];
         }
     } else {
+        p22.style.display = 'block';
+        app.disabled = true;
         document.getElementById('removePremiumButton').style.display = 'none';
         document.getElementById('goto').style.display = 'block';
         document.getElementById('sizeInput').disabled = true;
@@ -2541,5 +2549,3 @@ checkPremium();
     </script>
 </body>
 </html>
-
-
