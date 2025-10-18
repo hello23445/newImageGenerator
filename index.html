@@ -358,6 +358,30 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* Additional mobile optimizations */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+            button {
+                font-size: 14px;
+                padding: 10px;
+            }
+            input, select, textarea {
+                font-size: 14px;
+            }
+            .radio-group {
+                gap: 10px;
+            }
+            .radio-option {
+                padding: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1086,7 +1110,7 @@
         <div class="modal-content">
             <h2>Разблокируйте бота</h2>
             <p>Чтобы получить результат, вы должны разблокировать этого бота, если он у вас заблокирован: <a href="https://t.me/NickNaymesBot" target="_blank">@NickNaymesBot</a></p>
-            <button accesskey="p" onclick="proceedToSend()">[P] Продолжить</button>
+            <button accesskey="p" onclick="proceedAfterUnlock()">[P] Продолжить</button>
         </div>
     </div>
 
@@ -1231,8 +1255,27 @@
         </div>
     </div>
 
+    <!-- Registration Modal -->
+    <div id="registrationModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Регистрация обязательна</h2>
+            <p>Чтобы начать генерировать фото, нужно зарегистрироваться в системе.</p>
+            <button onclick="window.location.href='setID.html'">Зарегистрироваться</button>
+        </div>
+    </div>
+
+    <!-- Subscription Modal -->
+    <div id="subscriptionModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Подписка обязательна</h2>
+            <p>Чтобы использовать сервис, подпишитесь на канал.</p>
+            <a href="https://t.me/channel" target="_blank"><button>Подписаться</button></a>
+            <button onclick="checkSubscriptionAndProceed()">Проверить</button>
+        </div>
+    </div>
+
     <script type="module">
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbwL-V0kZja_S8xRsc5EyDEtyjYwPoL2_ZkW3NwD0XkR90Guo3eJXsJoTOBxC5XbFcC-/exec'; 
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwL-V0vdsRsc5EyDEtyjYwPoL2_ZkW3NwD0XkR90Guo3eJXsJoTOBxC5XbFcC-/exec'; 
 const SHEET_NAME = 'Sheet1'; // Your sheet name
 import { badWords } from './security.js';
 const promoCodes = ['QWERTY', 'ASDFGH', 'ZXCVBN', '123456', 'PROMO2023'];
@@ -1241,6 +1284,11 @@ const MAX_DAILY_ATTEMPTS = 2;
 
 let writtenPromos = JSON.parse(localStorage.getItem('writtenPromos')) || [];
 let gonned;
+
+const BOT_TOKEN = '6537497957:AAGZS4adwPVJSlx16YCCDrKjO96rDK7ZstI'; // Add your bot token here
+const CHANNEL_USERNAME = '@NickNaymes2Bot'; // Add your channel username here
+
+let selectedMessengerValue, contactValue;
 
 const textInput = document.getElementById('text');
 const autoTextStyle = document.getElementById('autoTextStyle');
@@ -1362,7 +1410,7 @@ document.addEventListener('keydown', (event) => {
         }
     } else if (document.getElementById('botUnlockModal').style.display === 'flex') {
         if (event.key.toLowerCase() === 'p') {
-            proceedToSend();
+            proceedAfterUnlock();
         }
     } else if (document.getElementById('resultModal').style.display === 'flex' && document.getElementById('errorMessage').style.display === 'block') {
         if (event.key.toLowerCase() === 'b') {
@@ -1854,6 +1902,9 @@ function handleContinue() {
         }
     }
 
+    selectedMessengerValue = selectedMessenger.value;
+    contactValue = contact;
+
     if (rememberMe.checked) {
         contactData.contact = contact;
         contactData.messenger = selectedMessenger.value;
@@ -1869,8 +1920,12 @@ function handleContinue() {
         messengerModal.style.display = 'none';
         botUnlockModal.style.display = 'flex';
     } else {
-        proceedToSend(selectedMessenger.value, contact);
+        proceedToSend(selectedMessengerValue, contactValue);
     }
+}
+
+function proceedAfterUnlock() {
+    proceedToSend(selectedMessengerValue, contactValue);
 }
 
 function goBack() {
@@ -2068,17 +2123,69 @@ function showBlockModal() {
     blockModal.style.display = 'flex';
 }
 
-window.onload = () => {
+async function checkSubscription() {
+  const userID = localStorage.getItem('userID');
+  if (!userID || !/^\d+$/.test(userID)) {
+    document.getElementById('registrationModal').style.display = 'flex';
+    return false;
+  }
+  try {
+    const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${CHANNEL_USERNAME}&user_id=${userID}`);
+    if (!response.ok) throw new Error('API error');
+    const data = await response.json();
+    if (data.ok) {
+      const status = data.result.status;
+      if (['member', 'administrator', 'creator'].includes(status)) {
+        return true;
+      }
+    }
+    return false;
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
+}
+
+async function checkSubscriptionAndProceed() {
+  const isSubscribed = await checkSubscription();
+  if (isSubscribed) {
+    document.getElementById('subscriptionModal').style.display = 'none';
+    mainContainer.style.display = 'flex';
+    checkAttempts();
+    // Proceed with app logic
+  } else {
+    alert('Вы ещё не подписаны на канал.');
+  }
+}
+
+async function verifyUser() {
+  const userID = localStorage.getItem('userID');
+  if (!userID || !/^\d+$/.test(userID)) {
+    document.getElementById('registrationModal').style.display = 'flex';
+    return false;
+  }
+  const isSubscribed = await checkSubscription();
+  if (!isSubscribed) {
+    document.getElementById('subscriptionModal').style.display = 'flex';
+    return false;
+  }
+  return true;
+}
+
+window.onload = async () => {
     restoreFormData();
-    if (pendingRequest) {
+    const isVerified = await verifyUser();
+    if (isVerified) {
+      if (pendingRequest) {
         showRequestScreen();
         checkStatus();
-    } else {
+      } else {
         checkAttempts();
         mainContainer.style.display = 'flex';
-    }
-    if (contactData.messenger && JSON.parse(localStorage.getItem('contactData'))) {
+      }
+      if (contactData.messenger && JSON.parse(localStorage.getItem('contactData'))) {
         rememberMe.checked = true;
+      }
     }
 };
 
