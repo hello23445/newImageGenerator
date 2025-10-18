@@ -2148,15 +2148,16 @@ async function checkSubscription() {
 }
 
 async function checkSubscriptionAndProceed() {
-  const isSubscribed = await checkSubscription();
-  if (isSubscribed) {
-    document.getElementById('subscriptionModal').style.display = 'none';
-    mainContainer.style.display = 'flex';
-    checkAttempts();
-    // Proceed with app logic
-  } else {
-    alert('Вы ещё не подписаны на канал.');
-  }
+    location.reload();
+    const isSubscribed = await checkSubscription();
+    if (isSubscribed) {
+        document.getElementById('subscriptionModal').style.display = 'none';
+        mainContainer.style.display = 'flex';
+        checkAttempts();
+        // Proceed with app logic
+    } else {
+        alert('Вы ещё не подписаны на канал.');
+    }
 }
 
 async function verifyUser() {
