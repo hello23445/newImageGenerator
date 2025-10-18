@@ -5,15 +5,15 @@ if (blockedUsers.includes(localStorage.getItem('user_Token'))){
     window.location.href = 'block.html';
 }
 function getRandomNumber() {
-  const number = Math.floor(Math.random() * 31) + 6;
-  if (number === 6) {
-    if (localStorage.getItem('subscribed')) {
-        localStorage.removeItem('subscribed');
-    }
+  const number = Math.floor(Math.random() * (15 - 5 + 1)) + 5; // 5–15
 
+  if (number === 6 && localStorage.getItem('subscribed')) {
+    localStorage.removeItem('subscribed');
   }
+
   return number;
 }
+
 
 // Вызов функции
 console.log(getRandomNumber());
