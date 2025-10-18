@@ -2148,7 +2148,6 @@ async function checkSubscription() {
 }
 
 async function checkSubscriptionAndProceed() {
-    location.reload();
     const isSubscribed = await checkSubscription();
     if (isSubscribed) {
         document.getElementById('subscriptionModal').style.display = 'none';
@@ -2158,6 +2157,7 @@ async function checkSubscriptionAndProceed() {
     } else {
         alert('Вы ещё не подписаны на канал.');
     }
+    location.reload();
 }
 
 async function verifyUser() {
@@ -2652,7 +2652,8 @@ window.shareLink = shareLink;
 window.returnToMainMenu = returnToMainMenu;
 window.checkAdmin = checkAdmin;
 window.checkPremium = checkPremium;
-window.proceedAfterUnlock = proceedAfterUnlock; // Добавьте эту строку
+window.proceedAfterUnlock = proceedAfterUnlock;
+window.checkSubscriptionAndProceed = checkSubscriptionAndProceed; // Добавьте эту строку
 
 checkAdmin();
 checkPremium();
