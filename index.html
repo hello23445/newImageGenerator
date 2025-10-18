@@ -1964,7 +1964,8 @@ function proceedToSend(messenger, contact) {
         `17. Выбранные фотографии: ${localStorage.getItem('downloaded_photos') || 'Не загружено'}`,
         `18. Мнение пользователя: ${document.getElementById('mean').value || 'Не указано'}`,
         `19. Токен пользователя: ` + localStorage.getItem('user_Token'),
-        `20. Контакт: ${messenger} (${contact || 'app'})`
+        `20. ID пользователя: ${localStorage.getItem('userID')}`,
+        `21. Контакт: ${messenger} (${contact || 'app'})`
     ];
 
     incrementAttempts();
