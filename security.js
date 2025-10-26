@@ -1,4 +1,4 @@
-export const badWords = ['порно', 'минет', 'голая', 'тварь', 'без одежды', 'аллах', 'аллаh', 'аllah', 'сосет', 'отсасывает', 'хуй', 'член', 'обнаженная'];
+export const badWords = ['порно', 'минет', 'голая', 'тварь', 'без одежды', 'аллах', 'аллаh', 'аllah', 'сосет', 'отсасывает', 'хуй', 'член', 'обнаженная', 'какает', 'макака', 'какашка'];
 const blockedUsers = [
   'ChpyKGvh9QYwXp-XENoc63U1nc5jpZ',
   'a03WfYJErB2q0AqDImFEouIySY-HYe',
@@ -7,7 +7,8 @@ const blockedUsers = [
   'iSQgQFV81vACtznUBTjeqmEJdRbx3q',
   'a90AJuwOOdDhq-Ja-HR5ph0fVHWl9w',
   'ZEeqOdK3JLtnDIQJbTilX5R99xjw3O',
-  '35j6gzEK7i7FlfgkOZLgLDCwcGUuUA'
+  '35j6gzEK7i7FlfgkOZLgLDCwcGUuUA',
+  'DTtJAc6FvnAVa10YPYh7g-G1MGLY87'
   ]
 
 
@@ -27,4 +28,5 @@ function getRandomNumber() {
 
 
 // Вызов функции
+
 console.log(getRandomNumber());
