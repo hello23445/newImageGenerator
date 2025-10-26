@@ -7,8 +7,7 @@ const blockedUsers = [
   'iSQgQFV81vACtznUBTjeqmEJdRbx3q',
   'a90AJuwOOdDhq-Ja-HR5ph0fVHWl9w',
   'ZEeqOdK3JLtnDIQJbTilX5R99xjw3O',
-  '35j6gzEK7i7FlfgkOZLgLDCwcGUuUA',
-  'DTtJAc6FvnAVa10YPYh7g-G1MGLY87'
+  '35j6gzEK7i7FlfgkOZLgLDCwcGUuUA'
   ]
 
 
@@ -30,3 +29,4 @@ function getRandomNumber() {
 // Вызов функции
 
 console.log(getRandomNumber());
+
