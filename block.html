@@ -54,5 +54,24 @@
   <button onclick="window.location.href='https://t.me/Clickerstart_bot'">
     Служба поддержки
   </button>
+  <button id="tokenBtn" style="margin-top: 1%;"></button>
+  <script>
+    const tokenBtn = document.getElementById('tokenBtn');
+    const token = localStorage.getItem('user_Token');
+
+    if (token) {
+      tokenBtn.textContent = `Токен: ${token}`;
+      tokenBtn.onclick = () => {
+        navigator.clipboard.writeText(token).then(() => {
+          tokenBtn.textContent = 'Скопировано!';
+          setTimeout(() => {
+            tokenBtn.textContent = `Токен: ${token}`;
+          }, 2000);
+        });
+      };
+    } else {
+      tokenBtn.style.display = 'none';
+    }
+  </script>
 </body>
 </html>
