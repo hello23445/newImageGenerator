@@ -36,3 +36,4 @@ function getRandomNumber() {
 
 console.log(getRandomNumber());
 
+
