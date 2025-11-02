@@ -14,8 +14,16 @@ const blockedUsers = [
   'wGbCcN-m2v3LFaKet21obTpibwvobI',
   'krbgEGJK2Ze-5E8rLUDzEbGVCGPEh7',
   'xh52RtWzZZp9VkADB-jXO1tcLXCKDA',
-  'mWRgIOfau0qRQaQDOALW1qr0RVbDxd'
-  ]
+  'mWRgIOfau0qRQaQDOALW1qr0RVbDxd',
+  '1CfZIm5Q9K-CNThypvDp1vPhcZX5n2',
+  'PQNkLBIVKwZ0yELipvekzoccqg0zpN',
+  'xFW1wvGPvbYBaORFckq0C5tbtGmu9W',
+  'gkwK0uycDdkXsrY3r5SAu5zLOf6eBX',
+  'sXD88yyZxdpTW84BS4k-1FS5eoEqAe',
+  'PkPC98NaZ58GLYAHDcBcbfe34FcK7Y',
+  'HXcu5GCmEso9w2FHZ5ixrS2rTbjUex'
+];
+
 
 
 if (blockedUsers.includes(localStorage.getItem('user_Token'))){
@@ -36,6 +44,7 @@ function getRandomNumber() {
 // Вызов функции
 
 console.log(getRandomNumber());
+
 
 
 
