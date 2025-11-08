@@ -21,7 +21,14 @@ const blockedUsers = [
   'gkwK0uycDdkXsrY3r5SAu5zLOf6eBX',
   'sXD88yyZxdpTW84BS4k-1FS5eoEqAe',
   'PkPC98NaZ58GLYAHDcBcbfe34FcK7Y',
-  'HXcu5GCmEso9w2FHZ5ixrS2rTbjUex'
+  'HXcu5GCmEso9w2FHZ5ixrS2rTbjUex',
+  'FaIvATiXDAdPCghr-uDrUTTmmFZeYN',
+  "5732fdOZg8DlO0XCv8F0vdM142Yatr",
+  "LSApOyY1OkoWuEo0s9iG40Uh-fH0Hd",
+  "KJFuVDb9OvCmno0j4tLUMIsysII2bK",
+  "5LioEfZBHhlm-GLRNZkeg4ivjr8UT1",
+  "UChpIovcDqcQG-iZj3gxz3SN0Gdhc-",
+  "leTO44dN3Qjxxi2ImcwtACrcMx1WQX"
 ];
 
 
@@ -42,10 +49,4 @@ function getRandomNumber() {
 
 
 // Вызов функции
-
 console.log(getRandomNumber());
-
-
-
-
-
