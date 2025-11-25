@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://hello23445.github.io/newImageGenerator/sitemap.xml
