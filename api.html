@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrN PhotoAI API</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glass-bg: rgba(6, 11, 40, 0.35);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --text-muted: rgba(255, 255, 255, 0.75);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 
+            margin: 0; 
+            padding: 16px; 
+            background: linear-gradient(135deg, #74ABE2, #5563DE); /* НЕ ТРОГАЛ */
+            color: #fff; 
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .page-wrapper {
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.35);
+            padding: 16px 16px 20px;
+            backdrop-filter: blur(14px);
+            margin-top: 12px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: flex-start;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .title-block h1 {
+            margin: 0 0 4px;
+            font-size: clamp(18px, 4.5vw, 24px);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .title-block p {
+            margin: 0;
+            font-size: clamp(11px, 3.3vw, 13px);
+            color: var(--text-muted);
+        }
+
+        button { 
+            padding: 8px 16px; 
+            background-color: #4CAF50; /* НЕ ТРОГАЛ */
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            border-radius: 999px; 
+            font-size: clamp(12px, 3.3vw, 14px);
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+            white-space: nowrap;
+        }
+
+        /* hover убран по твоей просьбе */
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+        }
+
+        .back-btn {
+            font-size: clamp(11px, 3vw, 13px);
+            padding-inline: 14px;
+            margin-bottom: 10px;
+        }
+
+        .back-btn i {
+            font-size: 11px;
+        }
+
+        h1, h2 { 
+            color: #fff; 
+        }
+
+        h2 {
+            display: flex; 
+            align-items: center; 
+            flex-wrap: wrap; 
+            gap: 8px;
+            margin-top: 16px;
+            margin-bottom: 6px;
+            font-size: clamp(14px, 3.8vw, 18px);
+        }
+
+        h2 small {
+            font-size: clamp(10px, 3vw, 12px);
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        table { 
+            border-collapse: collapse; 
+            width: 100%; 
+            margin-bottom: 12px; 
+            font-size: clamp(11px, 3.2vw, 13px);
+            overflow: hidden;
+            border-radius: 10px;
+            background: rgba(10, 13, 45, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        th, td { 
+            padding: 6px 8px; 
+            text-align: left; 
+            word-wrap: break-word;
+        }
+
+        th { 
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #222; 
+            font-weight: 600;
+            font-size: clamp(11px, 3.1vw, 13px);
+        }
+
+        td {
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        tr:nth-child(even) td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        pre { 
+            background: rgba(4, 6, 30, 0.92); 
+            padding: 10px 10px; 
+            border-radius: 10px; 
+            overflow: auto; 
+            color: #f4f4f4; 
+            position: relative; 
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            word-break: break-word;
+            font-family: "JetBrains Mono", "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: clamp(10px, 2.7vw, 12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            max-height: 260px;
+            margin-bottom: 16px; /* Добавлен отступ снизу для кодов */
+        }
+
+        .copy-btn { 
+            background-color: #4CAF50; /* НЕ ТРОГАЛ */
+            border: none; 
+            cursor: pointer; 
+            font-size: clamp(11px, 3vw, 13px); 
+            margin-left: auto; 
+            color: #fff; 
+            white-space: nowrap;
+            padding: 5px 10px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .reset-btn {
+            background-color: #e74c3c; /* Красный для сброса */
+            margin-left: 8px;
+        }
+
+        .copy-btn i {
+            font-size: 12px;
+        }
+
+        #apiInfo > p {
+            font-size: clamp(11px, 3vw, 13px);
+            color: var(--text-muted);
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        #apiInfo strong {
+            color: #fff;
+        }
+
+        #status { 
+            margin-top: 6px; 
+            color: #c8ffe0; 
+            font-size: clamp(11px, 3vw, 13px);
+        }
+
+        #error { 
+            margin-top: 6px; 
+            color: #ffb3c1; 
+            font-size: clamp(11px, 3vw, 13px);
+        }
+
+        #createButton {
+            margin-top: 6px;
+        }
+
+        #apiCreation {
+            margin: 8px 0 14px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px dashed rgba(255, 255, 255, 0.18);
+        }
+
+        #apiInfo {
+            display: none; /* по умолчанию скрываем, пока не проверим ключ */
+        }
+
+        #loader { 
+            display: none; 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            border: 10px solid #f3f3f3; 
+            border-top: 10px solid #3498db; 
+            border-radius: 50%; 
+            width: 48px; 
+            height: 48px; 
+            animation: spin 1s linear infinite; 
+            z-index: 999;
+        }
+
+        #notification {
+            display: none;
+            position: fixed;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4CAF50; /* НЕ ТРОГАЛ */
+            color: white;
+            padding: 8px 16px;
+            border-radius: 999px;
+            z-index: 1000;
+            text-align: center;
+            font-size: clamp(11px, 3vw, 13px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.35);
+        }
+
+        @keyframes spin { 
+            0% { transform: translate(-50%, -50%) rotate(0deg); } 
+            100% { transform: translate(-50%, -50%) rotate(360deg); } 
+        }
+
+        .limits-text {
+            margin-top: 6px;
+            font-size: clamp(11px, 3vw, 13px);
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .limits-text span#currentLimit {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        /* Дополнительные оптимизации для маленьких экранов */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .page-wrapper {
+                max-width: 100%;
+            }
+
+            .card {
+                padding: 12px 10px 16px;
+                border-radius: 14px;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.35);
+            }
+
+            .back-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            button {
+                max-width: 100%;
+            }
+
+            pre {
+                max-height: 220px;
+                margin-bottom: 24px; /* Увеличен отступ между кодами */
+            }
+
+            table {
+                font-size: 11px;
+                margin-bottom: 20px; /* Увеличен отступ между таблицами */
+            }
+
+            th, td {
+                padding: 5px 6px;
+            }
+
+            h2 {
+                margin-top: 24px; /* Увеличен отступ сверху для заголовков */
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            h2 .copy-btn,
+            h2 .reset-btn {
+                margin-left: 0;
+                width: auto;
+            }
+
+            .reset-btn {
+                margin-left: 0 !important; /* Чтобы сброс был ниже копирования */
+            }
+        }
+
+        @media (max-width: 400px) {
+            .card {
+                padding: 10px 8px 14px;
+            }
+
+            pre {
+                max-height: 200px;
+                margin-bottom: 24px;
+            }
+
+            .copy-btn {
+                padding: 4px 8px;
+            }
+
+            h2 {
+                margin-top: 24px;
+            }
+        }
+
+        /* Стили для модальных окон */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--glass-bg);
+            margin: auto;
+            padding: 20px;
+            border: 1px solid var(--glass-border);
+            width: 80%;
+            max-width: 400px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .modal-content p {
+            margin-bottom: 16px;
+        }
+
+        .modal-btn {
+            margin: 8px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        /* Для прелоадера в модалке */
+        .modal-loader {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-loader .spinner {
+            border: 10px solid #f3f3f3;
+            border-top: 10px solid #3498db;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Кнопки сверху */
+        .top-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .update-btn {
+            background-color: #3498db;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div id="loader"></div>
+    <div id="notification"></div>
+
+    <!-- Модальное окно для подтверждения удаления -->
+    <div id="confirmDeleteModal" class="modal">
+        <div class="modal-content">
+            <p>Вы уверены что хотите удалить свой API-ключ?</p>
+            <button class="modal-btn" onclick="showConfirmInputModal()">Да</button>
+            <button class="modal-btn" onclick="closeModal('confirmDeleteModal')">Нет</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно для ввода подтверждения -->
+    <div id="confirmInputModal" class="modal">
+        <div class="modal-content">
+            <p>Введите 'ПОДТВЕРЖДАЮ'</p>
+            <input type="text" id="confirmInput" class="modal-input" placeholder="ПОДТВЕРЖДАЮ">
+            <button class="modal-btn" onclick="confirmDelete()">Подтвердить</button>
+            <button class="modal-btn" onclick="closeModal('confirmInputModal')">Отмена</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно с прелоадером -->
+    <div id="modalLoader" class="modal-loader">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- Кнопки сверху -->
+        <div class="top-buttons">
+            <button class="back-btn" onclick="window.location.href='index.html'">
+                <i class="fa-solid fa-arrow-left"></i>
+                Вернуться назад
+            </button>
+            <button id="updateApiBtn" class="back-btn update-btn" style="display: none;" onclick="updateApiData()">
+                <i class="fa-solid fa-sync"></i>
+                Обновить мои API-данные
+            </button>
+            <button id="deleteApiBtn" class="back-btn delete-btn" style="display: none;" onclick="showConfirmDeleteModal()">
+                <i class="fa-solid fa-trash"></i>
+                Удалить мой API-ключ
+            </button>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="title-block">
+                    <h1>CrN PhotoAI API</h1>
+                    <p>Подключите генерацию изображений к своим сайтам, ботам и приложениям.</p>
+                </div>
+            </div>
+
+            <div id="apiCreation">
+                <h2 style="color: rgb(255, 0, 0); display: none;" id="h2">Вы исчерпали все свои дневные лимиты!<br>Лимиты обновятся завтра!</h2>
+                <h2 id="h22"></h2>
+                <p id="createButton">
+                    <button id="createApiBtn">
+                        <i class="fa-solid fa-key"></i>
+                        Создать мой API ключ
+                    </button>
+                </p>
+                <p id="status"></p>
+                <p id="error"></p>
+            </div>
+
+            <div id="apiInfo">
+                <h2>
+                    Ваш API ключ
+                    <button class="copy-btn" onclick="copyToClipboard('apiKeyPre')" title="Нажмите чтобы скопировать.">
+                        <i class="fa-solid fa-copy"></i>
+                        Скопировать
+                    </button>
+                    <button class="copy-btn reset-btn" onclick="resetApiKey()" title="Нажмите чтобы сбросить.">
+                        <i class="fa-solid fa-sync"></i>
+                        Сбросить мой API-ключ
+                    </button>
+                </h2>
+                <pre id="apiKeyPre"><span class="code-text"></span></pre>
+
+                <h2>
+                    URL-адрес запроса
+                    <button class="copy-btn" onclick="copyToClipboard('requestUrl')" title="Нажмите чтобы скопировать.">
+                        <i class="fa-solid fa-copy"></i>
+                        Скопировать
+                    </button>
+                </h2>
+                <pre id="requestUrl"><span class="code-text">https://script.google.com/macros/s/AKfycbxJcX6JYiTmUVy5nIZwvegsmYpZdBGbz6PHjXVm64nlO4P-v11-MTa-a3k6FmZDctETTg/exec</span></pre>
+
+                <h2>Параметры запроса <small>(HTTP-метод)</small></h2>
+                <table>
+                    <tr><th>Метод</th><th>Описание</th><th>Статус</th></tr>
+                    <tr><td>POST</td><td>Используется для отправки данных на сервер.</td><td>Обязательный.</td></tr>
+                </table>
+
+                <h2>Тело запроса</h2>
+                <table>
+                    <tr><th>Поле</th><th>Описание</th><th>Тип</th><th>Статус</th></tr>
+                    <tr><td>api_key</td><td>Ваш API ключ.</td><td>Строка.</td><td>Обязательный.</td></tr>
+                    <tr><td>photo_description</td><td>Описание фото.</td><td>Строка.</td><td>Обязательный.</td></tr>
+                    <tr><td>width</td><td>Ширина фото.<br>По умолчанию 512px (пикселей).</td><td>Число.</td><td>Необязательный.</td></tr>
+                    <tr><td>height</td><td>Длина фото.<br>По умолчанию 512px (пикселей).</td><td>Число.</td><td>Необязательный.</td></tr>
+                </table>
+
+                <h2>
+                    Готовый curl-запрос
+                    <button class="copy-btn" onclick="copyToClipboard('readyRequest')" title="Нажмите чтобы скопировать.">
+                        <i class="fa-solid fa-copy"></i>
+                        Скопировать
+                    </button>
+                </h2>
+                <pre id="readyRequest"><span class="code-text"></span></pre>
+
+                <h2>
+                    Готовый fetch-запрос
+                    <button class="copy-btn" onclick="copyToClipboard('fetchRequest')" title="Нажмите чтобы скопировать.">
+                        <i class="fa-solid fa-copy"></i>
+                        Скопировать
+                    </button>
+                </h2>
+                <pre id="fetchRequest"><span class="code-text"></span></pre>
+
+                <h2>
+                    Пример успешного ответа
+                    <button class="copy-btn" onclick="copyToClipboard('successExample')" title="Нажмите чтобы скопировать.">
+                        <i class="fa-solid fa-copy"></i>
+                        Скопировать
+                    </button>
+                </h2>
+                <pre id="successExample"><span class="code-text">{
+  "status": "success",
+  "data": "iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB+QLEg4bJ... (длинная Base64-строка)",
+  "mime": "image/png"
+}</span></pre>
+
+                <h2>
+                    Пример неуспешного ответа
+                    <button class="copy-btn" onclick="copyToClipboard('errorExample')" title="Нажмите чтобы скопировать.">
+                        <i class="fa-solid fa-copy"></i>
+                        Скопировать
+                    </button>
+                </h2>
+                <pre id="errorExample"><span class="code-text">{
+  "status": "error",
+  "message": "Internal server error"
+}</span></pre>
+
+                <h2>
+                    Когда поле <code>photo_description</code> или <code>api_key</code> не заполнено
+                    <button class="copy-btn" onclick="copyToClipboard('missingParamsExample')" title="Нажмите чтобы скопировать.">
+                        <i class="fa-solid fa-copy"></i>
+                        Скопировать
+                    </button>
+                </h2>
+                <pre id="missingParamsExample"><span class="code-text">{
+  "status": "error",
+  "message": "Missing required parameters: api_key and photo_description"
+}</span></pre>
+
+                <h2>
+                    Когда <code>api_key</code> неверный
+                    <button class="copy-btn" onclick="copyToClipboard('invalidKeyExample')" title="Нажмите чтобы скопировать.">
+                        <i class="fa-solid fa-copy"></i>
+                        Скопировать
+                    </button>
+                </h2>
+                <pre id="invalidKeyExample"><span class="code-text">{
+  "status": "error",
+  "message": "Invalid api_key"
+}</span></pre>
+
+                <h2>
+                    Когда дневные лимиты закончились
+                    <button class="copy-btn" onclick="copyToClipboard('limitExample')" title="Нажмите чтобы скопировать.">
+                        <i class="fa-solid fa-copy"></i>
+                        Скопировать
+                    </button>
+                </h2>
+                <pre id="limitExample"><span class="code-text">{
+  "status": "error",
+  "message": "No limit available"
+}</span></pre>
+
+                <p class="limits-text">
+                    Ваш текущий лимит: <span id="currentLimit">проверяем...</span><br>
+                    Лимиты обновляются каждый день.<br>
+                    Вы бесплатно получаете <strong>20</strong> лимитов в сутки, а с <strong>Premium</strong> — <strong>50</strong> лимитов в сутки.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const gasUrl = 'https://script.google.com/macros/s/AKfycbxJcX6JYiTmUVy5nIZwvegsmYpZdBGbz6PHjXVm64nlO4P-v11-MTa-a3k6FmZDctETTg/exec';
+        const createBtn = document.getElementById('createApiBtn');
+        const apiInfo = document.getElementById('apiInfo');
+        const createButtonDiv = document.getElementById('createButton');
+        const statusP = document.getElementById('status');
+        const errorP = document.getElementById('error');
+        const readyRequest = document.getElementById('readyRequest');
+        const fetchRequest = document.getElementById('fetchRequest');
+        const currentLimitSpan = document.getElementById('currentLimit');
+        const apiKeyPre = document.getElementById('apiKeyPre');
+        const loader = document.getElementById('loader');
+        const notification = document.getElementById('notification');
+        const updateApiBtn = document.getElementById('updateApiBtn');
+        const deleteApiBtn = document.getElementById('deleteApiBtn');
+
+        function showLoader(show) {
+            loader.style.display = show ? 'block' : 'none';
+        }
+
+        function showNotification(message, color = '#4CAF50') {
+            notification.textContent = message;
+            notification.style.background = color;
+            notification.style.display = 'block';
+            setTimeout(() => { notification.style.display = 'none'; }, 3000);
+        }
+
+        function copyToClipboard(elementId) {
+            const pre = document.getElementById(elementId);
+            const span = pre.querySelector('.code-text');
+            const text = span ? span.textContent : pre.textContent;
+            const btn = document.querySelector(`[onclick="copyToClipboard('${elementId}')"]`);
+            const originalContent = btn.innerHTML;
+
+            navigator.clipboard.writeText(text.trim()).then(() => {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Скопировано!';
+                setTimeout(() => { btn.innerHTML = originalContent; }, 2000);
+            }).catch(err => {
+                btn.innerHTML = '<i class="fa-solid fa-xmark"></i> Ошибка копирования';
+                setTimeout(() => { btn.innerHTML = originalContent; }, 2000);
+                console.error('Ошибка копирования: ', err);
+            });
+        }
+
+        function showModalLoader(show) {
+            document.getElementById('modalLoader').style.display = show ? 'flex' : 'none';
+        }
+
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function showConfirmDeleteModal() {
+            showModal('confirmDeleteModal');
+        }
+
+        function showConfirmInputModal() {
+            closeModal('confirmDeleteModal');
+            showModal('confirmInputModal');
+        }
+
+        async function confirmDelete() {
+            const input = document.getElementById('confirmInput').value.trim();
+            if (input !== 'ПОДТВЕРЖДАЮ') {
+                showNotification('Неверное подтверждение', '#e74c3c');
+                return;
+            }
+            closeModal('confirmInputModal');
+            await deleteApiKey();
+        }
+
+        async function checkApiKey() {
+            const hasApiFlag = (localStorage.getItem('hasApi') === 'true') || (localStorage.getItem('hasAPI') === 'true');
+            const token = localStorage.getItem('user_Token');
+
+            if (!hasApiFlag || !token) {
+                createButtonDiv.style.display = 'block';
+                apiInfo.style.display = 'none';
+                updateApiBtn.style.display = 'none';
+                deleteApiBtn.style.display = 'none';
+                return;
+            }
+
+            createButtonDiv.style.display = 'none';
+
+            apiKeyPre.querySelector('.code-text').textContent = token;
+
+            readyRequest.querySelector('.code-text').textContent =
+`curl -X POST '${gasUrl}' \\
+  -d 'api_key=${token}' \\
+  -d 'photo_description=A beautiful sunset over the mountains' \\
+  -d 'width=1024' \\
+  -d 'height=768'`;
+
+            fetchRequest.querySelector('.code-text').textContent =
+`fetch('${gasUrl}', {
+  method: 'POST',
+  body: new URLSearchParams({
+    api_key: '${token}',
+    photo_description: 'A beautiful sunset over the mountains',
+    width: '1024',
+    height: '768'
+  })
+})
+  .then(response => response.json())
+  .then(data => console.log(data));`;
+
+            apiInfo.style.display = 'block';
+            document.getElementById('h2').style.display = 'none';
+
+            const params = new URLSearchParams({ action: 'check', api_key: token });
+            try {
+                const response = await fetch(gasUrl, { method: 'POST', body: params });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    currentLimitSpan.textContent = data.limit;
+                    if (data.limit <= 5 && data.limit > 0) {
+                        currentLimitSpan.style.color = 'red';
+                    } else if (data.limit === 0) {
+                        document.getElementById('h2').style.display = 'block';
+                        currentLimitSpan.style.color = 'red';
+                    }
+
+                    // Показ кнопки обновления, если premium в localStorage true и в данных не Premium
+                    if (localStorage.getItem('premium') === 'true' && !data.premium) {
+                        updateApiBtn.style.display = 'inline-flex';
+                        document.getElementById('h22').textContent = 'Ваш статус Premium изменился! Нажмите "Обновить мои API-данные", чтобы получить дополнительные лимиты!';
+                    } else {
+                        updateApiBtn.style.display = 'none';
+                        document.getElementById('h22').style.display = 'none';
+                    }
+
+                    // Показ кнопки удаления, если admin true
+                    if (localStorage.getItem('admin') === 'true') {
+                        deleteApiBtn.style.display = 'inline-flex';
+                    } else {
+                        deleteApiBtn.style.display = 'none';
+                    }
+                } else {
+                    errorP.textContent = 'Ошибка получения лимита: ' + data.message;
+                }
+            } catch (err) {
+                errorP.textContent = 'Ошибка проверки: ' + err.message;
+            }
+        }
+
+        createBtn.addEventListener('click', async () => {
+            document.body.style.pointerEvents = 'none';
+            showLoader(true);
+            statusP.textContent = '';
+            errorP.textContent = '';
+
+            let token = localStorage.getItem('user_Token');
+            if (!token) {
+                token = crypto.randomUUID();
+                localStorage.setItem('user_Token', token);
+            }
+            const premium = localStorage.getItem('premium') === 'true';
+
+            const params = new URLSearchParams({ action: 'create', api_key: token, premium: premium });
+            try {
+                const response = await fetch(gasUrl, { method: 'POST', body: params });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    localStorage.setItem('hasApi', 'true');
+                    localStorage.setItem('hasAPI', 'true');
+                    statusP.textContent = 'API ключ создан успешно!';
+                    showNotification('API ключ создан успешно!');
+                    createButtonDiv.style.display = 'none';
+                    await checkApiKey();
+                } else {
+                    errorP.textContent = 'Ошибка создания: ' + data.message;
+                    showNotification('Ошибка создания API', '#e74c3c');
+                }
+            } catch (err) {
+                errorP.textContent = 'Ошибка: ' + err.message;
+                showNotification('Сетевая ошибка при создании API', '#e74c3c');
+            } finally {
+                showLoader(false);
+            }
+            document.body.style.pointerEvents = 'auto';
+        });
+
+        async function resetApiKey() {
+            showModalLoader(true);
+            const oldToken = localStorage.getItem('user_Token');
+            if (!oldToken) {
+                showNotification('Нет API-ключа для сброса', '#e74c3c');
+                showModalLoader(false);
+                return;
+            }
+
+            const newToken = crypto.randomUUID();
+            const params = new URLSearchParams({ action: 'reset', old_api_key: oldToken, new_api_key: newToken });
+            try {
+                const response = await fetch(gasUrl, { method: 'POST', body: params });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    localStorage.setItem('user_Token', newToken);
+                    showNotification('API-ключ успешно сброшен!');
+                    await checkApiKey();
+                } else {
+                    showNotification('Ошибка сброса: ' + data.message, '#e74c3c');
+                }
+            } catch (err) {
+                showNotification('Сетевая ошибка при сбросе', '#e74c3c');
+            } finally {
+                showModalLoader(false);
+            }
+        }
+
+        async function updateApiData() {
+            showModalLoader(true);
+            document.body.style.pointerEvents = 'none';
+            const token = localStorage.getItem('user_Token');
+            if (!token || localStorage.getItem('premium') !== 'true') {
+                showNotification('Нет прав для обновления', '#e74c3c');
+                showModalLoader(false);
+                return;
+            }
+
+            const params = new URLSearchParams({ action: 'update_premium', api_key: token });
+            try {
+                const response = await fetch(gasUrl, { method: 'POST', body: params });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    showNotification('API-данные обновлены!');
+                    updateApiBtn.style.display = 'none';
+                    await checkApiKey();
+                } else {
+                    showNotification('Ошибка обновления: ' + data.message, '#e74c3c');
+                }
+            } catch (err) {
+                showNotification('Сетевая ошибка при обновлении', '#e74c3c');
+            } finally {
+                showModalLoader(false);
+            }
+            document.body.style.pointerEvents = 'auto';
+        }
+
+        async function deleteApiKey() {
+            showModalLoader(true);
+            document.body.style.pointerEvents = 'none';
+            const token = localStorage.getItem('user_Token');
+            if (!token) {
+                showNotification('Нет API-ключа для удаления', '#e74c3c');
+                showModalLoader(false);
+                return;
+            }
+
+            const params = new URLSearchParams({ action: 'delete', api_key: token });
+            try {
+                const response = await fetch(gasUrl, { method: 'POST', body: params });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    localStorage.removeItem('hasApi');
+                    localStorage.removeItem('hasAPI');
+                    showNotification('API-ключ удалён!');
+                    window.location.reload();
+                } else {
+                    showNotification('Ошибка удаления: ' + data.message, '#e74c3c');
+                }
+            } catch (err) {
+                showNotification('Сетевая ошибка при удалении', '#e74c3c');
+            } finally {
+                showModalLoader(false);
+            }
+            document.body.style.pointerEvents = 'auto';
+        }
+
+        checkApiKey();
+    </script>
+</body>
+</html>
