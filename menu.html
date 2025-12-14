@@ -16,9 +16,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      transition: all 0.4s ease;
     }
-
     .container {
       background: rgba(255, 255, 255, 0.1);
       padding: 25px 35px;
@@ -28,15 +26,61 @@
       width: 100%;
       max-width: 400px;
       margin-top: 30px;
-      transition: all 0.4s ease;
     }
-
+    .glass {
+      position: relative;
+      overflow: hidden;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 2rem;
+      box-shadow: 
+        0 8px 32px rgba(31, 38, 135, 0.2),
+        inset 0 4px 20px rgba(255, 255, 255, 0.3);
+    }
+    .glass::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      filter: url(#liquid-glass-filter) blur(5px);
+      background: inherit;
+      z-index: -1;
+    }
+    .glass::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2rem;
+      box-shadow: 
+        inset -10px -8px 0px -11px rgba(255, 255, 255, 1),
+        inset 0px -9px 0px -8px rgba(255, 255, 255, 1);
+      opacity: 0.6;
+      z-index: -1;
+      filter: blur(1px) drop-shadow(10px 4px 6px black) brightness(115%);
+    }
+    .btn.glass {
+      border: 1px solid rgba(255,255,255,0.1);
+      background: transparent;
+    }
+    .btn.glass:not(.back-btn)::after {
+      background: rgba(76, 175, 80, 0.1);
+    }
+    .back-btn.glass::after {
+      background: linear-gradient(135deg, rgba(139,0,0,0.2), rgba(255,0,0,0.2));
+    }
     h2 {
       margin-bottom: 25px;
       font-size: 1.8rem;
       font-weight: 600;
+      position: relative;
+      z-index: 1;
     }
-
     .btn {
       display: block;
       width: 70%;
@@ -52,24 +96,21 @@
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       transition: all 0.25s ease;
+      position: relative;
     }
-
     /* 💚 Обычная кнопка */
     .btn:not(.back-btn) {
       background: #4CAF50;
     }
-
     /* 🔵 Кнопка “Вернуться назад” */
     .back-btn {
       background: linear-gradient(135deg, #8b0000, #ff0000);
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
-
-    .btn:active {
+    .btn:active{
       transform: translateY(0);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
-
     /* 📱 Адаптивность */
     @media (max-width: 768px) {
       h2 {
@@ -80,8 +121,10 @@
         padding: 10px 18px;
         font-size: 0.95rem;
       }
+      .container {
+        width: 60%;
+      }
     }
-
     @media (max-width: 480px) {
       h2 {
         font-size: 1.3rem;
@@ -92,38 +135,31 @@
         font-size: 0.9rem;
       }
     }
-
-    /* 💧 Эффект жидкого стекла только для iPhone */
-    body.iphone {
-      background: linear-gradient(135deg, rgba(116,171,226,0.8), rgba(85,99,222,0.8));
-      backdrop-filter: blur(40px) saturate(180%);
-      -webkit-backdrop-filter: blur(40px) saturate(180%);
-    }
-
-    body.iphone .container {
-      background: rgba(255, 255, 255, 0.25);
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(25px) saturate(180%);
-      -webkit-backdrop-filter: blur(25px) saturate(180%);
-    }
   </style>
 </head>
 <body>
+  <svg style="display: none">
+    <filter id="liquid-glass-filter" x="0%" y="0%" width="100%" height="100%" filterUnits="objectBoundingBox">
+      <feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="3" seed="1" result="turbulence"/>
+      <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="10" xChannelSelector="R" yChannelSelector="G" result="displacement"/>
+      <feGaussianBlur in="displacement" stdDeviation="5" result="blur"/>
+    </filter>
+  </svg>
   <div class="container">
     <h2>Меню</h2>
-    <a href="index.html" class="btn back-btn">Вернуться назад</a>
+    <a href="index.html" class="btn back-btn" style="background: linear-gradient(135deg, #8b0000, #ff0000);">Вернуться назад</a>
+    <a href="setID.html" class="btn">Изменить мой Telegram ID</a>
     <a href="story.html" class="btn">История генераций</a>
   </div>
-
   <script>
-    // 📱 Проверка: только iPhone
-    const isIPhone = /iPhone/i.test(navigator.userAgent);
-    if (isIPhone) {
-      document.body.classList.add('iphone');
-      alert("💧 Эффект жидкого стекла активирован для iPhone");
+    if (/iPhone/i.test(navigator.userAgent)) {
+      document.querySelector('.container').classList.add('glass');
+      document.querySelectorAll('.btn').forEach(btn => btn.classList.add('glass'));
+      document.querySelectorAll('button, .btn').forEach(el => {
+        el.style.border = '1px solid rgba(255, 255, 255, 0.8)';
+      });
+
     }
   </script>
 </body>
 </html>
-
