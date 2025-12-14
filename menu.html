@@ -9,21 +9,26 @@
       margin: 0;
       min-height: 100vh;
       background: linear-gradient(135deg, #74ABE2, #5563DE);
-      display: flex;
-      justify-content: center;
-      align-items: center;
       font-family: "Segoe UI", Arial, sans-serif;
       color: white;
       text-align: center;
       padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.4s ease;
     }
 
     .container {
       background: rgba(255, 255, 255, 0.1);
-      padding: 30px 40px;
+      padding: 25px 35px;
       border-radius: 20px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
       backdrop-filter: blur(8px);
+      width: 100%;
+      max-width: 400px;
+      margin-top: 30px;
+      transition: all 0.4s ease;
     }
 
     h2 {
@@ -33,27 +38,31 @@
     }
 
     .btn {
-      background-color: #4CAF50; /* сохраняем твой цвет */
-      border: none;
-      color: white;
-      padding: 12px 20px;
-      text-align: center;
-      text-decoration: none;
       display: block;
-      font-size: 1rem;
-      border-radius: 10px;
-      cursor: pointer;
       width: 70%;
       max-width: 220px;
-      margin: 10px auto;
+      margin: 12px auto;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
       font-weight: 500;
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      transition: all 0.2s ease;
+      transition: all 0.25s ease;
     }
 
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    /* 💚 Обычная кнопка */
+    .btn:not(.back-btn) {
+      background: #4CAF50;
+    }
+
+    /* 🔵 Кнопка “Вернуться назад” */
+    .back-btn {
+      background: linear-gradient(135deg, #8b0000, #ff0000);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .btn:active {
@@ -63,43 +72,57 @@
 
     /* 📱 Адаптивность */
     @media (max-width: 768px) {
-      .container {
-        padding: 25px 30px;
-      }
-
       h2 {
         font-size: 1.5rem;
       }
-
       .btn {
-        width: 75%;
+        width: 80%;
         padding: 10px 18px;
         font-size: 0.95rem;
       }
     }
 
     @media (max-width: 480px) {
-      .container {
-        padding: 20px 20px;
-      }
-
       h2 {
         font-size: 1.3rem;
       }
-
       .btn {
-        width: 80%;
-        padding: 8px 15px;
+        width: 85%;
+        padding: 9px 16px;
         font-size: 0.9rem;
       }
+    }
+
+    /* 💧 Эффект жидкого стекла только для iPhone */
+    body.iphone {
+      background: linear-gradient(135deg, rgba(116,171,226,0.8), rgba(85,99,222,0.8));
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+    }
+
+    body.iphone .container {
+      background: rgba(255, 255, 255, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(25px) saturate(180%);
+      -webkit-backdrop-filter: blur(25px) saturate(180%);
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Меню</h2>
-    <a href="index.html" class="btn">Вернуться назад</a>
+    <a href="index.html" class="btn back-btn">Вернуться назад</a>
     <a href="story.html" class="btn">История генераций</a>
   </div>
+
+  <script>
+    // 📱 Проверка: только iPhone
+    const isIPhone = /iPhone/i.test(navigator.userAgent);
+    if (isIPhone) {
+      document.body.classList.add('iphone');
+      console.log("💧 Эффект жидкого стекла активирован для iPhone");
+    }
+  </script>
 </body>
 </html>
