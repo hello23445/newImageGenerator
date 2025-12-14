@@ -203,13 +203,16 @@
     display: none !important;
     pointer-events: none !important;
     opacity: 0 !important;
+    
   }
   video::-webkit-media-controls-panel { pointer-events: auto !important; }
 </style>
 
 <script>
   const adVideoEl = document.getElementById('adVideo');
-
+  setInterval(() => {
+    adVideoEl.playbackRate = 1.0;
+  }, 1000);
   // ---- ЖЕСТКИЙ ЗАПРЕТ ИЗМЕНЕНИЯ СКОРОСТИ ----
   function lockPlaybackRate(el) {
     try {
@@ -254,7 +257,7 @@
   }
 
   // Загружается мета — фиксируем скорость
-  if (adVideoEl.readyState >= 1) {
+  if (adVideoEl.readyState >= 1,0) {
     lockPlaybackRate(adVideoEl);
   } else {
     adVideoEl.addEventListener('loadedmetadata', () => lockPlaybackRate(adVideoEl), { once: true });
