@@ -619,13 +619,15 @@
     }
     });
     if (/iPhone/i.test(navigator.userAgent)) {
-      const style = document.createElement('style');
-      style.textContent = `
-        button, .btn, .btn btn--danger, .btn--neutral {
-          border: 1px solid rgba(255, 255, 255, 0.8) !important;
-        }
-      `;
-      document.head.appendChild(style);
+      if (localStorage.getItem('liquid') === 'Включен') {
+        const style = document.createElement('style');
+        style.textContent = `
+          button, .btn, .btn btn--danger, .btn--neutral {
+            border: 1px solid rgba(255, 255, 255, 0.8) !important;
+          }
+        `;
+        document.head.appendChild(style);
+      }
     }
 
     // ====== INIT ======

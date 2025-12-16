@@ -2728,6 +2728,17 @@ function closeEditModal() {
   document.getElementById('editModal').style.display = 'none';
   currentEditFieldId = null;
 }
+    if (/iPhone/i.test(navigator.userAgent)) {
+      if (localStorage.getItem('liquid') === 'Включен') {
+        const style = document.createElement('style');
+        style.textContent = `
+          button, .btn, .btn btn--danger, .btn--neutral {
+            border: 1px solid rgba(255, 255, 255, 0.8) !important;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }
     </script>
 </body>
 </html>
