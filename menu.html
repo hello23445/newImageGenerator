@@ -184,7 +184,7 @@
 
       const enabled = (state === 'Включен');
       applyLiquidState(enabled);
-      toggleBtn.textContent = `Liquid glass: ${state}`;
+      toggleBtn.textContent = `Liquid Glass: ${state}`;
 
       toggleBtn.addEventListener('click', () => {
         const current = localStorage.getItem('liquid') || 'Включен';
@@ -192,9 +192,10 @@
         localStorage.setItem('liquid', next);
 
         applyLiquidState(next === 'Включен');
-        toggleBtn.textContent = `Liquid glass: ${next}`;
+        toggleBtn.textContent = `Liquid Glass: ${next}`;
       });
     }
   </script>
 </body>
+
 </html>
