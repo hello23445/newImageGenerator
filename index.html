@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Image Generator</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
   <link rel="stylesheet" href="styles.css" />
@@ -193,6 +193,56 @@
         <span style="font-size: larger;">Дополнительные параметры</span>
       </div>
 
+      <!-- ВАЖНО: Качество/Освещение/Уровень детализации сразу под "Параметры" -->
+      <div class="grid grid-3">
+        <div class="field">
+          <label for="quality" id="qw">Качество фото</label>
+          <select id="quality">
+            <option value="none" selected disabled>Выберите качество фото</option>
+            <option value="144p">144p</option>
+            <option value="240p">240p</option>
+            <option value="360p">360p</option>
+            <option value="480p">480p</option>
+            <option value="720p60">720p60</option>
+            <option value="1080p60">1080p60 (HD)</option>
+            <option value="1440p60">1440p60 (HD)</option>
+            <option value="2160p60" disabled>(Premium)2160p60 (4K)</option>
+            <option value="4320p" disabled>(Premium)4320p (8K)</option>
+          </select>
+          <div class="hint">Чем выше — тем “тяжелее” генерация.</div>
+        </div>
+
+        <div class="field">
+          <label for="osvecheniye">Тип освещения</label>
+          <select id="osvecheniye">
+            <option value="Автоматический выбор" selected>Автоматический выбор освещения</option>
+            <option value="Естественное освещение">Естественное освещение</option>
+            <option value="Студийное освещение">Студийное освещение</option>
+            <option value="Теплый свет">Теплый свет</option>
+            <option value="Холодный свет">Холодный свет</option>
+            <option value="Кино-свет">Кино-свет</option>
+            <option value="HDR">HDR</option>
+            <option value="Контровой свет">Контровой свет</option>
+            <option value="Мягкие тени" disabled>(Premium)Мягкие тени</option>
+            <option value="Жесткие тени" disabled>(Premium)Жесткие тени</option>
+            <option value="Низкое освещение" disabled>(Premium)Низкое освещение</option>
+          </select>
+          <div class="hint">Свет влияет на атмосферу кадра.</div>
+        </div>
+
+        <div class="field">
+          <label for="detail-level">Уровень детализации</label>
+          <select id="detail-level">
+            <option value="Низкий">Низкий</option>
+            <option value="weak">Слабый</option>
+            <option value="normal" selected>Нормальный</option>
+            <option value="high" disabled>(Premium)Высокий</option>
+            <option value="ultra" disabled>(Premium)Ультра</option>
+          </select>
+          <div class="hint">Больше деталей — дольше генерация.</div>
+        </div>
+      </div>
+
       <!-- {Поле ввода размера}{Селект выбора размера}{Соотношение сторон} -->
       <div class="grid grid-3">
         <div class="field">
@@ -273,56 +323,6 @@
             </optgroup>
           </select>
           <div class="hint">Форма кадра (ширина/высота).</div>
-        </div>
-      </div>
-
-      <!-- ВАЖНО: Качество/Освещение/Уровень детализации сразу под "Параметры" -->
-      <div class="grid grid-3">
-        <div class="field">
-          <label for="quality" id="qw">Качество фото</label>
-          <select id="quality">
-            <option value="none" selected disabled>Выберите качество фото</option>
-            <option value="144p">144p</option>
-            <option value="240p">240p</option>
-            <option value="360p">360p</option>
-            <option value="480p">480p</option>
-            <option value="720p60">720p60</option>
-            <option value="1080p60">1080p60 (HD)</option>
-            <option value="1440p60">1440p60 (HD)</option>
-            <option value="2160p60" disabled>(Premium)2160p60 (4K)</option>
-            <option value="4320p" disabled>(Premium)4320p (8K)</option>
-          </select>
-          <div class="hint">Чем выше — тем “тяжелее” генерация.</div>
-        </div>
-
-        <div class="field">
-          <label for="osvecheniye">Тип освещения</label>
-          <select id="osvecheniye">
-            <option value="Автоматический выбор" selected>Автоматический выбор освещения</option>
-            <option value="Естественное освещение">Естественное освещение</option>
-            <option value="Студийное освещение">Студийное освещение</option>
-            <option value="Теплый свет">Теплый свет</option>
-            <option value="Холодный свет">Холодный свет</option>
-            <option value="Кино-свет">Кино-свет</option>
-            <option value="HDR">HDR</option>
-            <option value="Контровой свет">Контровой свет</option>
-            <option value="Мягкие тени" disabled>(Premium)Мягкие тени</option>
-            <option value="Жесткие тени" disabled>(Premium)Жесткие тени</option>
-            <option value="Низкое освещение" disabled>(Premium)Низкое освещение</option>
-          </select>
-          <div class="hint">Свет влияет на атмосферу кадра.</div>
-        </div>
-
-        <div class="field">
-          <label for="detail-level">Уровень детализации</label>
-          <select id="detail-level">
-            <option value="Низкий">Низкий</option>
-            <option value="weak">Слабый</option>
-            <option value="normal" selected>Нормальный</option>
-            <option value="high" disabled>(Premium)Высокий</option>
-            <option value="ultra" disabled>(Premium)Ультра</option>
-          </select>
-          <div class="hint">Больше деталей — дольше генерация.</div>
         </div>
       </div>
 
@@ -922,7 +922,7 @@
       <div class="modal-buttons" style="align-items: center; justify-content: center; display: flex;">
         <button id="saveEdit" class="btn btn--primary" title="Сохранить изменения.">Сохранить</button>
         <button id="cancelEdit" class="btn btn--secondary" title="Отменить изменения.">Отмена</button>
-        <button id="copy" class="btn btn--secondary" title="Скопировать текст из поля в буфер обмена.">Скопировать</button>
+        <button id="copy" class="btn btn--secondary" title="Скопировать текст из поля в буфер обмена."><i class="fa-solid fa-copy"></i></button>
         <button id="clearEdit" class="btn btn--secondary" title="Очистить поле.">Очистить</button>
       </div>
     </div>
@@ -941,21 +941,22 @@
 
   copyBtn.addEventListener('click', async () => {
     const textToCopy = document.getElementById('editTextarea').value; // ← замени на нужный текст
-    if (!textToCopy) return copyBtn.textContent = 'Нет текста!';
-    else if (textToCopy === '') return copyBtn.textContent = 'Нет текста!';
-
-    try {
-      await navigator.clipboard.writeText(textToCopy);
-      copyBtn.textContent = 'Скопировано!';
-      document.getElementById('editTextarea').focus();
-    } catch (err) {
-      document.getElementById('editTextarea').focus();
-      copyBtn.textContent = 'Ошибка!';
+    if (!textToCopy || textToCopy === '') {
+      copyBtn.innerHTML = '<i class="fa-solid fa-ban"></i>';
+    } else {
+      try {
+        await navigator.clipboard.writeText(textToCopy);
+        copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+        document.getElementById('editTextarea').focus();
+      } catch (err) {
+        document.getElementById('editTextarea').focus();
+        copyBtn.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i>';
+      }
     }
 
     // вернуть исходную надпись через 2 секунды
     setTimeout(() => {
-      copyBtn.textContent = 'Скопировать';
+      copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i>';
     }, 2000);
   });
 </script>
