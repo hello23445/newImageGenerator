@@ -154,6 +154,7 @@ function displayPreviews() {
     item.appendChild(img);
     item.appendChild(delBtn);
     previewsContainer.appendChild(item);
+    previewsCont.style.display = 'block';
   });
 }
 
@@ -472,7 +473,7 @@ function checkPromoCode() {
     mainContainer.style.display = 'grid';
     checkAttempts();
   } else {
-    warning.textContent = 'Неверный промокод';
+    warning.textContent = 'Неверный промокод!';
     warning.style.display = 'block';
   }
 }
@@ -1561,6 +1562,8 @@ function openEditModal(fieldId) {
 
   document.getElementById('clearEdit').onclick = () => {
     textarea.value = '';
+    textarea.focus();
+    document.getElementById('copy').disabled = true;
     autoExpand();
   };
 }

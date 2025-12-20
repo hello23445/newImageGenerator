@@ -25,7 +25,7 @@
     <section class="card card--primary">
       <div class="section-title">
         <i class="fa-solid fa-wand-magic-sparkles"></i>
-        <span>Генерация фото</span>
+        <span style="font-size: larger;">Генерация фото</span>
       </div>
 
       <!-- {Поле описание(большого размера)} -->
@@ -176,7 +176,7 @@
         </div>
 
         <!-- ВАЖНО: заголовок скрыт, пока #previews пуст -->
-        <div class="field uploaded-field">
+        <div class="field uploaded-field" style="display: none;" id="previewsCont">
           <div class="row-head uploaded-head">
             <label>Загруженные фото</label>
             <div class="hint">Нажмите на корзину, чтобы удалить.</div>
@@ -190,7 +190,7 @@
     <section class="card">
       <div class="section-title">
         <i class="fa-solid fa-sliders"></i>
-        <span>Дополнительные параметры</span>
+        <span style="font-size: larger;">Дополнительные параметры</span>
       </div>
 
       <!-- {Поле ввода размера}{Селект выбора размера}{Соотношение сторон} -->
@@ -296,7 +296,7 @@
         </div>
 
         <div class="field">
-          <label for="osvecheniye">Выберите освещение</label>
+          <label for="osvecheniye">Тип освещения</label>
           <select id="osvecheniye">
             <option value="Автоматический выбор" selected>Автоматический выбор освещения</option>
             <option value="Естественное освещение">Естественное освещение</option>
@@ -694,38 +694,38 @@
             <input type="checkbox" id="agree" />
             <span>Я соглашаюсь с <a href="https://t.me/GeneratorPhotosBot/rules">правилами</a></span>
           </label>
-          <div class="hint">Без согласия генерация недоступна.</div>
+          <div class="hint">Согласитесь с правилами чтобы продолжить.</div>
         </div>
       </div>
 
       <!-- Buttons -->
       <div class="grid grid-2">
-        <button class="btn btn--primary" onclick="checkBadWords()" id="generate">
+        <button class="btn btn--primary" onclick="checkBadWords()" id="generate" title="Нажмите, чтобы начать генерацию. Сначала вам потребуется выбрать удобный для вас мессенджер, чтобы мы могли отправить вам результат.">
           <i class="fa-solid fa-wand-sparkles"></i>
           <span>Сгенерировать</span>
         </button>
-        <button class="btn btn--accent" onclick="fastGenerate()" id="fastGenerateButton" disabled>
+        <button class="btn btn--accent" onclick="fastGenerate()" id="fastGenerateButton" disabled title="Нажмите чтобы начать быструю генерацию фото. Эта опция доступна только Premium-пользователям.">
           <i class="fa-solid fa-bolt"></i>
           <span>Сгенерировать (Максимально быстро)</span>
         </button>
       </div>
 
-      <div class="grid grid-3">
-        <button class="btn btn--secondary" onclick="surpriseMode()">
+      <div class="grid grid-3" style="margin-top: 2%;">
+        <button class="btn btn--secondary" onclick="surpriseMode()" title="Нажмите чтобы получить случайные параметры генерации.">
           <i class="fa-solid fa-dice"></i>
           <span>Удиви меня</span>
         </button>
-        <button class="btn btn--secondary" onclick="window.location.href='api.html'">
+        <button class="btn btn--secondary" onclick="window.location.href='api.html'" title="Перейти к вашему API-ключу.">
           <i class="fa-solid fa-key"></i>
           <span>Мой API-ключ</span>
         </button>
-        <button class="btn btn--secondary" onclick="BuyPremium()">
+        <button class="btn btn--secondary" onclick="BuyPremium()" title="Нажмите чтобы купить Premium-подписку и получить доступ ко всем функциям.">
           <i class="fa-solid fa-crown"></i>
           <span>Купить Premium</span>
         </button>
       </div>
 
-      <div id="attemptsDisplay" class="attempts">
+      <div id="attemptsDisplay" class="attempts" title="Количество ваших генераций.">
         <b>Осталось генераций: <span id="attemptsLeft"></span><span id="slashMax">/2</span></b>
       </div>
     </section>
@@ -737,18 +737,18 @@
 
   <!-- NO ATTEMPTS MODAL -->
   <div id="noAttemptsModal" class="modal" style="display: none;">
-    <div class="modal-content">
-      <h2>Попытки закончились</h2>
-      <p>У вас нет доступных генераций на сегодня. Загляните завтра!</p>
+    <div class="modal-content" style="background: var(--panel-bg);">
+      <h2 style="color: #d9d9d9; text-align: center;">Попытки закончились</h2>
+      <p style="color: #d9d9d9;">У вас нет доступных генераций на сегодня. Загляните завтра!</p>
       <div class="field">
-        <label for="promoCode">Промокод для дополнительных лимитов</label>
+        <label for="promoCode" style="color: #d9d9d9; margin-top: 4%; text-align: center;">Введите промокод для получения дополнительных лимитов.</label>
         <input type="text" id="promoCode" />
       </div>
       <div class="grid grid-2">
-        <button class="btn btn--primary" onclick="checkPromoCode()">Отправить</button>
-        <button class="btn btn--secondary" onclick="window.location.href='ad.html'">Посмотреть рекламу</button>
+        <button class="btn btn--primary" onclick="checkPromoCode()" title="Отправить промокод.">Отправить</button>
+        <button class="btn btn--secondary" onclick="window.location.href='ad.html'" title="Посмотреть рекламу чтобы получить лимиты.">Посмотреть рекламу</button>
       </div>
-      <div id="warning" class="warning" style="display:none;"></div>
+      <div id="warning" class="warning" style="display:none; font-size: larger;"></div>
     </div>
   </div>
 
@@ -919,13 +919,46 @@
       <textarea id="editTextarea" style="width: 100%;"></textarea>
       <div id="editCounter" class="counter" style="color:white;"></div>
       <div id="editDesc" class="hint" style="color:white;"></div>
-      <div class="modal-buttons">
-        <button id="saveEdit" class="btn btn--primary">Сохранить</button>
-        <button id="cancelEdit" class="btn btn--secondary">Отмена</button>
-        <button id="clearEdit" class="btn btn--secondary">Очистить поле</button>
+      <div class="modal-buttons" style="align-items: center; justify-content: center; display: flex;">
+        <button id="saveEdit" class="btn btn--primary" title="Сохранить изменения.">Сохранить</button>
+        <button id="cancelEdit" class="btn btn--secondary" title="Отменить изменения.">Отмена</button>
+        <button id="copy" class="btn btn--secondary" title="Скопировать текст из поля в буфер обмена.">Скопировать</button>
+        <button id="clearEdit" class="btn btn--secondary" title="Очистить поле.">Очистить</button>
       </div>
     </div>
   </div>
+
+  <script>
+    document.getElementById('editTextarea').addEventListener('input', function() {
+      if (this.value === '') {
+        document.getElementById('copy').disabled = true;
+      }
+      else {
+        document.getElementById('copy').disabled = false;
+      }
+    });
+  const copyBtn = document.getElementById('copy');
+
+  copyBtn.addEventListener('click', async () => {
+    const textToCopy = document.getElementById('editTextarea').value; // ← замени на нужный текст
+    if (!textToCopy) return copyBtn.textContent = 'Нет текста!';
+    else if (textToCopy === '') return copyBtn.textContent = 'Нет текста!';
+
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      copyBtn.textContent = 'Скопировано!';
+      document.getElementById('editTextarea').focus();
+    } catch (err) {
+      document.getElementById('editTextarea').focus();
+      copyBtn.textContent = 'Ошибка!';
+    }
+
+    // вернуть исходную надпись через 2 секунды
+    setTimeout(() => {
+      copyBtn.textContent = 'Скопировать';
+    }, 2000);
+  });
+</script>
 
   <script type="module" src="script.js"></script>
 </body>
