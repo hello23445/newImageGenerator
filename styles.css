@@ -571,7 +571,7 @@ input:disabled, select:disabled, textarea:disabled{
   }
 
   .btn{
-    font-size: 13px;
+    font-size: 14px;
     padding: 10px 10px;
     border-radius: 14px;
     gap: 8px;
