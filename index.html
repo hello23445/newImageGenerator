@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta
-  name="description"
-  content="Бесплатный онлайн-генератор изображений CrN PhotoAI. Создавайте уникальные фото по текстовому описанию прямо в браузере. Приобретите Premium для расширенных возможностей таких как генерация фото в качестве 8К и многое другое!"
->
-  <title> CrN PhotoAI Бесплатный генератор изображений</title>
+  <meta 
+  name="description" 
+  content="Бесплатный онлайн-генератор изображений CrN PhotoAI. Создавайте уникальные фото по текстовому описанию прямо в браузере. Приобретите Premium для расширенных возможностей таких как генерация фото в качестве 8К и многое другое!" >
+  <title>CrN PhotoAI Бесплатный генератор изображений.</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -22,7 +21,6 @@
       <div class="app-subtitle">Настрой параметры и нажимай кнопку генерации.</div>
     </div>
   </header>
-
   <!-- Main -->
   <main id="mainContainer" class="app">
     <!-- LEFT: Описание -->
@@ -31,7 +29,6 @@
         <i class="fa-solid fa-wand-magic-sparkles"></i>
         <span style="font-size: larger;">Генерация фото</span>
       </div>
-
       <!-- {Поле описание(большого размера)} -->
       <div class="field">
         <label for="description">Описание фото (обязательно)</label>
@@ -39,7 +36,6 @@
         <div class="counter" id="descriptionCounter">0/500</div>
         <div class="hint">Бесплатно до 500 символов, Premium — до 1000.</div>
       </div>
-
       <!-- {Поле ввода текста}{Поле ввода исключений}(Фон фото и галочка размытия) -->
       <div class="grid grid-2">
         <div class="field">
@@ -55,7 +51,6 @@
           <div class="hint">Например: люди, животные, текст, логотипы и т.д.</div>
         </div>
       </div>
-
       <!-- Сжали расстояния между блоками: фон + размытие -->
       <div class="grid grid-2 tight">
         <div class="field">
@@ -155,7 +150,6 @@
           </select>
           <div class="hint">Фон помогает сделать картинку атмосфернее.</div>
         </div>
-
         <div class="field field--inline compact-hint">
           <label class="checkbox" for="razmitiyPHON">
             <input type="checkbox" id="razmitiyPHON" />
@@ -164,7 +158,14 @@
           <div class="hint">Размытие фона делает фокус на главном объекте.</div>
         </div>
       </div>
-
+      <!-- Параметр Автоматический выбор стиля текста -->
+      <div class="field field--inline compact-hint">
+        <label class="checkbox" for="autoTextStyle" id="autoTextStyleLabel">
+          <input type="checkbox" id="autoTextStyle" />
+          <span>Автоматический выбор стиля текста</span>
+        </label>
+        <div class="hint">Автоматически выбирает стиль текста для фото.</div>
+      </div>
       <!-- {Поле загрузки фото}{Загруженные фото...} -->
       <div class="grid grid-2">
         <div class="field">
@@ -178,7 +179,6 @@
           <div id="preloader" class="small-preloader" aria-live="polite">Загрузка...</div>
           <div id="result" class="result"></div>
         </div>
-
         <!-- ВАЖНО: заголовок скрыт, пока #previews пуст -->
         <div class="field uploaded-field" style="display: none;" id="previewsCont">
           <div class="row-head uploaded-head">
@@ -189,14 +189,12 @@
         </div>
       </div>
     </section>
-
     <!-- RIGHT: Параметры -->
     <section class="card">
       <div class="section-title">
         <i class="fa-solid fa-sliders"></i>
         <span style="font-size: larger;">Дополнительные параметры</span>
       </div>
-
       <!-- ВАЖНО: Качество/Освещение/Уровень детализации сразу под "Параметры" -->
       <div class="grid grid-3">
         <div class="field">
@@ -215,7 +213,6 @@
           </select>
           <div class="hint">Чем выше — тем “тяжелее” генерация.</div>
         </div>
-
         <div class="field">
           <label for="osvecheniye">Тип освещения</label>
           <select id="osvecheniye">
@@ -233,7 +230,6 @@
           </select>
           <div class="hint">Свет влияет на атмосферу кадра.</div>
         </div>
-
         <div class="field">
           <label for="detail-level">Уровень детализации</label>
           <select id="detail-level">
@@ -246,25 +242,23 @@
           <div class="hint">Больше деталей — дольше генерация.</div>
         </div>
       </div>
-
       <!-- {Поле ввода размера}{Селект выбора размера}{Соотношение сторон} -->
       <div class="grid grid-3">
         <div class="field">
           <label for="sizeInput">Размер (в пикселях)</label>
-          <input
-            type="text"
-            id="sizeInput"
-            placeholder="Например: 1920x1080"
-            oninput="if (document.getElementById('sizeInput').value !== '' && document.getElementById('sizeSelect').value !== ''){document.getElementById('soot').disabled = true}else{document.getElementById('soot').disabled = false}"
+          <input 
+            type="text" 
+            id="sizeInput" 
+            placeholder="Например: 1920x1080" 
+            oninput="if (document.getElementById('sizeInput').value !== '' && document.getElementById('sizeSelect').value !== ''){document.getElementById('soot').disabled = true}else{document.getElementById('soot').disabled = false}" 
           />
           <div class="hint">Можно вручную или выбрать из списка.</div>
         </div>
-
         <div class="field">
           <label for="sizeSelect">Выбор размера</label>
-          <select
-            id="sizeSelect"
-            onchange="if (document.getElementById('sizeInput').value !== '' && document.getElementById('sizeSelect').value !== ''){document.getElementById('soot').disabled = true}else{document.getElementById('soot').disabled = false}"
+          <select 
+            id="sizeSelect" 
+            onchange="if (document.getElementById('sizeInput').value !== '' && document.getElementById('sizeSelect').value !== ''){document.getElementById('soot').disabled = true}else{document.getElementById('soot').disabled = false}" 
           >
             <option value="">Выберите размер</option>
             <option value="640x480">640x480</option>
@@ -302,11 +296,10 @@
           </select>
           <div class="hint">Premium открывает больше размеров.</div>
         </div>
-
         <div class="field">
           <label for="soot">Соотношение сторон</label>
-          <select
-            id="soot"
+          <select 
+            id="soot" 
             onchange="if (document.getElementById('soot').value !== '9:16'){document.getElementById('sizeSelect').disabled = true; localStorage.getItem('premium') === 'true' ? sizeInput.disabled = true : ''}else{document.getElementById('sizeSelect').disabled = false ; localStorage.getItem('premium') === 'true' ? sizeInput.disabled = false : '';}">
             <optgroup label="По-умолчанию">
               <option value="9:16" selected>9:16 (Вертикаль / Сторис)</option>
@@ -329,7 +322,6 @@
           <div class="hint">Форма кадра (ширина/высота).</div>
         </div>
       </div>
-
       <!-- ВАЖНО: поменяли местами Style и Detail-level -->
       <!-- {Выбор ИИ}{Стиль}{Тон цвета} -->
       <div class="grid grid-3">
@@ -434,7 +426,6 @@
           </select>
           <div class="hint">Выбор ИИ влияет на стиль/качество результата.</div>
         </div>
-
         <div class="field">
           <label for="style">Стиль</label>
           <select id="style">
@@ -523,7 +514,6 @@
           </select>
           <div class="hint">Визуальная подача изображения.</div>
         </div>
-
         <div class="field">
           <label for="color-tone">Тон цвета</label>
           <select id="color-tone">
@@ -553,7 +543,6 @@
           <div class="hint">Общее цветовое настроение.</div>
         </div>
       </div>
-
       <!-- {Рамка}{Ракурс}{Согласование с правилами} -->
       <div class="grid grid-3">
         <div class="field">
@@ -644,7 +633,6 @@
           </select>
           <div class="hint">Декоративная обводка вокруг фото.</div>
         </div>
-
         <div class="field">
           <label for="rakurs">Ракурс</label>
           <select id="rakurs">
@@ -692,7 +680,6 @@
           </select>
           <div class="hint">С какого положения “смотрит” камера.</div>
         </div>
-
         <div class="field field--inline">
           <label class="checkbox" id="agreeLabel" for="agree">
             <input type="checkbox" id="agree" />
@@ -701,7 +688,6 @@
           <div class="hint">Согласитесь с правилами чтобы продолжить.</div>
         </div>
       </div>
-
       <!-- Buttons -->
       <div class="grid grid-2">
         <button class="btn btn--primary" onclick="checkBadWords()" id="generate" title="Нажмите, чтобы начать генерацию. Сначала вам потребуется выбрать удобный для вас мессенджер, чтобы мы могли отправить вам результат.">
@@ -713,7 +699,6 @@
           <span>Сгенерировать (Максимально быстро)</span>
         </button>
       </div>
-
       <div class="grid grid-3" style="margin-top: 2%;">
         <button class="btn btn--secondary" onclick="surpriseMode()" title="Нажмите чтобы получить случайные параметры генерации.">
           <i class="fa-solid fa-dice"></i>
@@ -728,243 +713,289 @@
           <span>Premium</span>
         </button>
       </div>
-
       <div id="attemptsDisplay" class="attempts" title="Количество ваших генераций.">
         <b>Осталось генераций: <span id="attemptsLeft"></span><span id="slashMax">/2</span></b>
       </div>
     </section>
-
     <!-- Hidden controls (kept IDs for JS compatibility) -->
-    <input type="checkbox" id="autoTextStyle" style="display:none" />
-    <label id="autoTextStyleLabel" style="display:none"></label>
-  </main>
-
-  <!-- NO ATTEMPTS MODAL -->
-  <div id="noAttemptsModal" class="modal" style="display: none;">
-    <div class="modal-content" style="background: var(--panel-bg);">
-      <h2 style="color: #d9d9d9; text-align: center;">Попытки закончились</h2>
-      <p style="color: #d9d9d9;">У вас нет доступных генераций на сегодня. Загляните завтра!</p>
-      <div class="field">
-        <label for="promoCode" style="color: #d9d9d9; margin-top: 4%; text-align: center;">Введите промокод для получения дополнительных лимитов.</label>
-        <input type="text" id="promoCode" />
-      </div>
-      <div class="grid grid-2">
-        <button class="btn btn--primary" onclick="checkPromoCode()" title="Отправить промокод.">Отправить</button>
-        <button class="btn btn--secondary" onclick="window.location.href='ad.html'" title="Посмотреть рекламу чтобы получить лимиты.">Посмотреть рекламу</button>
-      </div>
-      <div id="warning" class="warning" style="display:none; font-size: larger;"></div>
-    </div>
-  </div>
-
-  <!-- MESSENGER MODAL -->
-  <div id="messengerModal" class="modal" style="display: none;">
-    <div class="modal-content" style=" overflow-y: scroll; background:
-    radial-gradient(900px 500px at 20% 0%, rgba(59,130,246,0.35), transparent 60%),
-    radial-gradient(900px 500px at 80% 10%, rgba(34,211,238,0.28), transparent 60%),
-    linear-gradient(180deg, var(--bg-1), var(--bg-2));">
-      <h2 style="color: white;">Выберите способ получения результата</h2>
-      <div class="radio-group">
-        <div class="radio-option" onclick="document.getElementById('whatsapp').click()">
-          <input type="radio" name="messenger" id="whatsapp" value="whatsapp" disabled />
-          <label for="whatsapp">
-            <i class="fa-brands fa-whatsapp"></i>
-            Отправить по WhatsApp <span id="p1" class="pill">(Premium)</span>
-            <i class="fa-brands fa-whatsapp icon-end"></i>
-          </label>
-        </div>
-        <div class="radio-option" onclick="document.getElementById('email').click()">
-          <input type="radio" name="messenger" id="email" value="email" />
-          <label for="email">
-            <i class="fa-solid fa-envelope"></i>
-            Отправить на почту
-            <i class="fa-solid fa-envelope icon-end"></i>
-          </label>
-        </div>
-        <div class="radio-option" onclick="document.getElementById('telegram').click()">
-          <input type="radio" name="messenger" id="telegram" value="telegram" disabled />
-          <label for="telegram">
-            <i class="fa-brands fa-telegram"></i>
-            Отправить по Telegram <span id="p2" class="pill">(Premium)</span>
-            <i class="fa-brands fa-telegram icon-end"></i>
-          </label>
-        </div>
-        <div class="radio-option" onclick="document.getElementById('telegramBot').click()">
-          <input type="radio" name="messenger" id="telegramBot" value="telegramBot" />
-          <label for="telegramBot">
-            <i class="fa-brands fa-telegram"></i>
-            Отправить через Telegram бота
-            <i class="fa-brands fa-telegram icon-end"></i>
-          </label>
-        </div>
-        <div class="radio-option" onclick="document.getElementById('app').click()">
-          <input type="radio" name="messenger" id="app" value="app" disabled />
-          <label for="app">
-            <i class="fa-solid fa-mobile-screen"></i>
-            Получить в приложении <span id="p22" class="pill">(Premium)</span>
-            <i class="fa-solid fa-mobile-screen icon-end"></i>
-          </label>
-        </div>
-      </div>
-      <div id="contactInput" style="display: none;">
+    <!-- NO ATTEMPTS MODAL -->
+    <div id="noAttemptsModal" class="modal" style="display: none;">
+      <div class="modal-content" style="background: var(--panel-bg);">
+        <h2 style="color: #d9d9d9; text-align: center;">Попытки закончились</h2>
+        <p style="color: #d9d9d9;">У вас нет доступных генераций на сегодня. Загляните завтра!</p>
         <div class="field">
-          <label id="contactLabel"></label>
-          <input type="text" id="contact" />
+          <label for="promoCode" style="color: #d9d9d9; margin-top: 4%; text-align: center;">Введите промокод для получения дополнительных лимитов.</label>
+          <input type="text" id="promoCode" />
         </div>
+        <div class="grid grid-2">
+          <button class="btn btn--primary" onclick="checkPromoCode()" title="Отправить промокод.">Отправить</button>
+          <button class="btn btn--secondary" onclick="window.location.href='ad.html'" title="Посмотреть рекламу чтобы получить лимиты.">Посмотреть рекламу</button>
+        </div>
+        <div id="warning" class="warning" style="display:none; font-size: larger;"></div>
       </div>
-      <div id="authMessage" style="display: none;">
-        <div class="info-box">
-          <div class="info-text">
-            Чтобы бот мог отправить вам фото, нужно авторизоваться.
+    </div>
+    <!-- MESSENGER MODAL -->
+     <style>
+      .modal-content::-webkit-scrollbar{
+        width: 8px;
+      }
+      .modal-content::-webkit-scrollbar-track {
+        background: #061226; /* ещё темнее */
+        border-radius: 8px;
+      }
+      .modal::-webkit-scrollbar-thumb {
+        background: #1e3a8a; /* синий оттенок */
+        border-radius: 8px;
+      }
+     </style>
+    <div id="messengerModal" class="modal" style="display: none;">
+      <div class="modal-content" style=" overflow-y: scroll; background: 
+        radial-gradient(900px 500px at 20% 0%, rgba(59,130,246,0.35), transparent 60%), 
+        radial-gradient(900px 500px at 80% 10%, rgba(34,211,238,0.28), transparent 60%), 
+        linear-gradient(180deg, var(--bg-1), var(--bg-2));">
+        <h2 style="color: white;">Выберите способ получения результата</h2>
+        <div class="radio-group">
+          <div class="radio-option" onclick="document.getElementById('whatsapp').click()">
+            <input type="radio" name="messenger" id="whatsapp" value="whatsapp" disabled />
+            <label for="whatsapp">
+              <i class="fa-brands fa-whatsapp"></i>
+              Отправить по WhatsApp <span id="p1" class="pill">(Premium)</span>
+              <i class="fa-brands fa-whatsapp icon-end"></i>
+            </label>
           </div>
-          <button class="btn btn--secondary" onclick="window.location.href='setID.html'" style="background: linear-gradient(135deg, rgba(59,130,246,0.85), rgba(34,211,238,0.65));">Начать</button>
-        </div>
-      </div>
-      <div id="userIdDisplay" style="display: none;">
-        <div class="info-box">
-          <div class="info-text">
-            Telegram ID получателя: <span id="userIdValue"></span>
+          <div class="radio-option" onclick="document.getElementById('email').click()">
+            <input type="radio" name="messenger" id="email" value="email" />
+            <label for="email">
+              <i class="fa-solid fa-envelope"></i>
+              Отправить на почту
+              <i class="fa-solid fa-envelope icon-end"></i>
+            </label>
+          </div>
+          <div class="radio-option" onclick="document.getElementById('telegram').click()">
+            <input type="radio" name="messenger" id="telegram" value="telegram" disabled />
+            <label for="telegram">
+              <i class="fa-brands fa-telegram"></i>
+              Отправить по Telegram <span id="p2" class="pill">(Premium)</span>
+              <i class="fa-brands fa-telegram icon-end"></i>
+            </label>
+          </div>
+          <div class="radio-option" onclick="document.getElementById('telegramBot').click()">
+            <input type="radio" name="messenger" id="telegramBot" value="telegramBot" />
+            <label for="telegramBot">
+              <i class="fa-brands fa-telegram"></i>
+              Отправить через Telegram бота
+              <i class="fa-brands fa-telegram icon-end"></i>
+            </label>
+          </div>
+          <div class="radio-option" onclick="document.getElementById('app').click()">
+            <input type="radio" name="messenger" id="app" value="app" disabled />
+            <label for="app">
+              <i class="fa-solid fa-mobile-screen"></i>
+              Получить в приложении <span id="p22" class="pill">(Premium)</span>
+              <i class="fa-solid fa-mobile-screen icon-end"></i>
+            </label>
           </div>
         </div>
-      </div>
-      <div class="field field--inline remember-me-group">
-        <label class="checkbox" for="rememberMe">
-          <input type="checkbox" id="rememberMe" />
-          <span>Запомнить меня</span>
-        </label>
-      </div>
-      <div style="display:flex; gap:12px; justify-content:center; margin-top:16px;">
-        <button id="continueButton" class="btn btn--primary" style="display: none;" onclick="handleContinue()">Продолжить</button>
-        <button class="btn btn--secondary" onclick="goToMainMenu()">Главное меню</button>
+        <div id="contactInput" style="display: none;">
+          <div class="field">
+            <label id="contactLabel"></label>
+            <input type="text" id="contact" />
+          </div>
+        </div>
+        <div id="authMessage" style="display: none;">
+          <div class="info-box">
+            <div class="info-text">
+              Чтобы бот мог отправить вам фото, нужно авторизоваться.
+            </div>
+            <button class="btn btn--secondary" onclick="window.location.href='setID.html'" style="background: linear-gradient(135deg, rgba(59,130,246,0.85), rgba(34,211,238,0.65));">Начать</button>
+          </div>
+        </div>
+        <div id="userIdDisplay" style="display: none;">
+          <div class="info-box">
+            <div class="info-text">
+              Telegram ID получателя: <span id="userIdValue"></span>
+            </div>
+          </div>
+        </div>
+        <div class="field field--inline remember-me-group">
+          <label class="checkbox" for="rememberMe">
+            <input type="checkbox" id="rememberMe" />
+            <span>Запомнить меня</span>
+          </label>
+        </div>
+        <div style="display:flex; gap:12px; justify-content:center; margin-top:16px;">
+          <button id="continueButton" class="btn btn--primary" style="display: none;" onclick="handleContinue()">Продолжить</button>
+          <button class="btn btn--secondary" onclick="goToMainMenu()">Главное меню</button>
+        </div>
       </div>
     </div>
-  </div>
-
-  <!-- BOT UNLOCK MODAL -->
-  <div id="botUnlockModal" class="modal" style="display: none;">
-    <div class="modal-content" style="background-color: darkblue;">
+    <!-- BOT UNLOCK MODAL -->
+    <div id="botUnlockModal" class="modal" style="display: none;">
+      <div class="modal-content" style="background-color: darkblue;">
+          <center>
+              <h2 style="color: white;">Разблокируйте бота</h2>
+              <p style="color: white">Чтобы получить результат, разблокируйте бота: <a href="https://t.me/NickNaymesBot" target="_blank">@NickNaymesBot</a></p>
+              <button class="btn btn--primary" onclick="proceedAfterUnlock()">Продолжить</button>
+          </center>
+      </div>
+    </div>
+    <!-- RESULT MODAL -->
+    <div id="resultModal" class="modal" style="display: none;">
+      <div class="modal-content" style="background-color: darkblue;">
+        <div id="successMessage" style="display: none; align-items: center;">
+          <center>
+              <h1 class="success-message" style="color: white;">✨Творю волшебство!✨</h1>
+              <p style="color: white;">| Моё творение может занять около 2-х часов/дней. |</p>
+              <p style="color: white;">| Вы не получите фото если запрос нарушает правила. |</p>
+          </center>
+        </div>
+        <div id="errorMessage" style="display: none;">
+          <h2 class="error-message" style="color: white;">Ошибка: <span id="errorCode"></span></h2>
+          <button class="btn btn--secondary" onclick="goBack()">Назад</button>
+        </div>
+      </div>
+    </div>
+    <!-- SUBSCRIPTION MODAL -->
+    <div id="fakeSubscriptionModal" class="modal" style="display: none;">
+      <div class="modal-content" style="background-color: black;">
+        <h2 style="color: white; text-align: center;">Подписка на канал</h2>
+        <p style="color: white;">Чтобы использовать сервис, подпишитесь на Telegram-канал: <a href="https://t.me/Nicknaymes2bot" target="_blank">@Nicknaymes2bot</a></p>
+        <div class="grid grid-2">
+          <a href="https://t.me/Nicknaymes2bot" target="_blank" style="text-decoration:none;">
+            <button class="btn btn--primary" style="width:100%;">Подписаться</button>
+          </a>
+          <button class="btn btn--secondary" onclick="fakeCheckSubscription()" style="background-color: darkblue;">Проверить</button>
+        </div>
+      </div>
+    </div>
+    <!-- FAST GENERATION MODAL -->
+    <div id="fastGenModal" class="modal" style="display: none;">
+      <div class="modal-content" style="background-color: darkblue;">
+        <div class="preloader-container">
+          <div class="preloader"></div>
+          <div class="preloader-text" style="color: white;">Генерация фото</div>
+          <label class="checkbox" for="fastRememberMe">
+            <input type="checkbox" id="fastRememberMe" />
+            <span>Запомнить меня</span>
+          </label>
+        </div>
+        <div id="generatedImagesContainer" style="display: none;"></div>
+        <button id="fastBackButton" class="btn btn--secondary" onclick="closeFastGenModal()" style="display: none;">Вернуться назад</button>
+        <div id="fastError" style="display: none;" class="warning"></div>
+      </div>
+    </div>
+    <!-- ALERT MODAL -->
+    <div id="alertModal" class="modal" style="display: none;">
+      <div class="modal-content" style="background-color: black;">
+        <p id="alertMessage" style="color: white; text-align: center; font-weight: bolder;"></p>
         <center>
-            <h2 style="color: white;">Разблокируйте бота</h2>
-            <p style="color: white">Чтобы получить результат, разблокируйте бота: <a href="https://t.me/NickNaymesBot" target="_blank">@NickNaymesBot</a></p>
-            <button class="btn btn--primary" onclick="proceedAfterUnlock()">Продолжить</button>
-        </center>
-    </div>
-  </div>
-
-  <!-- RESULT MODAL -->
-  <div id="resultModal" class="modal" style="display: none;">
-    <div class="modal-content" style="background-color: darkblue;">
-      <div id="successMessage" style="display: none; align-items: center;">
-        <center>
-            <h1 class="success-message" style="color: white;">✨Творю волшебство!✨</h1>
-            <p style="color: white;">| Моё творение может занять около 2-х часов/дней. |</p>
-            <p style="color: white;">| Вы не получите фото если запрос нарушает правила. |</p>
+            <button class="btn btn--secondary" onclick="closeAlertModal()" style="margin-top: 2%; background-color: darkblue; font-weight: bolder;">Закрыть</button>
         </center>
       </div>
-      <div id="errorMessage" style="display: none;">
-        <h2 class="error-message" style="color: white;">Ошибка: <span id="errorCode"></span></h2>
-        <button class="btn btn--secondary" onclick="goBack()">Назад</button>
-      </div>
     </div>
-  </div>
-
-  <!-- SUBSCRIPTION MODAL -->
-  <div id="fakeSubscriptionModal" class="modal" style="display: none;">
-    <div class="modal-content" style="background-color: black;">
-      <h2 style="color: white; text-align: center;">Подписка на канал</h2>
-      <p style="color: white;">Чтобы использовать сервис, подпишитесь на Telegram-канал: <a href="https://t.me/Nicknaymes2bot" target="_blank">@Nicknaymes2bot</a></p>
-      <div class="grid grid-2">
-        <a href="https://t.me/Nicknaymes2bot" target="_blank" style="text-decoration:none;">
-          <button class="btn btn--primary" style="width:100%;">Подписаться</button>
-        </a>
-        <button class="btn btn--secondary" onclick="fakeCheckSubscription()" style="background-color: darkblue;">Проверить</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- FAST GENERATION MODAL -->
-  <div id="fastGenModal" class="modal" style="display: none;">
-    <div class="modal-content" style="background-color: darkblue;">
+    <!-- Overlay -->
+    <div id="overlay" class="overlay" style="display:none;">
       <div class="preloader-container">
         <div class="preloader"></div>
-        <div class="preloader-text" style="color: white;">Генерация фото</div>
-        <label class="checkbox" for="fastRememberMe">
-          <input type="checkbox" id="fastRememberMe" />
-          <span>Запомнить меня</span>
-        </label>
-      </div>
-      <div id="generatedImagesContainer" style="display: none;"></div>
-      <button id="fastBackButton" class="btn btn--secondary" onclick="closeFastGenModal()" style="display: none;">Вернуться назад</button>
-      <div id="fastError" style="display: none;" class="warning"></div>
-    </div>
-  </div>
-
-  <!-- ALERT MODAL -->
-  <div id="alertModal" class="modal" style="display: none;">
-    <div class="modal-content" style="background-color: black;">
-      <p id="alertMessage" style="color: white; text-align: center; font-weight: bolder;"></p>
-      <center>
-          <button class="btn btn--secondary" onclick="closeAlertModal()" style="margin-top: 2%; background-color: darkblue; font-weight: bolder;">Закрыть</button>
-      </center>
-    </div>
-  </div>
-
-  <!-- Overlay -->
-  <div id="overlay" class="overlay" style="display:none;">
-    <div class="preloader-container">
-      <div class="preloader"></div>
-      <div class="preloader-text">Загрузка фото...</div>
-    </div>
-  </div>
-
-  <!-- Edit Modal -->
-  <div id="editModal" class="modal" style="display: none;">
-    <div class="modal-content" style="background-color: black;">
-      <h2 id="editTitle" style="color: white;"></h2>
-      <textarea id="editTextarea" style="width: 100%;"></textarea>
-      <div id="editCounter" class="counter" style="color:white;"></div>
-      <div id="editDesc" class="hint" style="color:white;"></div>
-      <div class="modal-buttons" style="align-items: center; justify-content: center; display: flex;">
-        <button id="saveEdit" class="btn btn--primary" title="Сохранить изменения.">Сохранить</button>
-        <button id="cancelEdit" class="btn btn--secondary" title="Отменить изменения.">Отмена</button>
-        <button id="copy" class="btn btn--secondary" title="Скопировать текст из поля в буфер обмена."><i class="fa-solid fa-copy"></i></button>
-        <button id="clearEdit" class="btn btn--secondary" title="Очистить поле.">Очистить</button>
+        <div class="preloader-text">Загрузка фото...</div>
       </div>
     </div>
-  </div>
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal" style="display: none;">
+      <div class="modal-content" style="background-color: black;">
+        <h2 id="editTitle" style="color: white;"></h2>
+        <textarea id="editTextarea" style="width: 100%;"></textarea>
+        <div id="editCounter" class="counter" style="color:white;"></div>
+        <div id="editDesc" class="hint" style="color:white;"></div>
+        <div class="modal-buttons" style="align-items: center; justify-content: center; display: flex;">
+          <button id="saveEdit" class="btn btn--primary" title="Сохранить изменения.">Сохранить</button>
+          <button id="cancelEdit" class="btn btn--secondary" title="Отменить изменения.">Отмена</button>
+          <button id="copy" class="btn btn--secondary" title="Скопировать текст из поля в буфер обмена."><i class="fa-solid fa-copy"></i></button>
+          <button id="clearEdit" class="btn btn--secondary" title="Очистить поле.">Очистить</button>
+        </div>
+      </div>
+    </div>
+    <script>
+const text = document.getElementById('text');
+const copy = document.getElementById('copy');
+const autoTextStyle = document.getElementById('autoTextStyle');
 
-  <script>
-    document.getElementById('editTextarea').addEventListener('input', function() {
-      if (this.value === '') {
-        document.getElementById('copy').disabled = true;
+/* проверка при загрузке */
+if (text.value !== '') {
+  alert('test');
+  autoTextStyle.checked = false;
+}
+
+/* реакция на ввод */
+text.addEventListener('input', function () {
+  if (text.value === '') {
+    copy.disabled = true;
+    autoTextStyle.disabled = true;
+    autoTextStyle.checked = false;
+  } else {
+    copy.disabled = false;
+    autoTextStyle.disabled = false;
+  }
+});
+
+      document.getElementById('editTextarea').addEventListener('input', function() {
+        if (this.value === '') {
+          document.getElementById('copy').disabled = false;
+          autoTextStyle.disabled = false;
+        }
+        else{
+          document.getElementById('copy').disabled = false;
+          autoTextStyle.disabled = false;
+        }
+      });
+    const copyBtn = document.getElementById('copy');
+    copyBtn.addEventListener('click', async () => {
+      const textToCopy = document.getElementById('editTextarea').value; // ← замени на нужный текст
+      if (!textToCopy || textToCopy === '') {
+        copyBtn.innerHTML = '<i class="fa-solid fa-ban"></i>';
+      } else {
+        try {
+          await navigator.clipboard.writeText(textToCopy);
+          copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+          document.getElementById('editTextarea').focus();
+        } catch (err) {
+          document.getElementById('editTextarea').focus();
+          copyBtn.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i>';
+        }
       }
-      else {
-        document.getElementById('copy').disabled = false;
-      }
+      // вернуть исходную надпись через 2 секунды
+      setTimeout(() => {
+        copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i>';
+      }, 2000);
     });
-  const copyBtn = document.getElementById('copy');
-
-  copyBtn.addEventListener('click', async () => {
-    const textToCopy = document.getElementById('editTextarea').value; // ← замени на нужный текст
-    if (!textToCopy || textToCopy === '') {
-      copyBtn.innerHTML = '<i class="fa-solid fa-ban"></i>';
-    } else {
-      try {
-        await navigator.clipboard.writeText(textToCopy);
-        copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
-        document.getElementById('editTextarea').focus();
-      } catch (err) {
-        document.getElementById('editTextarea').focus();
-        copyBtn.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i>';
+    </script>
+    <script type="module" src="script.js"></script>
+    <!-- Admin editable script -->
+<script type="module" src="script.js"></script>
+    <!-- Admin editable script -->
+    <script>
+      let isEditable = false;
+      if (localStorage.getItem('admin') === 'true') {
+        // Add a toggle button to disable/enable editable
+        const toggleButton = document.createElement('button');
+        toggleButton.textContent = isEditable ? 'Disable Edit' : 'Enable Edit';
+        toggleButton.style.position = 'fixed';
+        toggleButton.style.bottom = '10px';
+        toggleButton.style.right = '10px';
+        toggleButton.style.zIndex = '1000';
+        toggleButton.onclick = () => {
+          isEditable = !isEditable;
+          document.querySelectorAll('div').forEach(div => {
+            div.contentEditable = isEditable;
+          });
+          toggleButton.textContent = isEditable ? 'Disable Edit' : 'Enable Edit';
+        };
+        document.body.appendChild(toggleButton);
       }
-    }
-
-    // вернуть исходную надпись через 2 секунды
-    setTimeout(() => {
-      copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i>';
-    }, 2000);
-  });
-</script>
-
-  <script type="module" src="script.js"></script>
+      if (autoTextStyle.disabled === true) {
+        autoTextStyle.checked = false;
+      }
+    </script>
+  </main>
 </body>
 </html>
