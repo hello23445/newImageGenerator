@@ -574,18 +574,22 @@ function generateImage() {
     const contactField = document.getElementById('contact');
 
     if (contactData.messenger === 'whatsapp') {
+      document.getElementById('settings_forTG').style.display = 'none';
       contactLabel.textContent = 'Отправьте мне номер телефона привязанный к нужному аккаунту WhatsApp';
       contactField.placeholder = '+1234567890';
       contactField.type = 'text';
     } else if (contactData.messenger === 'email') {
+      document.getElementById('settings_forTG').style.display = 'none';
       contactLabel.textContent = 'Введите свой адрес электронной почты';
       contactField.placeholder = 'example@email.com';
       contactField.type = 'email';
     } else if (contactData.messenger === 'telegram') {
+      document.getElementById('settings_forTG').style.display = 'block';
       contactLabel.textContent = 'Введите свой Telegram @username';
       contactField.placeholder = '@username';
       contactField.type = 'text';
     } else if (contactData.messenger === 'app') {
+      document.getElementById('settings_forTG').style.display = 'none';
       contactInput.style.display = 'none';
     } else {
       contactInput.style.display = 'none';
@@ -608,7 +612,9 @@ function generateImage() {
 }
 
 document.querySelectorAll('input[name="messenger"]').forEach((radio) => {
+  document.getElementById('settings_forTG').style.display = 'none';
   radio.addEventListener('change', () => {
+    document.getElementById('settings_forTG').style.display = 'none';
     const selectedValue = radio.value;
 
     if (selectedValue === 'app') {
@@ -636,14 +642,17 @@ document.querySelectorAll('input[name="messenger"]').forEach((radio) => {
       const contactField = document.getElementById('contact');
 
       if (selectedValue === 'whatsapp') {
+        document.getElementById('settings_forTG').style.display = 'none';
         contactLabel.textContent = 'Отправьте мне номер телефона привязанный к нужному аккаунту WhatsApp';
         contactField.placeholder = '+1234567890';
         contactField.type = 'text';
       } else if (selectedValue === 'email') {
+        document.getElementById('settings_forTG').style.display = 'none';
         contactLabel.textContent = 'Введите свой адрес электронной почты';
         contactField.placeholder = 'example@email.com';
         contactField.type = 'email';
       } else if (selectedValue === 'telegram') {
+        document.getElementById('settings_forTG').style.display = 'flex';
         contactLabel.textContent = 'Введите свой Telegram @username';
         contactField.placeholder = '@username';
         contactField.type = 'text';
@@ -779,9 +788,11 @@ function proceedToSend(messenger, contact) {
     `14. Выбранная рамка: ${document.getElementById('ram').value}`,
     `15. Выбранный ракурс: ${document.getElementById('rakurs').value}`,
     `16. Выбранное освещение: ${document.getElementById('osvecheniye').value}`,
-    `17. Выбранные фотографии: ${localStorage.getItem('downloaded_photos') || 'Не загружено'}`,
-    `18. Токен пользователя: ${localStorage.getItem('user_Token')}`,
-    `19. Контакт: ${messenger} (${contact || 'app'})`
+    `17. Скрыть под спойлер: ${document.getElementById('check1').checked ? 'Да' : 'Не скрывать'}`,
+    `18. Отправить ввиде файла: ${document.getElementById('check2').checked ? 'Да' : 'Нет'}`,
+    `19. Выбранные фотографии: ${localStorage.getItem('downloaded_photos') || 'Не загружено'}`,
+    `20. Токен пользователя: ${localStorage.getItem('user_Token')}`,
+    `21. Контакт: ${messenger} (${contact || 'app'})`
   ];
 
   incrementAttempts();

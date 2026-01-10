@@ -690,6 +690,31 @@ input:disabled, select:disabled, textarea:disabled{
     padding: 10px 10px;
   }
 }
+#settings_forTG {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 3%;
+}
+
+.tg-option {
+  margin-left: -95%;
+  display: flex;
+  align-items: center; /* ← ВАЖНО */
+  gap: 10px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 14px;
+}
+
+.tg-option input[type="checkbox"] {
+  margin: 0; /* убирает стандартные смещения */
+}
+.tg-option span{
+  margin-left: -50%;
+}
+
+
 input,
 textarea,
 select {
