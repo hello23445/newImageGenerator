@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta 
-  name="description" 
+  <meta
+  name="description"
   content="Бесплатный онлайн-генератор изображений CrN PhotoAI. Создавайте уникальные фото по текстовому описанию прямо в браузере. Приобретите Premium для расширенных возможностей таких как генерация фото в качестве 8К и многое другое!" >
   <title>CrN PhotoAI Бесплатный генератор изображений.</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -43,6 +44,16 @@
           <input type="text" id="text" maxlength="30" oninput="updateTextLimit()" placeholder="Например: Hello!" />
           <div class="counter" id="textCounter">0/30</div>
           <div class="hint">Premium — до 500 символов.</div>
+          <!-- Автоматический выбор стиля текста -->
+          <label class="checkbox" for="autoTextStyle" id="autoTextStyleLabel" style="margin-top: 12px; display: block;">
+            <input type="checkbox" id="autoTextStyle" />
+            <span>Автоматический выбор стиля текста</span>
+          </label>
+          <!-- Автоматическое позиционирование текста -->
+          <label class="checkbox" for="autoTextPosition" id="autoTextPositionLabel" style="margin-top: 12px; display: block;">
+            <input type="checkbox" id="autoTextPosition" />
+            <span>Автоматическое позиционирование текста</span>
+          </label>
         </div>
         <div class="field">
           <label for="exclusions">Чего на фото не должно быть?</label>
@@ -268,24 +279,25 @@
             </optgroup>
           </select>
           <div class="hint">Фон помогает сделать картинку атмосфернее.</div>
+          <!-- Размытие фона -->
+          <div class="field field--inline compact-hint" style="margin-top: 12px;">
+            <label class="checkbox" for="razmitiyPHON">
+              <input type="checkbox" id="razmitiyPHON" />
+              <span>Размытие фона</span>
+            </label>
+            <div class="hint">Размытие фона делает фокус на главном объекте.</div>
+          </div>
         </div>
-        <div class="field field--inline compact-hint">
-          <label class="checkbox" for="razmitiyPHON">
-            <input type="checkbox" id="razmitiyPHON" />
-            <span>Размытие фона</span>
-          </label>
-          <div class="hint">Размытие фона делает фокус на главном объекте.</div>
+        <!-- Загруженные фото справа -->
+        <div class="field uploaded-field" style="display: none;" id="previewsCont">
+          <div class="row-head uploaded-head">
+            <label>Загруженные фото</label>
+            <div class="hint">Нажмите на корзину, чтобы удалить.</div>
+          </div>
+          <div id="previews" class="previews"></div>
         </div>
       </div>
-      <!-- Параметр Автоматический выбор стиля текста -->
-      <div class="field field--inline compact-hint">
-        <label class="checkbox" for="autoTextStyle" id="autoTextStyleLabel">
-          <input type="checkbox" id="autoTextStyle" />
-          <span>Автоматический выбор стиля текста</span>
-        </label>
-        <div class="hint">Автоматически выбирает стиль текста для фото.</div>
-      </div>
-      <!-- {Поле загрузки фото}{Загруженные фото...} -->
+      <!-- {Поле загрузки фото} -->
       <div class="grid grid-2">
         <div class="field">
           <label for="fileInput" id="fileInputTextLabel">Загрузите фото (пример/референс)</label>
@@ -297,14 +309,6 @@
           <div class="hint">Бесплатно до 3 фото, Premium до 6.</div>
           <div id="preloader" class="small-preloader" aria-live="polite">Загрузка...</div>
           <div id="result" class="result"></div>
-        </div>
-        <!-- ВАЖНО: заголовок скрыт, пока #previews пуст -->
-        <div class="field uploaded-field" style="display: none;" id="previewsCont">
-          <div class="row-head uploaded-head">
-            <label>Загруженные фото</label>
-            <div class="hint">Нажмите на корзину, чтобы удалить.</div>
-          </div>
-          <div id="previews" class="previews"></div>
         </div>
       </div>
     </section>
@@ -365,19 +369,19 @@
       <div class="grid grid-3">
         <div class="field">
           <label for="sizeInput">Размер (в пикселях)</label>
-          <input 
-            type="text" 
-            id="sizeInput" 
-            placeholder="Например: 1920x1080" 
-            oninput="if (document.getElementById('sizeInput').value !== '' && document.getElementById('sizeSelect').value !== ''){document.getElementById('soot').disabled = true}else{document.getElementById('soot').disabled = false}" 
+          <input
+            type="text"
+            id="sizeInput"
+            placeholder="Например: 1920x1080"
+            oninput="if (document.getElementById('sizeInput').value !== '' && document.getElementById('sizeSelect').value !== ''){document.getElementById('soot').disabled = true}else{document.getElementById('soot').disabled = false}"
           />
           <div class="hint">Можно вручную или выбрать из списка.</div>
         </div>
         <div class="field">
           <label for="sizeSelect">Выбор размера</label>
-          <select 
-            id="sizeSelect" 
-            onchange="if (document.getElementById('sizeInput').value !== '' && document.getElementById('sizeSelect').value !== ''){document.getElementById('soot').disabled = true}else{document.getElementById('soot').disabled = false}" 
+          <select
+            id="sizeSelect"
+            onchange="if (document.getElementById('sizeInput').value !== '' && document.getElementById('sizeSelect').value !== ''){document.getElementById('soot').disabled = true}else{document.getElementById('soot').disabled = false}"
           >
             <option value="">Выберите размер</option>
             <option value="640x480">640x480</option>
@@ -417,8 +421,8 @@
         </div>
         <div class="field">
           <label for="soot">Соотношение сторон</label>
-          <select 
-            id="soot" 
+          <select
+            id="soot"
             onchange="if (document.getElementById('soot').value !== '9:16'){document.getElementById('sizeSelect').disabled = true; localStorage.getItem('premium') === 'true' ? sizeInput.disabled = true : ''}else{document.getElementById('sizeSelect').disabled = false ; localStorage.getItem('premium') === 'true' ? sizeInput.disabled = false : '';}">
             <optgroup label="По-умолчанию">
               <option value="9:16" selected>9:16 (Вертикаль / Сторис)</option>
@@ -484,7 +488,6 @@
               <option value="Gemini 3">Gemini 3</option>
               <option value="Gemini 3 PRO" disabled>(Premium)Gemini 3 PRO</option>
               <option value="Google Assistant AI">Google Assistant AI</option>
-
               <option value="Google AI Plus" disabled>(Premium)Google AI Plus</option>
               <option value="Google AI Pro" disabled>(Premium)Google AI Pro</option>
               <option value="Google AI Ultra" disabled>(Premium)Google AI Ultra (Самый мощный Google ИИ)</option>
@@ -898,7 +901,7 @@
         </button>
       </div>
       <div id="attemptsDisplay" class="attempts" title="Количество ваших генераций.">
-        <b>Осталось генераций: <span id="attemptsLeft"></span><span id="slashMax">/2</span></b>
+        <b>Осталось генераций: <span id="attemptsLeft"></span><span id="slashMax">/1</span></b>
       </div>
     </section>
     <!-- Hidden controls (kept IDs for JS compatibility) -->
@@ -916,6 +919,34 @@
           <button class="btn btn--secondary" onclick="window.location.href='ad.html'" title="Посмотреть рекламу чтобы получить лимиты.">Посмотреть рекламу</button>
         </div>
         <div id="warning" class="warning" style="display:none; font-size: larger;"></div>
+        <button class="btn btn--secondary" onclick="closeNoAttemptsModal()" style="margin-top: 15px; width: 100%;" title="Закрыть это окно.">Закрыть</button>
+      </div>
+    </div>
+    <!-- SURPRISE MODE MODAL -->
+    <div id="surpriseConfirmModal" class="modal" style="display: none;">
+      <div class="modal-content" style="background: var(--panel-bg); max-width: 400px;">
+        <h2 style="color: #d9d9d9; text-align: center;">Удиви меня</h2>
+        <p style="color: #d9d9d9; text-align: center;">Будут применены случайные параметры и описание. Продолжить?</p>
+        <div class="grid grid-2">
+          <button class="btn btn--primary" onclick="confirmSurprise()" title="Применить случайные параметры.">Да</button>
+          <button class="btn btn--secondary" onclick="closeSurpriseModal()" title="Отменить.">Нет</button>
+        </div>
+      </div>
+    </div>
+    <!-- RANDOM PARAMETERS MODAL -->
+    <div id="randomParametersModal" class="modal" style="display: none;">
+      <div class="modal-content" style="background: var(--panel-bg); max-width: 500px;">
+        <h2 style="color: #00ff33; text-align: center;">✓ Случайные параметры применены!</h2>
+        <p id="randomParametersText" style="color: #d9d9d9; text-align: center;">Осталось только согласиться с правилами и нажать кнопку "Сгенерировать"!</p>
+        <button class="btn btn--primary" onclick="closeRandomParametersModal()" style="width: 100%;" title="Закрыть.">Понял</button>
+      </div>
+    </div>
+    <!-- VALIDATION ERROR MODAL -->
+    <div id="validationErrorModal" class="modal" style="display: none;">
+      <div class="modal-content" style="background: var(--panel-bg); max-width: 500px;">
+        <h2 style="color: #d9d9d9; text-align: center;">Ошибка</h2>
+        <p id="validationErrorText" style="color: #d9d9d9; text-align: center;"></p>
+        <button class="btn btn--primary" onclick="closeValidationModal()" style="width: 100%;" title="Закрыть.">Закрыть</button>
       </div>
     </div>
     <!-- MESSENGER MODAL -->
@@ -933,9 +964,9 @@
       }
      </style>
     <div id="messengerModal" class="modal" style="display: none;">
-      <div class="modal-content" style=" overflow-y: scroll; background: 
-        radial-gradient(900px 500px at 20% 0%, rgba(59,130,246,0.35), transparent 60%), 
-        radial-gradient(900px 500px at 80% 10%, rgba(34,211,238,0.28), transparent 60%), 
+      <div class="modal-content" style=" overflow-y: scroll; background:
+        radial-gradient(900px 500px at 20% 0%, rgba(59,130,246,0.35), transparent 60%),
+        radial-gradient(900px 500px at 80% 10%, rgba(34,211,238,0.28), transparent 60%),
         linear-gradient(180deg, var(--bg-1), var(--bg-2));">
         <h2 style="color: white;">Выберите способ получения результата</h2>
         <div class="radio-group">
@@ -985,13 +1016,11 @@
             <input type="checkbox" id="check1">
             <span id="checkbox1">Скрыть фото под спойлер</span>
           </label>
-
           <label class="tg-option">
             <input type="checkbox" id="check2">
             <span id="checkbox2">Отправить в виде файла</span>
           </label>
         </div>
-
         <div id="contactInput" style="display: none;">
           <div class="field">
             <label id="contactLabel"></label>
@@ -1021,7 +1050,7 @@
         </div>
         <div style="display:flex; gap:12px; justify-content:center; margin-top:16px;">
           <button id="continueButton" class="btn btn--primary" style="display: none;" onclick="handleContinue()">Продолжить</button>
-          <button class="btn btn--secondary" onclick="goToMainMenu()">Главное меню</button>
+          <button class="btn btn--secondary" style="background: linear-gradient(135deg, #8b0000, #ff0000);" onclick="goToMainMenu()">Назад</button>
         </div>
       </div>
     </div>
@@ -1089,6 +1118,15 @@
         </center>
       </div>
     </div>
+    <!-- Upload reminder modal (has visible Back button as fallback) -->
+    <div id="uploadReminderModal" class="modal" style="display: none;">
+      <div class="modal-content" style="background-color: black; max-width: 420px;">
+        <p id="uploadReminderMessage" style="color: white; text-align: center; font-weight: bolder; white-space: pre-line;"></p>
+        <div style="text-align:center; margin-top:12px;">
+          <button class="btn btn--secondary" onclick="uploadReminderBack()">Назад</button>
+        </div>
+      </div>
+    </div>
     <!-- Overlay -->
     <div id="overlay" class="overlay" style="display:none;">
       <div class="preloader-container">
@@ -1115,13 +1153,10 @@
 const text = document.getElementById('text');
 const copy = document.getElementById('copy');
 const autoTextStyle = document.getElementById('autoTextStyle');
-
 /* проверка при загрузке */
 if (text.value !== '') {
-  alert('test');
   autoTextStyle.checked = false;
 }
-
 /* реакция на ввод */
 text.addEventListener('input', function () {
   if (text.value === '') {
@@ -1133,7 +1168,6 @@ text.addEventListener('input', function () {
     autoTextStyle.disabled = false;
   }
 });
-
       document.getElementById('editTextarea').addEventListener('input', function() {
         if (this.value === '') {
           document.getElementById('copy').disabled = false;
@@ -1191,6 +1225,7 @@ text.addEventListener('input', function () {
       if (autoTextStyle.disabled === true) {
         autoTextStyle.checked = false;
       }
+      // Removed Telegram BackButton usage for index.html (handled via HTML fallback)
     </script>
   </main>
 </body>
