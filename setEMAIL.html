@@ -311,7 +311,9 @@ function startAppTracking() {
         let startapp = getStartParam();
 
         if (!startapp) {
-            if (tries >= maxTries) alert('startapp параметр не найден');
+            if (tries >= maxTries) {
+                // startapp not found after retries
+            }
             if (tries >= maxTries) clearInterval(interval);
             return;
         }
@@ -320,12 +322,9 @@ function startAppTracking() {
         sessionStorage.setItem('startapp_param', startapp);
 
         const parts = startapp.split('_');
-        alert('parts: ' + JSON.stringify(parts));
 
         const encodedEmail = parts[0];
         const code = parts[1];
-
-        alert('encodedEmail: ' + encodedEmail + '\ncode: ' + code);
 
         // ✅ правильный декод
         let decoded = encodedEmail;
@@ -333,28 +332,24 @@ function startAppTracking() {
             decoded = replaceAllSafe(decoded, k, v);
         });
 
-        alert('decoded email: ' + decoded);
+        
 
         const storedEmail = localStorage.getItem('emailInCheck');
         const storedCode = localStorage.getItem('codeInCheck');
 
-        alert('storedEmail: ' + storedEmail + '\nstoredCode: ' + storedCode);
-
         if (decoded !== storedEmail) {
-            alert('Ошибка подключения почты: почты не совпадают.\nОжидается: ' + storedEmail + '\nПолучено: ' + decoded);
             showModal('Ошибка подключения почты: почты не совпадают.');
             clearInterval(interval);
             return;
         }
 
         if (code !== storedCode) {
-            alert('Ошибка подключения почты: Коды верификации не совпадают.\nОжидается: ' + storedCode + '\nПолучено: ' + code);
             showModal('Ошибка подключения почты: Коды верификации не совпадают.');
             clearInterval(interval);
             return;
         }
 
-        alert('Почта успешно подтверждена!');
+        // Почта успешно подтверждена
         localStorage.setItem('email', storedEmail);
         localStorage.removeItem('emailInCheck');
         localStorage.removeItem('codeInCheck');
