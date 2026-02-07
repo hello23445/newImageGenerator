@@ -1030,7 +1030,7 @@
         <div id="authMessage" style="display: none;">
           <div class="info-box">
             <div class="info-text">
-              Чтобы бот мог отправить вам фото, нужно авторизоваться.
+              Чтобы бот мог отправить вам фото по Telegram ID, вы должны подключить свой Telegram ID.
             </div>
             <button class="btn btn--secondary" onclick="window.location.href='setID.html'" style="background: linear-gradient(135deg, rgba(59,130,246,0.85), rgba(34,211,238,0.65));">Начать</button>
           </div>
@@ -1039,6 +1039,21 @@
           <div class="info-box">
             <div class="info-text">
               Telegram ID получателя: <span id="userIdValue"></span>
+            </div>
+          </div>
+        </div>
+        <div id="emailAuthMessage" style="display: none;">
+          <div class="info-box">
+            <div class="info-text">
+              Чтобы бот мог отправить вам сгенерированное фото, вы должны подключить свою почту.
+            </div>
+            <button class="btn btn--secondary" onclick="window.location.href='setEMAIL.html'" style="background: linear-gradient(135deg, rgba(59,130,246,0.85), rgba(34,211,238,0.65));">Начать</button>
+          </div>
+        </div>
+        <div id="emailDisplay" style="display: none;">
+          <div class="info-box">
+            <div class="info-text">
+              Email получателя: <span id="emailValue"></span>
             </div>
           </div>
         </div>
@@ -1089,6 +1104,7 @@
           <a href="https://t.me/Nicknaymes2bot" target="_blank" style="text-decoration:none;">
             <button class="btn btn--primary" style="width:100%;">Подписаться</button>
           </a>
+        
           <button class="btn btn--secondary" onclick="fakeCheckSubscription()" style="background-color: darkblue;">Проверить</button>
         </div>
       </div>
@@ -1226,6 +1242,38 @@ text.addEventListener('input', function () {
         autoTextStyle.checked = false;
       }
       // Removed Telegram BackButton usage for index.html (handled via HTML fallback)
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        function isValidUserID(uid) {
+          if (!uid) return false;
+          if (uid === 'null') return false;
+          return /^\d+$/.test(uid);
+        }
+
+        const authMessage = document.getElementById('authMessage');
+        const userIdDisplay = document.getElementById('userIdDisplay');
+        const userIdValue = document.getElementById('userIdValue');
+        const continueButton = document.getElementById('continueButton');
+
+        const uid = localStorage.getItem('userID');
+
+        if (!isValidUserID(uid)) {
+          if (authMessage) authMessage.style.display = 'block';
+          if (userIdDisplay) {
+            userIdDisplay.style.display = 'none';
+          }
+          if (userIdValue) userIdValue.textContent = '';
+          if (continueButton) continueButton.style.display = 'none';
+        } else {
+          if (authMessage) authMessage.style.display = 'none';
+          if (userIdDisplay) {
+            userIdDisplay.style.display = 'block';
+            if (userIdValue) userIdValue.textContent = uid;
+          }
+          if (continueButton) continueButton.style.display = 'inline-block';
+        }
+      });
     </script>
   </main>
 </body>

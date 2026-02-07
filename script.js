@@ -271,6 +271,16 @@ const fastError = document.getElementById('fastError');
 const fastRememberMe = document.getElementById('fastRememberMe');
 const authMessage = document.getElementById('authMessage');
 const userIdDisplay = document.getElementById('userIdDisplay');
+const emailAuthMessage = document.getElementById('emailAuthMessage');
+const emailDisplay = document.getElementById('emailDisplay');
+const emailValueEl = document.getElementById('emailValue');
+
+function isValidEmail(email) {
+  if (!email) return false;
+  if (email === 'null') return false;
+  // simple email regex
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
 let formData = JSON.parse(localStorage.getItem('formData')) || {};
 let contactData = JSON.parse(localStorage.getItem('contactData')) || { contact: '', messenger: '' };
 const checkSpoiler1 = document.getElementById('checkbox1');
@@ -760,29 +770,71 @@ function generateImage() {
     return;
   }
   messengerModal.style.display = 'flex';
+  // Hide all info blocks when modal opens
+  if (userIdDisplay) userIdDisplay.style.display = 'none';
+  if (emailDisplay) emailDisplay.style.display = 'none';
+  if (authMessage) authMessage.style.display = 'none';
+  if (emailAuthMessage) emailAuthMessage.style.display = 'none';
+  
   if (contactData.messenger && rememberMe && rememberMe.checked) {
     contactInput.style.display = 'block';
     const contactField = document.getElementById('contact');
     if (contactData.messenger === 'whatsapp') {
       document.getElementById('settings_forTG').style.display = 'none';
+      if (emailAuthMessage) emailAuthMessage.style.display = 'none';
+      if (emailDisplay) emailDisplay.style.display = 'none';
       contactLabel.textContent = 'Отправьте мне номер телефона привязанный к нужному аккаунту WhatsApp';
       contactField.placeholder = '+1234567890';
       contactField.type = 'text';
     } else if (contactData.messenger === 'email') {
       document.getElementById('settings_forTG').style.display = 'none';
-      contactLabel.textContent = 'Введите свой адрес электронной почты';
-      contactField.placeholder = 'example@email.com';
-      contactField.type = 'email';
+      if (userIdDisplay) userIdDisplay.style.display = 'none';
+      const storedEmail = localStorage.getItem('email');
+      if (isValidEmail(storedEmail)) {
+        if (emailAuthMessage) emailAuthMessage.style.display = 'none';
+        if (emailDisplay) {
+          emailDisplay.style.display = 'block';
+          if (emailValueEl) emailValueEl.textContent = storedEmail;
+        }
+        contactInput.style.display = 'none';
+        contactValue = storedEmail;
+      } else {
+        if (emailAuthMessage) emailAuthMessage.style.display = 'block';
+        if (emailDisplay) emailDisplay.style.display = 'none';
+        contactInput.style.display = 'none';
+      }
     } else if (contactData.messenger === 'telegram') {
       document.getElementById('settings_forTG').style.display = 'block';
+      if (emailAuthMessage) emailAuthMessage.style.display = 'none';
+      if (emailDisplay) emailDisplay.style.display = 'none';
       contactLabel.textContent = 'Введите свой Telegram @username';
       contactField.placeholder = '@username';
       contactField.type = 'text';
     } else if (contactData.messenger === 'app') {
       document.getElementById('settings_forTG').style.display = 'none';
+      if (emailAuthMessage) emailAuthMessage.style.display = 'none';
+      if (emailDisplay) emailDisplay.style.display = 'none';
       contactInput.style.display = 'none';
+    } else if (contactData.messenger === 'telegramBot') {
+      document.getElementById('settings_forTG').style.display = 'flex';
+      contactInput.style.display = 'none';
+      if (emailAuthMessage) emailAuthMessage.style.display = 'none';
+      if (emailDisplay) emailDisplay.style.display = 'none';
+      const userID = localStorage.getItem('userID');
+      if (userID) {
+        if (authMessage) authMessage.style.display = 'none';
+        if (userIdDisplay) userIdDisplay.style.display = 'block';
+        const userIdValue = document.getElementById('userIdValue');
+        if (userIdValue) userIdValue.textContent = userID;
+        contactValue = userID;
+      } else {
+        if (authMessage) authMessage.style.display = 'block';
+        if (userIdDisplay) userIdDisplay.style.display = 'none';
+      }
     } else {
       contactInput.style.display = 'none';
+      if (emailAuthMessage) emailAuthMessage.style.display = 'none';
+      if (emailDisplay) emailDisplay.style.display = 'none';
       if (userIdDisplay) userIdDisplay.style.display = 'block';
       const userIdValue = document.getElementById('userIdValue');
       if (userIdValue) userIdValue.textContent = localStorage.getItem('userID') || '';
@@ -814,18 +866,27 @@ document.querySelectorAll('input[name="messenger"]').forEach((radio) => {
       contactInput.style.display = 'none';
       if (authMessage) authMessage.style.display = 'none';
       if (userIdDisplay) userIdDisplay.style.display = 'none';
+      if (emailAuthMessage) emailAuthMessage.style.display = 'none';
+      if (emailDisplay) emailDisplay.style.display = 'none';
     } else if (selectedValue === 'telegramBot') {
+      document.getElementById('settings_forTG').style.display = 'flex';
       contactInput.style.display = 'none';
+      if (emailAuthMessage) emailAuthMessage.style.display = 'none';
+      if (emailDisplay) emailDisplay.style.display = 'none';
       const userID = localStorage.getItem('userID');
       if (userID) {
         if (authMessage) authMessage.style.display = 'none';
         if (userIdDisplay) userIdDisplay.style.display = 'block';
+        if (emailDisplay) emailDisplay.style.display = 'none';
         const userIdValue = document.getElementById('userIdValue');
         if (userIdValue) userIdValue.textContent = userID;
         contactValue = userID;
       } else {
         if (authMessage) authMessage.style.display = 'block';
         if (userIdDisplay) userIdDisplay.style.display = 'none';
+        if (emailDisplay) emailDisplay.style.display = 'none';
+        const userIdValue = document.getElementById('userIdValue');
+        if (userIdValue) userIdValue.textContent = '';
       }
     } else {
       contactInput.style.display = 'block';
@@ -834,16 +895,41 @@ document.querySelectorAll('input[name="messenger"]').forEach((radio) => {
       const contactField = document.getElementById('contact');
       if (selectedValue === 'whatsapp') {
         document.getElementById('settings_forTG').style.display = 'none';
+        if (emailAuthMessage) emailAuthMessage.style.display = 'none';
+        if (emailDisplay) emailDisplay.style.display = 'none';
         contactLabel.textContent = 'Отправьте мне номер телефона привязанный к нужному аккаунту WhatsApp';
         contactField.placeholder = '+1234567890';
         contactField.type = 'text';
       } else if (selectedValue === 'email') {
         document.getElementById('settings_forTG').style.display = 'none';
-        contactLabel.textContent = 'Введите свой адрес электронной почты';
-        contactField.placeholder = 'example@email.com';
-        contactField.type = 'email';
+        const storedEmail = localStorage.getItem('email');
+        if (isValidEmail(storedEmail)) {
+          if (authMessage) authMessage.style.display = 'none';
+          if (emailAuthMessage) emailAuthMessage.style.display = 'none';
+          if (userIdDisplay) userIdDisplay.style.display = 'none';
+          if (emailDisplay) {
+            emailDisplay.style.display = 'block';
+            if (emailValueEl) emailValueEl.textContent = storedEmail;
+          }
+          contactInput.style.display = 'none';
+          contactValue = storedEmail;
+        } else {
+          if (emailAuthMessage) emailAuthMessage.style.display = 'block';
+          if (emailDisplay) emailDisplay.style.display = 'none';
+          if (userIdDisplay) userIdDisplay.style.display = 'none';
+          // also clear any visible userId/email fields
+          if (emailValueEl) emailValueEl.textContent = '';
+          if (userIdValue) {
+            try { document.getElementById('userIdValue').textContent = ''; } catch(e){}
+          }
+          contactInput.style.display = 'none';
+        }
       } else if (selectedValue === 'telegram') {
         document.getElementById('settings_forTG').style.display = 'flex';
+        if (authMessage) authMessage.style.display = 'none';
+        if (userIdDisplay) userIdDisplay.style.display = 'none';
+        if (emailAuthMessage) emailAuthMessage.style.display = 'none';
+        if (emailDisplay) emailDisplay.style.display = 'none';
         contactLabel.textContent = 'Введите свой Telegram @username';
         contactField.placeholder = '@username';
         contactField.type = 'text';
@@ -871,7 +957,16 @@ function handleContinue() {
   let contact = '';
   if (selectedMessenger.value !== 'app' && selectedMessenger.value !== 'telegramBot') {
     const contactField = document.getElementById('contact');
-    contact = contactField.value;
+    if (selectedMessenger.value === 'email') {
+      const storedEmail = localStorage.getItem('email');
+      if (isValidEmail(storedEmail)) {
+        contact = storedEmail;
+      } else {
+        contact = contactField ? contactField.value : '';
+      }
+    } else {
+      contact = contactField ? contactField.value : '';
+    }
     if (!contact.trim()) {
       contactField.classList.add('error');
       warning.textContent = 'Введите контакт';
