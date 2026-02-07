@@ -247,30 +247,50 @@ function closeModal() {
 /* ---------- STARTAPP CHECK ---------- */
 (function checkStartApp(){
     const url = new URL(window.location.href);
-    if (!url.searchParams.has('startapp')) return;
+    alert('URL: ' + window.location.href);
+    
+    if (!url.searchParams.has('startapp')) {
+        alert('startapp параметр не найден');
+        return;
+    }
 
     const raw = url.searchParams.get('startapp');
-    const [encodedEmail, code] = raw.split('_');
+    alert('raw startapp: ' + raw);
+    
+    const parts = raw.split('_');
+    alert('parts: ' + JSON.stringify(parts));
+    
+    const encodedEmail = parts[0];
+    const code = parts[1];
+    
+    alert('encodedEmail: ' + encodedEmail + '\ncode: ' + code);
 
     let decoded = encodedEmail;
     Object.entries(CODE_MAP).forEach(([k,v])=>{
         const r = new RegExp(k, 'gi');
         decoded = decoded.replace(r, v);
     });
+    
+    alert('decoded email: ' + decoded);
 
     const storedEmail = localStorage.getItem('emailInCheck');
     const storedCode = localStorage.getItem('codeInCheck');
+    
+    alert('storedEmail: ' + storedEmail + '\nstoredCode: ' + storedCode);
 
     if (decoded !== storedEmail) {
+        alert('Ошибка подключения почты: почты не совпадают.\nОжидается: ' + storedEmail + '\nПолучено: ' + decoded);
         showModal('Ошибка подключения почты: почты не совпадают.');
         return;
     }
 
     if (code !== storedCode) {
+        alert('Ошибка подключения почты: Коды верификации не совпадают.\nОжидается: ' + storedCode + '\nПолучено: ' + code);
         showModal('Ошибка подключения почты: Коды верификации не совпадают.');
         return;
     }
 
+    alert('Почта успешно подтверждена!');
     localStorage.setItem('email', storedEmail);
     localStorage.removeItem('emailInCheck');
     localStorage.removeItem('codeInCheck');
