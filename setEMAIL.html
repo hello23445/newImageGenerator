@@ -215,24 +215,6 @@ const ALLOWED_DOMAINS = [
     '@outlook.com'
 ];
 
-const CODE_MAP = {
-  A:'Q', B:'W', C:'E', D:'R', E:'T', F:'Y', G:'U', H:'I', I:'O', J:'P',
-  K:'A', L:'S', M:'D', N:'F', O:'G', P:'H', Q:'J', R:'K', S:'L', T:'Z',
-  U:'X', V:'C', W:'V', X:'B', Y:'N', Z:'M',
-  a:'q', b:'w', c:'e', d:'r', e:'t', f:'y', g:'u', h:'i', i:'o', j:'p',
-  k:'a', l:'s', m:'d', n:'f', o:'g', p:'h', q:'j', r:'k', s:'l', t:'z',
-  u:'x', v:'c', w:'v', x:'b', y:'n', z:'m',
-  '@':'0',
-  '.':'1',
-  '0':'2', '1':'3', '2':'4', '3':'5', '4':'6',
-  '5':'7', '6':'8', '7':'9', '8':'-', '9':'_'
-};
-
-// ✅ обратная карта для ДЕКОДА (теперь без коллизий)
-const DECODE_MAP = Object.fromEntries(
-  Object.entries(CODE_MAP).map(([k,v]) => [v,k])
-);
-
 let selectedDomain = '';
 let userEmail = '';
 let generatedCode = '';
@@ -296,6 +278,22 @@ function getStartParam() {
     return '';
 }
 
+async function computeSHA256Hash(str) {
+  const buffer = new TextEncoder().encode(str);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hex;
+}
+
+function base64urlEncode(hex) {
+  let binary = '';
+  for (let i = 0; i < hex.length; i += 2) {
+    binary += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+  }
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
 function startAppTracking() {
     const isTG = typeof Telegram !== 'undefined' && Telegram?.WebApp;
     if (isTG) {
@@ -318,34 +316,33 @@ function startAppTracking() {
 
         const parts = startapp.split('_');
 
-        const encodedEmail = parts[0];
+        const receivedHash = parts[0];
         const receivedCode = parts[1];
-
-        let decodedEmail = '';
-        for (let char of encodedEmail) {
-            decodedEmail += DECODE_MAP[char] || char;
-        }
 
         const storedEmail = localStorage.getItem('emailInCheck');
         const storedCode = localStorage.getItem('codeInCheck');
 
-        if (decodedEmail !== storedEmail) {
-            showModal('Ошибка подключения почты: почты не совпадают.\nПолучено: ' + decodedEmail + '\nОжидается: ' + storedEmail);
+        computeSHA256Hash(storedEmail).then(hexHash => {
+          const storedHash = base64urlEncode(hexHash);
+
+          if (receivedHash !== storedHash) {
+            showModal('Ошибка подключения почты: хэши не совпадают.');
             clearInterval(interval);
             return;
-        }
+          }
 
-        if (receivedCode !== storedCode) {
+          if (receivedCode !== storedCode) {
             showModal('Ошибка подключения почты: Коды верификации не совпадают.');
             clearInterval(interval);
             return;
-        }
+          }
 
-        localStorage.setItem('email', storedEmail);
-        localStorage.removeItem('emailInCheck');
-        localStorage.removeItem('codeInCheck');
+          localStorage.setItem('email', storedEmail);
+          localStorage.removeItem('emailInCheck');
+          localStorage.removeItem('codeInCheck');
 
-        clearInterval(interval);
+          clearInterval(interval);
+        });
     }, 150);
 }
 
