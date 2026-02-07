@@ -308,19 +308,7 @@ function startAppTracking() {
     const interval = setInterval(() => {
         tries++;
 
-        // Debug: Check Telegram object
-        alert('DEBUG: try ' + tries + '/' + maxTries);
-        alert('DEBUG: Telegram object exists: ' + (typeof Telegram !== 'undefined'));
-        alert('DEBUG: Telegram.WebApp exists: ' + (Telegram?.WebApp ? 'YES' : 'NO'));
-        alert('DEBUG: Telegram.WebApp.initDataUnsafe exists: ' + (Telegram?.WebApp?.initDataUnsafe ? 'YES' : 'NO'));
-
-        if (Telegram?.WebApp?.initDataUnsafe) {
-            alert('DEBUG: initDataUnsafe keys: ' + Object.keys(Telegram.WebApp.initDataUnsafe).join(', '));
-        }
-
         let startapp = getStartParam();
-        alert('DEBUG: startapp value: "' + startapp + '"');
-        alert('DEBUG: startapp type: ' + typeof startapp);
 
         if (!startapp) {
             if (tries >= maxTries) alert('startapp параметр не найден');
@@ -332,7 +320,6 @@ function startAppTracking() {
         sessionStorage.setItem('startapp_param', startapp);
 
         const parts = startapp.split('_');
-        alert('DEBUG: parts length: ' + parts.length);
         alert('parts: ' + JSON.stringify(parts));
 
         const encodedEmail = parts[0];
