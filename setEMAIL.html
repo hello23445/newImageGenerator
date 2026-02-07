@@ -340,7 +340,7 @@ function startAppTracking() {
         const storedCode = localStorage.getItem('codeInCheck');
 
         if (decoded !== storedEmail) {
-            showModal('Ошибка подключения почты: почты не совпадают.');
+            showModal('Ошибка подключения почты: почты не совпадают.\nПолучено: ' + decoded + '\nОжидается: ' + storedEmail);
             clearInterval(interval);
             return;
         }
