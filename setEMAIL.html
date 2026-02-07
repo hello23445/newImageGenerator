@@ -8,6 +8,9 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
+<!-- ✅ ВАЖНО: официальный SDK Telegram WebApp -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
 <style>
 * {
     box-sizing: border-box;
@@ -216,22 +219,19 @@ const CODE_MAP = {
   A:'Q', B:'W', C:'E', D:'R', E:'T', F:'Y', G:'U', H:'I', I:'O', J:'P',
   K:'A', L:'S', M:'D', N:'F', O:'G', P:'H', Q:'J', R:'K', S:'L', T:'Z',
   U:'X', V:'C', W:'V', X:'B', Y:'N', Z:'M',
-
   '@':'H',
   '.':'J'
 };
 
-// ✅ ОБРАТНАЯ КАРТА ДЛЯ ДЕКОДА (то, чего не хватало)
+// ✅ обратная карта для ДЕКОДА
 const DECODE_MAP = Object.fromEntries(
   Object.entries(CODE_MAP).map(([k,v]) => [v,k])
 );
 
-// ✅ безопасная замена без RegExp (иначе @ и . ломают всё)
+// ✅ безопасная замена (без RegExp), чтобы '.' и '@' не ломали
 function replaceAllSafe(str, search, replace) {
   return str.split(search).join(replace);
 }
-
-
 
 let selectedDomain = '';
 let userEmail = '';
@@ -254,97 +254,130 @@ function closeModal() {
     document.getElementById('modal').classList.add('hidden');
 }
 
-/* ---------- STARTAPP CHECK ---------- */
-(function initStartApp(){
-    // ✅ Telegram WebApp иногда отдаёт start_param с задержкой
-    // поэтому: ready + несколько попыток + sessionStorage
+/* ---------- START PARAM (startapp tracking) ---------- */
+/*
+По доке Telegram: ?startapp=XXX попадает в:
+1) initDataUnsafe.start_param
+2) URL параметр tgWebAppStartParam
+:contentReference[oaicite:4]{index=4}
+*/
+function getStartParam() {
+    // 1) Самый правильный путь
+    const sp1 = Telegram?.WebApp?.initDataUnsafe?.start_param;
+    if (sp1) return sp1;
+
+    // 2) Из URL: tgWebAppStartParam может быть в search или hash
+    try {
+        const url = new URL(window.location.href);
+        const sp2 = url.searchParams.get('tgWebAppStartParam');
+        if (sp2) return sp2;
+
+        // иногда Telegram кладёт параметры в hash
+        if (url.hash && url.hash.includes('tgWebAppStartParam=')) {
+            const hashParams = new URLSearchParams(url.hash.replace(/^#/, ''));
+            const sp2h = hashParams.get('tgWebAppStartParam');
+            if (sp2h) return sp2h;
+        }
+    } catch(e) {}
+
+    // 3) Иногда можно вытащить из initData (это querystring)
+    const initData = Telegram?.WebApp?.initData || '';
+    if (initData && initData.includes('start_param=')) {
+        try {
+            const qs = new URLSearchParams(initData);
+            const sp3 = qs.get('start_param');
+            if (sp3) return sp3;
+        } catch(e) {}
+    }
+
+    // 4) Последний шанс: то, что уже сохраняли ранее
+    const sp4 = sessionStorage.getItem('startapp_param') || '';
+    if (sp4) return sp4;
+
+    return '';
+}
+
+function startAppTracking() {
     const isTG = typeof Telegram !== 'undefined' && Telegram?.WebApp;
     if (isTG) {
         try { Telegram.WebApp.ready(); } catch(e) {}
     }
 
-    // запускаем с небольшой задержкой + ретраи
     let tries = 0;
-    const maxTries = 12; // ~12 * 150ms = 1.8s
+    const maxTries = 20; // ~ 20 * 150ms = 3s
     const interval = setInterval(() => {
         tries++;
-        const ok = checkStartAppOnce(tries, maxTries);
-        if (ok || tries >= maxTries) clearInterval(interval);
-    }, 150);
-})();
 
-function checkStartAppOnce(tries, maxTries){
-    // Debug: Check Telegram object
-    alert('DEBUG: try ' + tries + '/' + maxTries);
-    alert('DEBUG: Telegram object exists: ' + (typeof Telegram !== 'undefined'));
-    alert('DEBUG: Telegram.WebApp exists: ' + (Telegram?.WebApp ? 'YES' : 'NO'));
-    alert('DEBUG: Telegram.WebApp.initDataUnsafe exists: ' + (Telegram?.WebApp?.initDataUnsafe ? 'YES' : 'NO'));
+        // Debug: Check Telegram object
+        alert('DEBUG: try ' + tries + '/' + maxTries);
+        alert('DEBUG: Telegram object exists: ' + (typeof Telegram !== 'undefined'));
+        alert('DEBUG: Telegram.WebApp exists: ' + (Telegram?.WebApp ? 'YES' : 'NO'));
+        alert('DEBUG: Telegram.WebApp.initDataUnsafe exists: ' + (Telegram?.WebApp?.initDataUnsafe ? 'YES' : 'NO'));
 
-    if (Telegram?.WebApp?.initDataUnsafe) {
-        alert('DEBUG: initDataUnsafe keys: ' + Object.keys(Telegram.WebApp.initDataUnsafe).join(', '));
-    }
-
-    // Get startapp from Telegram WebApp
-    let startapp = Telegram?.WebApp?.initDataUnsafe?.start_param;
-
-    // ✅ сохраняем/восстанавливаем (после reload Telegram может не дать start_param снова)
-    if (startapp) {
-        sessionStorage.setItem('startapp_param', startapp);
-    } else {
-        startapp = sessionStorage.getItem('startapp_param') || '';
-    }
-
-    alert('DEBUG: startapp value: "' + startapp + '"');
-    alert('DEBUG: startapp type: ' + typeof startapp);
-
-    if (!startapp) {
-        // не показываем "не найден" на каждой попытке, чтобы не бесило
-        if (tries >= maxTries) {
-            alert('startapp параметр не найден');
+        if (Telegram?.WebApp?.initDataUnsafe) {
+            alert('DEBUG: initDataUnsafe keys: ' + Object.keys(Telegram.WebApp.initDataUnsafe).join(', '));
         }
-        return false;
-    }
 
-    const parts = startapp.split('_');
-    alert('DEBUG: parts length: ' + parts.length);
-    alert('parts: ' + JSON.stringify(parts));
+        let startapp = getStartParam();
+        alert('DEBUG: startapp value: "' + startapp + '"');
+        alert('DEBUG: startapp type: ' + typeof startapp);
 
-    const encodedEmail = parts[0];
-    const code = parts[1];
+        if (!startapp) {
+            if (tries >= maxTries) alert('startapp параметр не найден');
+            if (tries >= maxTries) clearInterval(interval);
+            return;
+        }
 
-    alert('encodedEmail: ' + encodedEmail + '\ncode: ' + code);
+        // ✅ сохраняем, чтобы не пропадал на Refresh
+        sessionStorage.setItem('startapp_param', startapp);
 
-    // ✅ ПРАВИЛЬНЫЙ ДЕКОД (обратной картой)
-    let decoded = encodedEmail;
-    Object.entries(DECODE_MAP).forEach(([k,v])=>{
-        decoded = replaceAllSafe(decoded, k, v);
-    });
+        const parts = startapp.split('_');
+        alert('DEBUG: parts length: ' + parts.length);
+        alert('parts: ' + JSON.stringify(parts));
 
-    alert('decoded email: ' + decoded);
+        const encodedEmail = parts[0];
+        const code = parts[1];
 
-    const storedEmail = localStorage.getItem('emailInCheck');
-    const storedCode = localStorage.getItem('codeInCheck');
+        alert('encodedEmail: ' + encodedEmail + '\ncode: ' + code);
 
-    alert('storedEmail: ' + storedEmail + '\nstoredCode: ' + storedCode);
+        // ✅ правильный декод
+        let decoded = encodedEmail;
+        Object.entries(DECODE_MAP).forEach(([k,v])=>{
+            decoded = replaceAllSafe(decoded, k, v);
+        });
 
-    if (decoded !== storedEmail) {
-        alert('Ошибка подключения почты: почты не совпадают.\nОжидается: ' + storedEmail + '\nПолучено: ' + decoded);
-        showModal('Ошибка подключения почты: почты не совпадают.');
-        return true;
-    }
+        alert('decoded email: ' + decoded);
 
-    if (code !== storedCode) {
-        alert('Ошибка подключения почты: Коды верификации не совпадают.\nОжидается: ' + storedCode + '\nПолучено: ' + code);
-        showModal('Ошибка подключения почты: Коды верификации не совпадают.');
-        return true;
-    }
+        const storedEmail = localStorage.getItem('emailInCheck');
+        const storedCode = localStorage.getItem('codeInCheck');
 
-    alert('Почта успешно подтверждена!');
-    localStorage.setItem('email', storedEmail);
-    localStorage.removeItem('emailInCheck');
-    localStorage.removeItem('codeInCheck');
-    return true;
+        alert('storedEmail: ' + storedEmail + '\nstoredCode: ' + storedCode);
+
+        if (decoded !== storedEmail) {
+            alert('Ошибка подключения почты: почты не совпадают.\nОжидается: ' + storedEmail + '\nПолучено: ' + decoded);
+            showModal('Ошибка подключения почты: почты не совпадают.');
+            clearInterval(interval);
+            return;
+        }
+
+        if (code !== storedCode) {
+            alert('Ошибка подключения почты: Коды верификации не совпадают.\nОжидается: ' + storedCode + '\nПолучено: ' + code);
+            showModal('Ошибка подключения почты: Коды верификации не совпадают.');
+            clearInterval(interval);
+            return;
+        }
+
+        alert('Почта успешно подтверждена!');
+        localStorage.setItem('email', storedEmail);
+        localStorage.removeItem('emailInCheck');
+        localStorage.removeItem('codeInCheck');
+
+        clearInterval(interval);
+    }, 150);
 }
+
+// ✅ запускаем отслеживание startapp
+startAppTracking();
 
 /* ---------- EMAIL LOGIC ---------- */
 function applyDomain(domain) {
