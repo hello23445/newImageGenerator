@@ -2,357 +2,239 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Подключение почты</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body {
-    margin: 0; width: 100%; height: 100%;
-    font-family: 'Inter', system-ui, sans-serif;
-    background:
-        radial-gradient(700px 400px at 20% 0%, rgba(56,189,248,0.25), transparent 60%),
-        radial-gradient(700px 400px at 80% 10%, rgba(168,85,247,0.25), transparent 60%),
-        linear-gradient(180deg, #020617, #020617);
-    display: flex; align-items: center; justify-content: center;
-    color: #fff;
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{
+  margin:0;width:100%;height:100%;
+  font-family:Inter,system-ui,sans-serif;
+  background:
+    radial-gradient(700px 400px at 20% 0%, rgba(56,189,248,.25), transparent 60%),
+    radial-gradient(700px 400px at 80% 10%, rgba(168,85,247,.25), transparent 60%),
+    linear-gradient(180deg,#020617,#020617);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;
 }
-.card {
-    width: 100%; max-width: 400px; padding: 22px;
-    border-radius: 22px; background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(14px); box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-    text-align: center;
+.card{
+  width:100%;max-width:400px;padding:22px;
+  border-radius:22px;
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(14px);
+  box-shadow:0 20px 60px rgba(0,0,0,.4);
+  text-align:center;
 }
-.back-btn {
-    width: 100%; background: #251897; color: #fff;
-    border-radius: 14px; padding: 12px; font-size: 14px; font-weight: 500;
-    margin-bottom: 16px; cursor: pointer;
+.back-btn{
+  width:100%;
+  background:#251897;
+  color:#fff;
+  border-radius:14px;
+  padding:12px;
+  font-size:14px;
+  font-weight:500;
+  margin-bottom:16px;
+  cursor:pointer;
 }
-h2 { margin: 0 0 6px; font-weight: 600; }
-.subtitle { font-size: 14px; opacity: 0.7; margin-bottom: 18px; }
-input {
-    width: 100%; padding: 14px 16px; border-radius: 14px;
-    border: none; outline: none; background: rgba(255,255,255,0.15);
-    color: #fff; font-size: 15px;
+h2{margin:0 0 6px;font-weight:600}
+.subtitle{font-size:14px;opacity:.7;margin-bottom:18px}
+input{
+  width:100%;padding:14px 16px;
+  border-radius:14px;border:none;outline:none;
+  background:rgba(255,255,255,.15);
+  color:#fff;font-size:15px;
 }
-input:disabled { opacity: 0.6; }
-.domains { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-.domain {
-    padding: 6px 12px; font-size: 13px; border-radius: 999px;
-    background: rgba(255,255,255,0.15); cursor: pointer;
+button{
+  width:100%;margin-top:14px;padding:14px;
+  border-radius:999px;border:none;
+  background:linear-gradient(135deg,#2563eb,#4f46e5);
+  color:#fff;font-size:15px;font-weight:600;
+  cursor:pointer;
 }
-button {
-    width: 100%; margin-top: 14px; padding: 14px;
-    border-radius: 999px; border: none;
-    background: linear-gradient(135deg, #2563eb, #4f46e5);
-    color: #fff; font-size: 15px; font-weight: 600; cursor: pointer;
+button.secondary{background:rgba(255,255,255,.15)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.message{margin-top:12px;font-size:14px}
+.error{color:#f87171}
+.success{color:#4ade80}
+.hidden{display:none}
+
+/* modal */
+.modal{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;align-items:center;justify-content:center;
+  z-index:100;
 }
-button.secondary { background: rgba(255,255,255,0.15); }
-button:disabled { opacity: 0.5; cursor: not-allowed; }
-.message { margin-top: 12px; font-size: 14px; }
-.error { color: #f87171; }
-.success { color: #4ade80; }
-.hidden { display: none; }
-.modal {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
-    display: none; align-items: center; justify-content: center; z-index: 100;
+.modal.show{display:flex}
+.modal-card{
+  background:#020617;
+  border-radius:18px;
+  padding:20px;
+  max-width:320px;
+  text-align:center;
 }
-.modal:not(.hidden) { display: flex; }
-.modal-card {
-    background: #020617; border-radius: 18px; padding: 20px;
-    max-width: 320px; text-align: center;
-}
-.modal-card button { margin-top: 14px; }
 </style>
 </head>
 
 <body>
 
-<div class="modal hidden" id="modal">
-    <div class="modal-card">
-        <div id="modalText"></div>
-        <button onclick="closeModal()">Закрыть</button>
-    </div>
+<!-- Модалка -->
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <div id="modalText"></div>
+    <button style="margin-top:14px" onclick="closeModal()">Закрыть</button>
+  </div>
 </div>
 
+<!-- ШАГ EMAIL -->
 <div class="card" id="emailStep">
-    <div class="back-btn" onclick="goHome()">ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ</div>
-    <h2>Подключение почты</h2>
-    <div class="subtitle">Введите почту полностью вместе с доменом</div>
-    <input type="text" id="emailInput" placeholder="username@gmail.com">
-    <div class="domains">
-        <div class="domain" onclick="applyDomain('@gmail.com')">@gmail.com</div>
-        <div class="domain" onclick="applyDomain('@mail.ru')">@mail.ru</div>
-        <div class="domain" onclick="applyDomain('@yandex.ru')">@yandex.ru</div>
-        <div class="domain" onclick="applyDomain('@outlook.com')">@outlook.com</div>
-    </div>
-    <button onclick="sendCode()">Отправить код</button>
-    <div id="emailMsg" class="message"></div>
+  <div class="back-btn" onclick="goHome()">ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ</div>
+  <h2>Подключение почты</h2>
+  <div class="subtitle">Введите почту полностью</div>
+  <input id="emailInput" placeholder="user@gmail.com">
+  <button onclick="sendCode()">Отправить код</button>
+  <div id="emailMsg" class="message"></div>
 </div>
 
+<!-- ШАГ КОД -->
 <div class="card hidden" id="codeStep">
-    <div class="back-btn" onclick="goHome()">ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ</div>
-    <h2>Введите код из почты</h2>
-    <div class="subtitle" id="emailPreview"></div>
-    <input type="text" id="codeInput" maxlength="6" placeholder="XXXXXX">
-    <button onclick="verifyCode()">Подтвердить</button>
-    <button class="secondary" id="resendBtn" onclick="resendCode()" disabled>Отправить повторно (30)</button>
-    <button class="secondary" onclick="changeEmail()">Изменить почту</button>
-    <div id="codeMsg" class="message"></div>
+  <div class="back-btn" onclick="goHome()">ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ</div>
+  <h2>Введите код</h2>
+  <div class="subtitle" id="emailPreview"></div>
+  <input id="codeInput" maxlength="6" placeholder="XXXXXX">
+  <button onclick="verifyCode()">Подтвердить</button>
+  <button class="secondary" id="resendBtn" onclick="resendCode()" disabled>
+    Отправить повторно (30)
+  </button>
+  <button class="secondary" onclick="changeEmail()">Изменить почту</button>
+  <div id="codeMsg" class="message"></div>
 </div>
 
 <script>
-const ALLOWED_DOMAINS = ['@gmail.com', '@mail.ru', '@yandex.ru', '@outlook.com'];
+const GAS_URL =
+'https://script.google.com/macros/s/AKfycbybbxKePXHLLcIlZ7ZrCx2L18X9sCPXGeX18AGYBlPP66lsre7wAcK3QY250w_nQ2bPcg/exec';
 
-let selectedDomain = '';
 let userEmail = '';
-let generatedCode = '';
+let localCode = '';
 let resendTimer = 30;
-let timerInterval = null;
+let timer = null;
 
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbybbxKePXHLLcIlZ7ZrCx2L18X9sCPXGeX18AGYBlPP66lsre7wAcK3QY250w_nQ2bPcg/exec';
-
-const emailInput = document.getElementById('emailInput');
 const emailStep = document.getElementById('emailStep');
-const codeStep = document.getElementById('codeStep');
+const codeStep  = document.getElementById('codeStep');
+const emailMsg  = document.getElementById('emailMsg');
+const codeMsg   = document.getElementById('codeMsg');
 const emailPreview = document.getElementById('emailPreview');
-const codeInput = document.getElementById('codeInput');
 const resendBtn = document.getElementById('resendBtn');
-const codeMsg = document.getElementById('codeMsg');
-const emailMsg = document.getElementById('emailMsg');
 
-function goHome() {
-    window.location.href = 'index.html';
+/* ───── Навигация ───── */
+function goHome(){
+  window.location.href = 'index.html';
 }
 
-function showModal(text) {
-    document.getElementById('modalText').textContent = text;
-    document.getElementById('modal').classList.remove('hidden');
+/* ───── Модалка ───── */
+function showModal(text){
+  document.getElementById('modalText').textContent = text;
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(){
+  document.getElementById('modal').classList.remove('show');
 }
 
-function closeModal() {
-    document.getElementById('modal').classList.add('hidden');
-}
+/* ───── startapp проверка ───── */
+async function checkStartApp(){
+  const sp = Telegram?.WebApp?.initDataUnsafe?.start_param;
+  if (!sp) return;
 
-function getStartParam() {
-    if (Telegram?.WebApp?.initDataUnsafe?.start_param) {
-        return Telegram.WebApp.initDataUnsafe.start_param;
-    }
+  try{
+    const res = await fetch(GAS_URL + '?startapp=' + encodeURIComponent(sp));
+    const json = await res.json();
 
-    try {
-        const url = new URL(window.location.href);
-        let sp = url.searchParams.get('tgWebAppStartParam') || url.searchParams.get('startapp');
-        if (sp) return sp;
-
-        if (url.hash) {
-            const hashParams = new URLSearchParams(url.hash.replace(/^#/, ''));
-            sp = hashParams.get('tgWebAppStartParam') || hashParams.get('startapp');
-            if (sp) return sp;
-        }
-    } catch (e) {}
-
-    return sessionStorage.getItem('startapp_param') || '';
-}
-
-async function getShortHash(email) {
-    if (!crypto?.subtle) {
-        showModal('Ошибка: криптография недоступна в этом браузере');
-        return null;
-    }
-    const msgBuffer = new TextEncoder().encode(email.trim().toLowerCase());
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    return hex.substring(0, 32); // 32 символа hex = 16 байт
-}
-
-function startAppTracking() {
-    const isTG = typeof Telegram !== 'undefined' && Telegram?.WebApp;
-    if (isTG) {
-        try { Telegram.WebApp.ready(); } catch(e) {}
-    }
-
-    let tries = 0;
-    const maxTries = 20;
-    const interval = setInterval(async () => {
-        tries++;
-
-        const startapp = getStartParam();
-        if (!startapp) {
-            if (tries >= maxTries) clearInterval(interval);
-            return;
-        }
-
-        sessionStorage.setItem('startapp_param', startapp);
-
-        const parts = startapp.split('_');
-        if (parts.length !== 2) {
-            showModal('Некорректная ссылка (неверный формат)');
-            clearInterval(interval);
-            return;
-        }
-
-        const receivedShortHash = parts[0];
-        const receivedCode = parts[1];
-
-        const storedEmail = localStorage.getItem('emailInCheck');
-        const storedCode = localStorage.getItem('codeInCheck');
-
-        if (!storedEmail || !storedCode) {
-            showModal('Нет данных для проверки. Попробуйте ввести почту заново.');
-            clearInterval(interval);
-            return;
-        }
-
-        const computedShortHash = await getShortHash(storedEmail);
-
-        if (!computedShortHash) {
-            clearInterval(interval);
-            return;
-        }
-
-        if (computedShortHash !== receivedShortHash) {
-            showModal(
-                'Ошибка: хэши почты не совпадают\n\n' +
-                'Получено: ' + receivedShortHash + '\n' +
-                'Ожидается: ' + computedShortHash + '\n\n' +
-                'Email в хранилище: ' + storedEmail + '\n\n' +
-                'Проверьте, что вы используете ту же почту, которую вводили ранее.'
-            );
-            clearInterval(interval);
-            return;
-        }
-
-        if (receivedCode !== storedCode) {
-            showModal('Неверный код подтверждения');
-            clearInterval(interval);
-            return;
-        }
-
-        // Успех
-        localStorage.setItem('email', storedEmail);
-        localStorage.removeItem('emailInCheck');
-        localStorage.removeItem('codeInCheck');
-        showModal('Почта успешно подтверждена!');
-        clearInterval(interval);
-        setTimeout(goHome, 1500);
-
-    }, 150);
-}
-
-startAppTracking();
-
-// ──────────────────────────────────────────────
-// Остальные функции
-function applyDomain(domain) {
-    selectedDomain = domain;
-    const username = emailInput.value.split('@')[0];
-    emailInput.value = username + domain;
-}
-
-function detectDomain(email) {
-    return ALLOWED_DOMAINS.find(d => email.endsWith(d)) || '';
-}
-
-function isValidEmail(email) {
-    const domain = selectedDomain || detectDomain(email);
-    if (!domain) {
-        emailMsg.textContent = 'Недопустимый домен. Используйте предложенные варианты.';
-        emailMsg.className = 'message error';
-        return false;
-    }
-    const username = email.replace(domain, '');
-    if (!/^[a-zA-Z0-9._%+-]{2,}$/.test(username)) {
-        emailMsg.textContent = 'Недопустимое имя пользователя.';
-        emailMsg.className = 'message error';
-        return false;
-    }
-    emailMsg.textContent = '';
-    return true;
-}
-
-function sendCode() {
-    const email = emailInput.value.trim();
-    if (!isValidEmail(email)) return;
-
-    userEmail = email;
-    generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-
-    localStorage.setItem('emailInCheck', userEmail);
-    localStorage.setItem('codeInCheck', generatedCode);
-
-    fetch(GAS_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: userEmail, code: generatedCode })
-    }).then(() => {
-        emailStep.classList.add('hidden');
-        codeStep.classList.remove('hidden');
-        emailPreview.textContent = userEmail;
-        startTimer();
-    }).catch(() => {
-        emailMsg.textContent = 'Ошибка отправки кода. Попробуйте позже.';
-        emailMsg.className = 'message error';
-    });
-}
-
-function startTimer() {
-    resendTimer = 30;
-    resendBtn.disabled = true;
-    resendBtn.textContent = `Отправить повторно (${resendTimer})`;
-    timerInterval = setInterval(() => {
-        resendTimer--;
-        resendBtn.textContent = `Отправить повторно (${resendTimer})`;
-        if (resendTimer <= 0) {
-            clearInterval(timerInterval);
-            resendBtn.disabled = false;
-            resendBtn.textContent = 'Отправить повторно';
-        }
-    }, 1000);
-}
-
-function resendCode() {
-    generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-    localStorage.setItem('codeInCheck', generatedCode);
-
-    fetch(GAS_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: userEmail, code: generatedCode })
-    }).catch(() => {
-        codeMsg.textContent = 'Ошибка повторной отправки.';
-        codeMsg.className = 'message error';
-    });
-
-    startTimer();
-}
-
-function verifyCode() {
-    if (codeInput.value.trim() === generatedCode) {
-        localStorage.setItem('email', userEmail);
-        localStorage.removeItem('emailInCheck');
-        localStorage.removeItem('codeInCheck');
-        codeMsg.textContent = 'Почта успешно подключена';
-        codeMsg.className = 'message success';
-        setTimeout(goHome, 2000);
+    if (json.ok){
+      localStorage.setItem('email', json.email);
+      showModal('Почта успешно подтверждена');
+      setTimeout(goHome, 1500);
     } else {
-        codeMsg.textContent = 'Неверный код';
-        codeMsg.className = 'message error';
+      showModal('Ошибка подтверждения: ' + json.error);
     }
+  }catch{
+    showModal('Ошибка соединения с сервером');
+  }
+}
+checkStartApp();
+
+/* ───── Отправка кода ───── */
+function sendCode(){
+  const email = emailInput.value.trim().toLowerCase();
+  if (!email.includes('@')){
+    emailMsg.textContent = 'Введите корректный email';
+    emailMsg.className = 'message error';
+    return;
+  }
+
+  userEmail = email;
+  localCode = Math.floor(100000 + Math.random()*900000).toString();
+
+  fetch(GAS_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ email:userEmail, code:localCode })
+  });
+
+  emailStep.classList.add('hidden');
+  codeStep.classList.remove('hidden');
+  emailPreview.textContent = userEmail;
+
+  startTimer();
 }
 
-function changeEmail() {
-    clearInterval(timerInterval);
-    codeStep.classList.add('hidden');
-    emailStep.classList.remove('hidden');
-    codeMsg.textContent = '';
-    codeInput.value = '';
+/* ───── Таймер повторной отправки ───── */
+function startTimer(){
+  resendTimer = 30;
+  resendBtn.disabled = true;
+  resendBtn.textContent = `Отправить повторно (${resendTimer})`;
+
+  timer = setInterval(()=>{
+    resendTimer--;
+    resendBtn.textContent = `Отправить повторно (${resendTimer})`;
+    if (resendTimer <= 0){
+      clearInterval(timer);
+      resendBtn.disabled = false;
+      resendBtn.textContent = 'Отправить повторно';
+    }
+  },1000);
+}
+
+function resendCode(){
+  localCode = Math.floor(100000 + Math.random()*900000).toString();
+  fetch(GAS_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ email:userEmail, code:localCode })
+  });
+  startTimer();
+}
+
+/* ───── Проверка кода (UX) ───── */
+function verifyCode(){
+  if (codeInput.value.trim() === localCode){
+    codeMsg.textContent = 'Код верный. Можно вернуться в бот';
+    codeMsg.className = 'message success';
+  } else {
+    codeMsg.textContent = 'Неверный код';
+    codeMsg.className = 'message error';
+  }
+}
+
+function changeEmail(){
+  clearInterval(timer);
+  codeStep.classList.add('hidden');
+  emailStep.classList.remove('hidden');
+  codeInput.value = '';
+  codeMsg.textContent = '';
 }
 </script>
 
