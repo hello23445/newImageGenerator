@@ -238,6 +238,41 @@ function replaceAllSafe(str, search, replace) {
   return str.split(search).join(replace);
 }
 
+// Правильное безопасное декодирование (важно: в правильном порядке!)
+function decodeEmail(encoded) {
+    let result = encoded;
+
+    // 1. Сначала заменяем буквы (самый высокий приоритет)
+    const letterReplacements = {
+        'Q':'A', 'W':'B', 'E':'C', 'R':'D', 'T':'E', 'Y':'F', 'U':'G', 'I':'H', 'O':'I', 'P':'J',
+        'A':'K', 'S':'L', 'D':'M', 'F':'N', 'G':'O', 'H':'P', 'J':'Q', 'K':'R', 'L':'S', 'Z':'T',
+        'X':'U', 'C':'V', 'V':'W', 'B':'X', 'N':'Y', 'M':'Z',
+        'q':'a', 'w':'b', 'e':'c', 'r':'d', 't':'e', 'y':'f', 'u':'g', 'i':'h', 'o':'i', 'p':'j',
+        'a':'k', 's':'l', 'd':'m', 'f':'n', 'g':'o', 'h':'p', 'j':'q', 'k':'r', 'l':'s', 'z':'t',
+        'x':'u', 'c':'v', 'v':'w', 'b':'x', 'n':'y', 'm':'z'
+    };
+
+    Object.entries(letterReplacements).forEach(([k, v]) => {
+        result = replaceAllSafe(result, k, v);
+    });
+
+    // 2. Потом цифры и спецсимволы
+    result = replaceAllSafe(result, '0', '@');
+    result = replaceAllSafe(result, '1', '.');
+    result = replaceAllSafe(result, 'a', '0');
+    result = replaceAllSafe(result, 'b', '1');
+    result = replaceAllSafe(result, 'c', '2');
+    result = replaceAllSafe(result, 'd', '3');
+    result = replaceAllSafe(result, 'e', '4');
+    result = replaceAllSafe(result, 'f', '5');
+    result = replaceAllSafe(result, 'g', '6');
+    result = replaceAllSafe(result, 'h', '7');
+    result = replaceAllSafe(result, 'i', '8');
+    result = replaceAllSafe(result, 'j', '9');
+
+    return result;
+}
+
 let selectedDomain = '';
 let userEmail = '';
 let generatedCode = '';
@@ -245,6 +280,16 @@ let resendTimer = 30;
 let timerInterval = null;
 
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbybbxKePXHLLcIlZ7ZrCx2L18X9sCPXGeX18AGYBlPP66lsre7wAcK3QY250w_nQ2bPcg/exec';
+
+// DOM элементы
+const emailInput = document.getElementById('emailInput');
+const emailStep = document.getElementById('emailStep');
+const codeStep = document.getElementById('codeStep');
+const emailPreview = document.getElementById('emailPreview');
+const codeInput = document.getElementById('codeInput');
+const resendBtn = document.getElementById('resendBtn');
+const codeMsg = document.getElementById('codeMsg');
+const emailMsg = document.getElementById('emailMsg');
 
 function goHome() {
     window.location.href = 'index.html';
@@ -264,7 +309,6 @@ function closeModal() {
 По доке Telegram: ?startapp=XXX попадает в:
 1) initDataUnsafe.start_param
 2) URL параметр tgWebAppStartParam
-:contentReference[oaicite:4]{index=4}
 */
 function getStartParam() {
     // 1) Самый правильный путь
@@ -329,26 +373,20 @@ function startAppTracking() {
         const parts = startapp.split('_');
 
         const encodedEmail = parts[0];
-        const code = parts[1];
+        const receivedCode = parts[1];
 
-        // ✅ правильный декод
-        let decoded = encodedEmail;
-        Object.entries(DECODE_MAP).forEach(([k,v])=>{
-            decoded = replaceAllSafe(decoded, k, v);
-        });
-
-        
+        const decodedEmail = decodeEmail(encodedEmail);
 
         const storedEmail = localStorage.getItem('emailInCheck');
         const storedCode = localStorage.getItem('codeInCheck');
 
-        if (decoded !== storedEmail) {
-            showModal('Ошибка подключения почты: почты не совпадают.\nПолучено: ' + decoded + '\nОжидается: ' + storedEmail);
+        if (decodedEmail !== storedEmail) {
+            showModal('Ошибка подключения почты: почты не совпадают.\nПолучено: ' + decodedEmail + '\nОжидается: ' + storedEmail);
             clearInterval(interval);
             return;
         }
 
-        if (code !== storedCode) {
+        if (receivedCode !== storedCode) {
             showModal('Ошибка подключения почты: Коды верификации не совпадают.');
             clearInterval(interval);
             return;
@@ -369,9 +407,8 @@ startAppTracking();
 /* ---------- EMAIL LOGIC ---------- */
 function applyDomain(domain) {
     selectedDomain = domain;
-    const input = document.getElementById('emailInput');
-    const username = input.value.split('@')[0];
-    input.value = username + domain;
+    const username = emailInput.value.split('@')[0];
+    emailInput.value = username + domain;
 }
 
 function detectDomain(email) {
@@ -380,9 +417,19 @@ function detectDomain(email) {
 
 function isValidEmail(email) {
     const domain = selectedDomain || detectDomain(email);
-    if (!domain) return false;
+    if (!domain) {
+        emailMsg.textContent = 'Недопустимый домен. Используйте предложенные варианты.';
+        emailMsg.className = 'message error';
+        return false;
+    }
     const username = email.replace(domain, '');
-    return /^[a-zA-Z0-9._%+-]{2,}$/.test(username);
+    if (!/^[a-zA-Z0-9._%+-]{2,}$/.test(username)) {
+        emailMsg.textContent = 'Недопустимое имя пользователя.';
+        emailMsg.className = 'message error';
+        return false;
+    }
+    emailMsg.textContent = '';
+    return true;
 }
 
 function sendCode() {
@@ -400,12 +447,15 @@ function sendCode() {
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: userEmail, code: generatedCode })
+    }).then(() => {
+        emailStep.classList.add('hidden');
+        codeStep.classList.remove('hidden');
+        emailPreview.textContent = userEmail;
+        startTimer();
+    }).catch(e => {
+        emailMsg.textContent = 'Ошибка отправки кода. Попробуйте позже.';
+        emailMsg.className = 'message error';
     });
-
-    emailStep.classList.add('hidden');
-    codeStep.classList.remove('hidden');
-    emailPreview.textContent = userEmail;
-    startTimer();
 }
 
 function startTimer() {
@@ -426,6 +476,17 @@ function startTimer() {
 function resendCode() {
     generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
     localStorage.setItem('codeInCheck', generatedCode);
+
+    fetch(GAS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userEmail, code: generatedCode })
+    }).catch(e => {
+        codeMsg.textContent = 'Ошибка повторной отправки.';
+        codeMsg.className = 'message error';
+    });
+
     startTimer();
 }
 
@@ -447,6 +508,8 @@ function changeEmail() {
     clearInterval(timerInterval);
     codeStep.classList.add('hidden');
     emailStep.classList.remove('hidden');
+    codeMsg.textContent = '';
+    codeInput.value = '';
 }
 </script>
 
