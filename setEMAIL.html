@@ -122,30 +122,46 @@ const codeMsg   = document.getElementById('codeMsg');
 const emailPreview = document.getElementById('emailPreview');
 const resendBtn = document.getElementById('resendBtn');
 
-function goHome(){
-  window.location.href = 'index.html';
-}
+/* ───── STARTAPP (КЛЮЧЕВОЕ!) ───── */
+(async function handleStartApp(){
+  const sp = Telegram?.WebApp?.initDataUnsafe?.start_param;
+  if (!sp) return;
 
-/* ───── ДОМЕН → В INPUT ───── */
+  try{
+    const res = await fetch(
+      GAS_URL + '?startapp=' + encodeURIComponent(sp)
+    );
+    const json = await res.json();
+
+    if (json.ok){
+      localStorage.setItem('email', json.email);
+      emailMsg.textContent = 'Почта успешно подключена';
+      emailMsg.className = 'message success';
+      setTimeout(goHome, 1500);
+    } else {
+      emailMsg.textContent = 'Ошибка подтверждения: ' + json.error;
+      emailMsg.className = 'message error';
+    }
+  }catch{
+    emailMsg.textContent = 'Ошибка соединения с сервером';
+    emailMsg.className = 'message error';
+  }
+})();
+
+/* ───── ДОМЕН В INPUT ───── */
 function applyDomain(el, domain){
   document.querySelectorAll('.domain').forEach(d=>d.classList.remove('active'));
   el.classList.add('active');
 
   let value = emailInput.value.trim();
-
-  // если уже есть домен — отрезаем
-  if (value.includes('@')) {
-    value = value.split('@')[0];
-  }
-
+  if (value.includes('@')) value = value.split('@')[0];
   emailInput.value = value + domain;
 }
 
 /* ───── ОТПРАВКА КОДА ───── */
 function sendCode(){
   const email = emailInput.value.trim().toLowerCase();
-
-  if (!email.includes('@') || email.startsWith('@')){
+  if (!email.includes('@')){
     emailMsg.textContent = 'Введите корректный email';
     emailMsg.className = 'message error';
     return;
@@ -154,14 +170,11 @@ function sendCode(){
   userEmail = email;
   localCode = Math.floor(100000 + Math.random()*900000).toString();
 
-  fetch(GAS_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      email: userEmail,
-      code: localCode
-    })
+  fetch(GAS_URL,{
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ email:userEmail, code:localCode })
   });
 
   emailStep.classList.add('hidden');
@@ -189,21 +202,16 @@ function startTimer(){
 
 function resendCode(){
   localCode = Math.floor(100000 + Math.random()*900000).toString();
-
-  fetch(GAS_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      email: userEmail,
-      code: localCode
-    })
+  fetch(GAS_URL,{
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ email:userEmail, code:localCode })
   });
-
   startTimer();
 }
 
-/* ───── ПРОВЕРКА КОДА (UX) ───── */
+/* ───── UX-ПРОВЕРКА КОДА ───── */
 function verifyCode(){
   if (codeInput.value.trim() === localCode){
     codeMsg.textContent = 'Код верный. Можно вернуться в бот';
@@ -220,6 +228,10 @@ function changeEmail(){
   emailStep.classList.remove('hidden');
   codeInput.value = '';
   codeMsg.textContent = '';
+}
+
+function goHome(){
+  window.location.href = 'index.html';
 }
 </script>
 
