@@ -224,54 +224,14 @@ const CODE_MAP = {
   u:'x', v:'c', w:'v', x:'b', y:'n', z:'m',
   '@':'0',
   '.':'1',
-  '0':'a', '1':'b', '2':'c', '3':'d', '4':'e',
-  '5':'f', '6':'g', '7':'h', '8':'i', '9':'j'
+  '0':'2', '1':'3', '2':'4', '3':'5', '4':'6',
+  '5':'7', '6':'8', '7':'9', '8':'-', '9':'_'
 };
 
-// ✅ обратная карта для ДЕКОДА
+// ✅ обратная карта для ДЕКОДА (теперь без коллизий)
 const DECODE_MAP = Object.fromEntries(
   Object.entries(CODE_MAP).map(([k,v]) => [v,k])
 );
-
-// ✅ безопасная замена (без RegExp), чтобы '.' и '@' не ломали
-function replaceAllSafe(str, search, replace) {
-  return str.split(search).join(replace);
-}
-
-// Правильное безопасное декодирование (важно: в правильном порядке!)
-function decodeEmail(encoded) {
-    let result = encoded;
-
-    // 1. Сначала заменяем буквы (самый высокий приоритет)
-    const letterReplacements = {
-        'Q':'A', 'W':'B', 'E':'C', 'R':'D', 'T':'E', 'Y':'F', 'U':'G', 'I':'H', 'O':'I', 'P':'J',
-        'A':'K', 'S':'L', 'D':'M', 'F':'N', 'G':'O', 'H':'P', 'J':'Q', 'K':'R', 'L':'S', 'Z':'T',
-        'X':'U', 'C':'V', 'V':'W', 'B':'X', 'N':'Y', 'M':'Z',
-        'q':'a', 'w':'b', 'e':'c', 'r':'d', 't':'e', 'y':'f', 'u':'g', 'i':'h', 'o':'i', 'p':'j',
-        'a':'k', 's':'l', 'd':'m', 'f':'n', 'g':'o', 'h':'p', 'j':'q', 'k':'r', 'l':'s', 'z':'t',
-        'x':'u', 'c':'v', 'v':'w', 'b':'x', 'n':'y', 'm':'z'
-    };
-
-    Object.entries(letterReplacements).forEach(([k, v]) => {
-        result = replaceAllSafe(result, k, v);
-    });
-
-    // 2. Потом цифры и спецсимволы
-    result = replaceAllSafe(result, '0', '@');
-    result = replaceAllSafe(result, '1', '.');
-    result = replaceAllSafe(result, 'a', '0');
-    result = replaceAllSafe(result, 'b', '1');
-    result = replaceAllSafe(result, 'c', '2');
-    result = replaceAllSafe(result, 'd', '3');
-    result = replaceAllSafe(result, 'e', '4');
-    result = replaceAllSafe(result, 'f', '5');
-    result = replaceAllSafe(result, 'g', '6');
-    result = replaceAllSafe(result, 'h', '7');
-    result = replaceAllSafe(result, 'i', '8');
-    result = replaceAllSafe(result, 'j', '9');
-
-    return result;
-}
 
 let selectedDomain = '';
 let userEmail = '';
@@ -305,11 +265,6 @@ function closeModal() {
 }
 
 /* ---------- START PARAM (startapp tracking) ---------- */
-/*
-По доке Telegram: ?startapp=XXX попадает в:
-1) initDataUnsafe.start_param
-2) URL параметр tgWebAppStartParam
-*/
 function getStartParam() {
     // 1) Самый правильный путь
     const sp1 = Telegram?.WebApp?.initDataUnsafe?.start_param;
@@ -375,7 +330,11 @@ function startAppTracking() {
         const encodedEmail = parts[0];
         const receivedCode = parts[1];
 
-        const decodedEmail = decodeEmail(encodedEmail);
+        // ✅ простой декод (теперь без коллизий)
+        let decodedEmail = '';
+        for (let char of encodedEmail) {
+            decodedEmail += DECODE_MAP[char] || char;
+        }
 
         const storedEmail = localStorage.getItem('emailInCheck');
         const storedCode = localStorage.getItem('codeInCheck');
