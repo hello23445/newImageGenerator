@@ -2,21 +2,15 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Подключение почты</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
-<!-- ✅ ВАЖНО: официальный SDK Telegram WebApp -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-}
-
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body {
     margin: 0;
     width: 100%;
@@ -31,8 +25,6 @@ html, body {
     justify-content: center;
     color: #fff;
 }
-
-/* CARD */
 .card {
     width: 100%;
     max-width: 400px;
@@ -43,8 +35,6 @@ html, body {
     box-shadow: 0 20px 60px rgba(0,0,0,0.4);
     text-align: center;
 }
-
-/* BACK BUTTON */
 .back-btn {
     width: 100%;
     background: #251897;
@@ -56,19 +46,8 @@ html, body {
     margin-bottom: 16px;
     cursor: pointer;
 }
-
-/* TEXT */
-h2 {
-    margin: 0 0 6px;
-    font-weight: 600;
-}
-.subtitle {
-    font-size: 14px;
-    opacity: 0.7;
-    margin-bottom: 18px;
-}
-
-/* INPUT */
+h2 { margin: 0 0 6px; font-weight: 600; }
+.subtitle { font-size: 14px; opacity: 0.7; margin-bottom: 18px; }
 input {
     width: 100%;
     padding: 14px 16px;
@@ -79,11 +58,7 @@ input {
     color: #fff;
     font-size: 15px;
 }
-input:disabled {
-    opacity: 0.6;
-}
-
-/* DOMAINS */
+input:disabled { opacity: 0.6; }
 .domains {
     display: flex;
     flex-wrap: wrap;
@@ -97,8 +72,6 @@ input:disabled {
     background: rgba(255,255,255,0.15);
     cursor: pointer;
 }
-
-/* BUTTON */
 button {
     width: 100%;
     margin-top: 14px;
@@ -111,25 +84,12 @@ button {
     font-weight: 600;
     cursor: pointer;
 }
-button.secondary {
-    background: rgba(255,255,255,0.15);
-}
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* MESSAGE */
-.message {
-    margin-top: 12px;
-    font-size: 14px;
-}
+button.secondary { background: rgba(255,255,255,0.15); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+.message { margin-top: 12px; font-size: 14px; }
 .error { color: #f87171; }
 .success { color: #4ade80; }
-
 .hidden { display: none; }
-
-/* MODAL */
 .modal {
     position: fixed;
     inset: 0;
@@ -139,9 +99,7 @@ button:disabled {
     justify-content: center;
     z-index: 100;
 }
-.modal:not(.hidden) {
-    display: flex;
-}
+.modal:not(.hidden) { display: flex; }
 .modal-card {
     background: #020617;
     border-radius: 18px;
@@ -149,15 +107,12 @@ button:disabled {
     max-width: 320px;
     text-align: center;
 }
-.modal-card button {
-    margin-top: 14px;
-}
+.modal-card button { margin-top: 14px; }
 </style>
 </head>
 
 <body>
 
-<!-- MODAL -->
 <div class="modal hidden" id="modal">
     <div class="modal-card">
         <div id="modalText"></div>
@@ -165,55 +120,34 @@ button:disabled {
     </div>
 </div>
 
-<!-- STEP 1 -->
 <div class="card" id="emailStep">
-
     <div class="back-btn" onclick="goHome()">ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ</div>
-
     <h2>Подключение почты</h2>
     <div class="subtitle">Введите почту полностью вместе с доменом</div>
-
     <input type="text" id="emailInput" placeholder="username@gmail.com">
-
     <div class="domains">
         <div class="domain" onclick="applyDomain('@gmail.com')">@gmail.com</div>
         <div class="domain" onclick="applyDomain('@mail.ru')">@mail.ru</div>
         <div class="domain" onclick="applyDomain('@yandex.ru')">@yandex.ru</div>
         <div class="domain" onclick="applyDomain('@outlook.com')">@outlook.com</div>
     </div>
-
     <button onclick="sendCode()">Отправить код</button>
     <div id="emailMsg" class="message"></div>
 </div>
 
-<!-- STEP 2 -->
 <div class="card hidden" id="codeStep">
-
     <div class="back-btn" onclick="goHome()">ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ</div>
-
     <h2>Введите код из почты</h2>
     <div class="subtitle" id="emailPreview"></div>
-
     <input type="text" id="codeInput" maxlength="6" placeholder="XXXXXX">
-
     <button onclick="verifyCode()">Подтвердить</button>
-
-    <button class="secondary" id="resendBtn" onclick="resendCode()" disabled>
-        Отправить повторно (30)
-    </button>
-
+    <button class="secondary" id="resendBtn" onclick="resendCode()" disabled>Отправить повторно (30)</button>
     <button class="secondary" onclick="changeEmail()">Изменить почту</button>
-
     <div id="codeMsg" class="message"></div>
 </div>
 
 <script>
-const ALLOWED_DOMAINS = [
-    '@gmail.com',
-    '@mail.ru',
-    '@yandex.ru',
-    '@outlook.com'
-];
+const ALLOWED_DOMAINS = ['@gmail.com', '@mail.ru', '@yandex.ru', '@outlook.com'];
 
 let selectedDomain = '';
 let userEmail = '';
@@ -223,7 +157,6 @@ let timerInterval = null;
 
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbybbxKePXHLLcIlZ7ZrCx2L18X9sCPXGeX18AGYBlPP66lsre7wAcK3QY250w_nQ2bPcg/exec';
 
-// DOM элементы
 const emailInput = document.getElementById('emailInput');
 const emailStep = document.getElementById('emailStep');
 const codeStep = document.getElementById('codeStep');
@@ -237,61 +170,45 @@ function goHome() {
     window.location.href = 'index.html';
 }
 
-/* ---------- MODAL ---------- */
 function showModal(text) {
     document.getElementById('modalText').textContent = text;
     document.getElementById('modal').classList.remove('hidden');
 }
+
 function closeModal() {
     document.getElementById('modal').classList.add('hidden');
 }
 
-/* ---------- START PARAM (startapp tracking) ---------- */
 function getStartParam() {
-    const sp1 = Telegram?.WebApp?.initDataUnsafe?.start_param;
-    if (sp1) return sp1;
+    if (Telegram?.WebApp?.initDataUnsafe?.start_param) {
+        return Telegram.WebApp.initDataUnsafe.start_param;
+    }
 
     try {
         const url = new URL(window.location.href);
-        const sp2 = url.searchParams.get('tgWebAppStartParam');
-        if (sp2) return sp2;
+        let sp = url.searchParams.get('tgWebAppStartParam') || url.searchParams.get('startapp');
+        if (sp) return sp;
 
-        if (url.hash && url.hash.includes('tgWebAppStartParam=')) {
+        if (url.hash) {
             const hashParams = new URLSearchParams(url.hash.replace(/^#/, ''));
-            const sp2h = hashParams.get('tgWebAppStartParam');
-            if (sp2h) return sp2h;
+            sp = hashParams.get('tgWebAppStartParam') || hashParams.get('startapp');
+            if (sp) return sp;
         }
-    } catch(e) {}
+    } catch (e) {}
 
-    const initData = Telegram?.WebApp?.initData || '';
-    if (initData && initData.includes('start_param=')) {
-        try {
-            const qs = new URLSearchParams(initData);
-            const sp3 = qs.get('start_param');
-            if (sp3) return sp3;
-        } catch(e) {}
+    return sessionStorage.getItem('startapp_param') || '';
+}
+
+async function getShortHash(email) {
+    if (!crypto?.subtle) {
+        showModal('Ошибка: криптография недоступна в этом браузере');
+        return null;
     }
-
-    const sp4 = sessionStorage.getItem('startapp_param') || '';
-    if (sp4) return sp4;
-
-    return '';
-}
-
-async function computeSHA256Hash(str) {
-  const buffer = new TextEncoder().encode(str);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return hex;
-}
-
-function base64urlEncode(hex) {
-  let binary = '';
-  for (let i = 0; i < hex.length; i += 2) {
-    binary += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-  }
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const msgBuffer = new TextEncoder().encode(email.trim().toLowerCase());
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hex.substring(0, 32); // 16 байт = 32 hex символа
 }
 
 function startAppTracking() {
@@ -302,11 +219,10 @@ function startAppTracking() {
 
     let tries = 0;
     const maxTries = 20;
-    const interval = setInterval(() => {
+    const interval = setInterval(async () => {
         tries++;
 
-        let startapp = getStartParam();
-
+        const startapp = getStartParam();
         if (!startapp) {
             if (tries >= maxTries) clearInterval(interval);
             return;
@@ -315,40 +231,59 @@ function startAppTracking() {
         sessionStorage.setItem('startapp_param', startapp);
 
         const parts = startapp.split('_');
+        if (parts.length !== 2) {
+            showModal('Некорректная ссылка (неверный формат)');
+            clearInterval(interval);
+            return;
+        }
 
-        const receivedHash = parts[0];
+        const receivedShortHash = parts[0];
         const receivedCode = parts[1];
 
         const storedEmail = localStorage.getItem('emailInCheck');
         const storedCode = localStorage.getItem('codeInCheck');
 
-        computeSHA256Hash(storedEmail).then(hexHash => {
-          const storedHash = base64urlEncode(hexHash);
-
-          if (receivedHash !== storedHash) {
-            showModal('Ошибка подключения почты: хэши не совпадают.');
+        if (!storedEmail || !storedCode) {
+            showModal('Нет данных для проверки. Попробуйте ввести почту заново.');
             clearInterval(interval);
             return;
-          }
+        }
 
-          if (receivedCode !== storedCode) {
-            showModal('Ошибка подключения почты: Коды верификации не совпадают.');
+        const computedShortHash = await getShortHash(storedEmail);
+
+        if (computedShortHash !== receivedShortHash) {
+            showModal(
+                'Ошибка: хэши почты не совпадают\n\n' +
+                'Получено: ' + receivedShortHash + '\n' +
+                'Ожидается: ' + computedShortHash + '\n\n' +
+                'Проверьте, что вы используете ту же почту, которую вводили ранее.'
+            );
             clearInterval(interval);
             return;
-          }
+        }
 
-          localStorage.setItem('email', storedEmail);
-          localStorage.removeItem('emailInCheck');
-          localStorage.removeItem('codeInCheck');
+        if (receivedCode !== storedCode) {
+            showModal('Неверный код подтверждения');
+            clearInterval(interval);
+            return;
+        }
 
-          clearInterval(interval);
-        });
+        // Успех
+        localStorage.setItem('email', storedEmail);
+        localStorage.removeItem('emailInCheck');
+        localStorage.removeItem('codeInCheck');
+
+        showModal('Почта успешно подтверждена!');
+        clearInterval(interval);
+        setTimeout(goHome, 1500);
+
     }, 150);
 }
 
 startAppTracking();
 
-/* ---------- EMAIL LOGIC ---------- */
+// ──────────────────────────────────────────────
+// Остальные функции (без изменений)
 function applyDomain(domain) {
     selectedDomain = domain;
     const username = emailInput.value.split('@')[0];
@@ -396,7 +331,7 @@ function sendCode() {
         codeStep.classList.remove('hidden');
         emailPreview.textContent = userEmail;
         startTimer();
-    }).catch(e => {
+    }).catch(() => {
         emailMsg.textContent = 'Ошибка отправки кода. Попробуйте позже.';
         emailMsg.className = 'message error';
     });
@@ -406,7 +341,7 @@ function startTimer() {
     resendTimer = 30;
     resendBtn.disabled = true;
     resendBtn.textContent = `Отправить повторно (${resendTimer})`;
-    timerInterval = setInterval(()=>{
+    timerInterval = setInterval(() => {
         resendTimer--;
         resendBtn.textContent = `Отправить повторно (${resendTimer})`;
         if (resendTimer <= 0) {
@@ -414,7 +349,7 @@ function startTimer() {
             resendBtn.disabled = false;
             resendBtn.textContent = 'Отправить повторно';
         }
-    },1000);
+    }, 1000);
 }
 
 function resendCode() {
@@ -426,7 +361,7 @@ function resendCode() {
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: userEmail, code: generatedCode })
-    }).catch(e => {
+    }).catch(() => {
         codeMsg.textContent = 'Ошибка повторной отправки.';
         codeMsg.className = 'message error';
     });
