@@ -221,6 +221,16 @@ const CODE_MAP = {
   '.':'J'
 };
 
+// ✅ ОБРАТНАЯ КАРТА ДЛЯ ДЕКОДА (то, чего не хватало)
+const DECODE_MAP = Object.fromEntries(
+  Object.entries(CODE_MAP).map(([k,v]) => [v,k])
+);
+
+// ✅ безопасная замена без RegExp (иначе @ и . ломают всё)
+function replaceAllSafe(str, search, replace) {
+  return str.split(search).join(replace);
+}
+
 
 
 let selectedDomain = '';
@@ -245,65 +255,96 @@ function closeModal() {
 }
 
 /* ---------- STARTAPP CHECK ---------- */
-(function checkStartApp(){
+(function initStartApp(){
+    // ✅ Telegram WebApp иногда отдаёт start_param с задержкой
+    // поэтому: ready + несколько попыток + sessionStorage
+    const isTG = typeof Telegram !== 'undefined' && Telegram?.WebApp;
+    if (isTG) {
+        try { Telegram.WebApp.ready(); } catch(e) {}
+    }
+
+    // запускаем с небольшой задержкой + ретраи
+    let tries = 0;
+    const maxTries = 12; // ~12 * 150ms = 1.8s
+    const interval = setInterval(() => {
+        tries++;
+        const ok = checkStartAppOnce(tries, maxTries);
+        if (ok || tries >= maxTries) clearInterval(interval);
+    }, 150);
+})();
+
+function checkStartAppOnce(tries, maxTries){
     // Debug: Check Telegram object
+    alert('DEBUG: try ' + tries + '/' + maxTries);
     alert('DEBUG: Telegram object exists: ' + (typeof Telegram !== 'undefined'));
     alert('DEBUG: Telegram.WebApp exists: ' + (Telegram?.WebApp ? 'YES' : 'NO'));
     alert('DEBUG: Telegram.WebApp.initDataUnsafe exists: ' + (Telegram?.WebApp?.initDataUnsafe ? 'YES' : 'NO'));
-    
+
     if (Telegram?.WebApp?.initDataUnsafe) {
         alert('DEBUG: initDataUnsafe keys: ' + Object.keys(Telegram.WebApp.initDataUnsafe).join(', '));
     }
-    
+
     // Get startapp from Telegram WebApp
-    const startapp = Telegram?.WebApp?.initDataUnsafe?.start_param;
+    let startapp = Telegram?.WebApp?.initDataUnsafe?.start_param;
+
+    // ✅ сохраняем/восстанавливаем (после reload Telegram может не дать start_param снова)
+    if (startapp) {
+        sessionStorage.setItem('startapp_param', startapp);
+    } else {
+        startapp = sessionStorage.getItem('startapp_param') || '';
+    }
+
     alert('DEBUG: startapp value: "' + startapp + '"');
     alert('DEBUG: startapp type: ' + typeof startapp);
-    
+
     if (!startapp) {
-        alert('startapp параметр не найден');
-        return;
+        // не показываем "не найден" на каждой попытке, чтобы не бесило
+        if (tries >= maxTries) {
+            alert('startapp параметр не найден');
+        }
+        return false;
     }
 
     const parts = startapp.split('_');
     alert('DEBUG: parts length: ' + parts.length);
     alert('parts: ' + JSON.stringify(parts));
-    
+
     const encodedEmail = parts[0];
     const code = parts[1];
-    
+
     alert('encodedEmail: ' + encodedEmail + '\ncode: ' + code);
 
+    // ✅ ПРАВИЛЬНЫЙ ДЕКОД (обратной картой)
     let decoded = encodedEmail;
-    Object.entries(CODE_MAP).forEach(([k,v])=>{
-        const r = new RegExp(k, 'gi');
-        decoded = decoded.replace(r, v);
+    Object.entries(DECODE_MAP).forEach(([k,v])=>{
+        decoded = replaceAllSafe(decoded, k, v);
     });
-    
+
     alert('decoded email: ' + decoded);
 
     const storedEmail = localStorage.getItem('emailInCheck');
     const storedCode = localStorage.getItem('codeInCheck');
-    
+
     alert('storedEmail: ' + storedEmail + '\nstoredCode: ' + storedCode);
 
     if (decoded !== storedEmail) {
         alert('Ошибка подключения почты: почты не совпадают.\nОжидается: ' + storedEmail + '\nПолучено: ' + decoded);
         showModal('Ошибка подключения почты: почты не совпадают.');
-        return;
+        return true;
     }
 
     if (code !== storedCode) {
         alert('Ошибка подключения почты: Коды верификации не совпадают.\nОжидается: ' + storedCode + '\nПолучено: ' + code);
         showModal('Ошибка подключения почты: Коды верификации не совпадают.');
-        return;
+        return true;
     }
 
     alert('Почта успешно подтверждена!');
     localStorage.setItem('email', storedEmail);
     localStorage.removeItem('emailInCheck');
     localStorage.removeItem('codeInCheck');
-})();
+    return true;
+}
 
 /* ---------- EMAIL LOGIC ---------- */
 function applyDomain(domain) {
