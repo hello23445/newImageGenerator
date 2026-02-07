@@ -246,40 +246,16 @@ function closeModal() {
 
 /* ---------- STARTAPP CHECK ---------- */
 (function checkStartApp(){
-    // Check both URL params and Telegram WebApp
-    let startappData = null;
+    // Get startapp from Telegram WebApp
+    const startapp = Telegram?.WebApp?.initDataUnsafe?.start_param;
+    alert('startapp: ' + startapp);
     
-    // Try URL params first
-    const url = new URL(window.location.href);
-    if (url.searchParams.has('startapp')) {
-        startappData = url.searchParams.get('startapp');
-        alert('Found startapp in URL: ' + startappData);
-    }
-    
-    // Try Telegram WebApp
-    if (!startappData && window.Telegram?.WebApp?.initData) {
-        const params = new URLSearchParams(window.Telegram.WebApp.initData);
-        if (params.has('start_param')) {
-            startappData = params.get('start_param');
-            alert('Found start_param in Telegram WebApp: ' + startappData);
-        }
-    }
-    
-    // Try direct startParam property
-    if (!startappData && window.Telegram?.WebApp?.startParam) {
-        startappData = window.Telegram.WebApp.startParam;
-        alert('Found startParam in Telegram WebApp: ' + startappData);
-    }
-    
-    alert('Telegram WebApp object: ' + (window.Telegram?.WebApp ? 'EXISTS' : 'NOT FOUND'));
-    alert('startappData final: ' + startappData);
-    
-    if (!startappData) {
-        alert('startapp параметр не найден нигде');
+    if (!startapp) {
+        alert('startapp параметр не найден');
         return;
     }
 
-    const parts = startappData.split('_');
+    const parts = startapp.split('_');
     alert('parts: ' + JSON.stringify(parts));
     
     const encodedEmail = parts[0];
