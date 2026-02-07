@@ -67,6 +67,13 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .error{color:#f87171}
 .success{color:#4ade80}
 .hidden{display:none}
+
+/* Modal */
+.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);z-index:9999}
+.modal.hidden{display:none}
+.modal-box{background:#0b1020;color:#fff;padding:22px;border-radius:12px;max-width:320px;text-align:center}
+.modal-box p{margin:0 0 12px;white-space:pre-line}
+.modal-btn{padding:10px 14px;border-radius:10px;border:none;background:#2563eb;color:#fff;cursor:pointer}
 </style>
 </head>
 
@@ -88,7 +95,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   </div>
 
   <button onclick="sendCode()">Отправить код</button>
-  <div id="emailMsg" class="message"></div>
+  
 </div>
 
 <!-- CODE -->
@@ -102,7 +109,15 @@ button:disabled{opacity:.5;cursor:not-allowed}
     Отправить повторно (30)
   </button>
   <button class="secondary" onclick="changeEmail()">Изменить почту</button>
-  <div id="codeMsg" class="message"></div>
+  
+</div>
+
+<!-- Global modal: only three messages allowed -->
+<div id="globalModal" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <p id="modalText"></p>
+    <button id="modalBtn" class="modal-btn">ОК</button>
+  </div>
 </div>
 
 <script>
@@ -117,10 +132,34 @@ let timer = null;
 const emailInput = document.getElementById('emailInput');
 const emailStep = document.getElementById('emailStep');
 const codeStep  = document.getElementById('codeStep');
-const emailMsg  = document.getElementById('emailMsg');
-const codeMsg   = document.getElementById('codeMsg');
 const emailPreview = document.getElementById('emailPreview');
 const resendBtn = document.getElementById('resendBtn');
+const globalModal = document.getElementById('globalModal');
+const modalText = document.getElementById('modalText');
+const modalBtn = document.getElementById('modalBtn');
+
+function hideModal(){
+  globalModal.classList.add('hidden');
+}
+
+modalBtn.addEventListener('click', hideModal);
+
+function showModal(type){
+  // Only three modal types allowed
+  if (!globalModal) return;
+  let text = '';
+  if (type === 'codesMismatch') text = 'Коды не совпадают';
+  else if (type === 'emailsMismatch') text = 'Почты не совпадают';
+  else if (type === 'success') text = 'Почта привязана успешно!\nСкоро вы будете перенаправлены.';
+  modalText.textContent = text;
+  globalModal.classList.remove('hidden');
+  if (type === 'success'){
+    setTimeout(()=>{
+      hideModal();
+      goHome();
+    }, 1800);
+  }
+}
 
 /* ───── STARTAPP (КЛЮЧЕВОЕ!) ───── */
 (async function handleStartApp(){
@@ -135,16 +174,12 @@ const resendBtn = document.getElementById('resendBtn');
 
     if (json.ok){
       localStorage.setItem('email', json.email);
-      emailMsg.textContent = 'Почта успешно подключена';
-      emailMsg.className = 'message success';
-      setTimeout(goHome, 1500);
+      showModal('success');
     } else {
-      emailMsg.textContent = 'Ошибка подтверждения: ' + json.error;
-      emailMsg.className = 'message error';
+      showModal('emailsMismatch');
     }
   }catch{
-    emailMsg.textContent = 'Ошибка соединения с сервером';
-    emailMsg.className = 'message error';
+    showModal('emailsMismatch');
   }
 })();
 
@@ -162,8 +197,7 @@ function applyDomain(el, domain){
 function sendCode(){
   const email = emailInput.value.trim().toLowerCase();
   if (!email.includes('@')){
-    emailMsg.textContent = 'Введите корректный email';
-    emailMsg.className = 'message error';
+    showModal('emailsMismatch');
     return;
   }
 
@@ -214,11 +248,9 @@ function resendCode(){
 /* ───── UX-ПРОВЕРКА КОДА ───── */
 function verifyCode(){
   if (codeInput.value.trim() === localCode){
-    codeMsg.textContent = 'Код верный. Можно вернуться в бот';
-    codeMsg.className = 'message success';
+    showModal('success');
   } else {
-    codeMsg.textContent = 'Неверный код';
-    codeMsg.className = 'message error';
+    showModal('codesMismatch');
   }
 }
 
@@ -227,7 +259,6 @@ function changeEmail(){
   codeStep.classList.add('hidden');
   emailStep.classList.remove('hidden');
   codeInput.value = '';
-  codeMsg.textContent = '';
 }
 
 function goHome(){
