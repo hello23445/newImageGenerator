@@ -74,6 +74,12 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .modal-box{background:#0b1020;color:#fff;padding:22px;border-radius:12px;max-width:320px;text-align:center}
 .modal-box p{margin:0 0 12px;white-space:pre-line}
 .modal-btn{padding:10px 14px;border-radius:10px;border:none;background:#2563eb;color:#fff;cursor:pointer}
+/* Preloader */
+.preloader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);z-index:10000}
+.preloader .loader-box{background:transparent;color:#fff;padding:16px;border-radius:12px;max-width:220px;text-align:center}
+.spinner{width:48px;height:48px;border:6px solid rgba(255,255,255,.12);border-top-color:#4f46e5;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.preloader.hidden{display:none}
 </style>
 </head>
 
@@ -120,6 +126,14 @@ button:disabled{opacity:.5;cursor:not-allowed}
   </div>
 </div>
 
+<!-- Preloader shown while startapp response is pending -->
+<div id="preloader" class="preloader hidden" aria-hidden="true">
+  <div class="loader-box">
+    <div class="spinner" aria-hidden="true"></div>
+    <div>Загрузка...</div>
+  </div>
+</div>
+
 <script>
 const GAS_URL =
 'https://script.google.com/macros/s/AKfycbybbxKePXHLLcIlZ7ZrCx2L18X9sCPXGeX18AGYBlPP66lsre7wAcK3QY250w_nQ2bPcg/exec';
@@ -139,6 +153,7 @@ const codeMsg = document.getElementById('codeMsg');
 const globalModal = document.getElementById('globalModal');
 const modalText = document.getElementById('modalText');
 const modalBtn = document.getElementById('modalBtn');
+const preloader = document.getElementById('preloader');
 
 function hideModal(){
   globalModal.classList.add('hidden');
@@ -159,14 +174,29 @@ function showModal(type){
     setTimeout(()=>{
       hideModal();
       goHome();
-    }, 1800);
+    }, 6000);
   }
+}
+
+function showPreloader(){
+  if (!preloader) return;
+  preloader.classList.remove('hidden');
+}
+
+function hidePreloader(){
+  if (!preloader) return;
+  preloader.classList.add('hidden');
 }
 
 /* ───── STARTAPP (КЛЮЧЕВОЕ!) ───── */
 (async function handleStartApp(){
   const sp = Telegram?.WebApp?.initDataUnsafe?.start_param;
-  if (!sp) return;
+  // show preloader while waiting for startapp
+  showPreloader();
+  if (!sp){
+    hidePreloader();
+    return;
+  }
 
   try{
     const res = await fetch(
@@ -182,6 +212,8 @@ function showModal(type){
     }
   }catch{
     showModal('emailsMismatch');
+  }finally{
+    hidePreloader();
   }
 })();
 
