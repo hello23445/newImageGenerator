@@ -266,17 +266,14 @@ function closeModal() {
 
 /* ---------- START PARAM (startapp tracking) ---------- */
 function getStartParam() {
-    // 1) Самый правильный путь
     const sp1 = Telegram?.WebApp?.initDataUnsafe?.start_param;
     if (sp1) return sp1;
 
-    // 2) Из URL: tgWebAppStartParam может быть в search или hash
     try {
         const url = new URL(window.location.href);
         const sp2 = url.searchParams.get('tgWebAppStartParam');
         if (sp2) return sp2;
 
-        // иногда Telegram кладёт параметры в hash
         if (url.hash && url.hash.includes('tgWebAppStartParam=')) {
             const hashParams = new URLSearchParams(url.hash.replace(/^#/, ''));
             const sp2h = hashParams.get('tgWebAppStartParam');
@@ -284,7 +281,6 @@ function getStartParam() {
         }
     } catch(e) {}
 
-    // 3) Иногда можно вытащить из initData (это querystring)
     const initData = Telegram?.WebApp?.initData || '';
     if (initData && initData.includes('start_param=')) {
         try {
@@ -294,7 +290,6 @@ function getStartParam() {
         } catch(e) {}
     }
 
-    // 4) Последний шанс: то, что уже сохраняли ранее
     const sp4 = sessionStorage.getItem('startapp_param') || '';
     if (sp4) return sp4;
 
@@ -308,21 +303,17 @@ function startAppTracking() {
     }
 
     let tries = 0;
-    const maxTries = 20; // ~ 20 * 150ms = 3s
+    const maxTries = 20;
     const interval = setInterval(() => {
         tries++;
 
         let startapp = getStartParam();
 
         if (!startapp) {
-            if (tries >= maxTries) {
-                // startapp not found after retries
-            }
             if (tries >= maxTries) clearInterval(interval);
             return;
         }
 
-        // ✅ сохраняем, чтобы не пропадал на Refresh
         sessionStorage.setItem('startapp_param', startapp);
 
         const parts = startapp.split('_');
@@ -330,7 +321,6 @@ function startAppTracking() {
         const encodedEmail = parts[0];
         const receivedCode = parts[1];
 
-        // ✅ простой декод (теперь без коллизий)
         let decodedEmail = '';
         for (let char of encodedEmail) {
             decodedEmail += DECODE_MAP[char] || char;
@@ -351,7 +341,6 @@ function startAppTracking() {
             return;
         }
 
-        // Почта успешно подтверждена
         localStorage.setItem('email', storedEmail);
         localStorage.removeItem('emailInCheck');
         localStorage.removeItem('codeInCheck');
@@ -360,7 +349,6 @@ function startAppTracking() {
     }, 150);
 }
 
-// ✅ запускаем отслеживание startapp
 startAppTracking();
 
 /* ---------- EMAIL LOGIC ---------- */
