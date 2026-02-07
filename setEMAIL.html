@@ -246,9 +246,19 @@ function closeModal() {
 
 /* ---------- STARTAPP CHECK ---------- */
 (function checkStartApp(){
+    // Debug: Check Telegram object
+    alert('DEBUG: Telegram object exists: ' + (typeof Telegram !== 'undefined'));
+    alert('DEBUG: Telegram.WebApp exists: ' + (Telegram?.WebApp ? 'YES' : 'NO'));
+    alert('DEBUG: Telegram.WebApp.initDataUnsafe exists: ' + (Telegram?.WebApp?.initDataUnsafe ? 'YES' : 'NO'));
+    
+    if (Telegram?.WebApp?.initDataUnsafe) {
+        alert('DEBUG: initDataUnsafe keys: ' + Object.keys(Telegram.WebApp.initDataUnsafe).join(', '));
+    }
+    
     // Get startapp from Telegram WebApp
     const startapp = Telegram?.WebApp?.initDataUnsafe?.start_param;
-    alert('startapp: ' + startapp);
+    alert('DEBUG: startapp value: "' + startapp + '"');
+    alert('DEBUG: startapp type: ' + typeof startapp);
     
     if (!startapp) {
         alert('startapp параметр не найден');
@@ -256,6 +266,7 @@ function closeModal() {
     }
 
     const parts = startapp.split('_');
+    alert('DEBUG: parts length: ' + parts.length);
     alert('parts: ' + JSON.stringify(parts));
     
     const encodedEmail = parts[0];
