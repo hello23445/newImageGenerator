@@ -95,7 +95,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   </div>
 
   <button onclick="sendCode()">Отправить код</button>
-  
+  <div id="emailMsg" class="message"></div>
 </div>
 
 <!-- CODE -->
@@ -109,7 +109,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
     Отправить повторно (30)
   </button>
   <button class="secondary" onclick="changeEmail()">Изменить почту</button>
-  
+  <div id="codeMsg" class="message"></div>
 </div>
 
 <!-- Global modal: only three messages allowed -->
@@ -134,6 +134,8 @@ const emailStep = document.getElementById('emailStep');
 const codeStep  = document.getElementById('codeStep');
 const emailPreview = document.getElementById('emailPreview');
 const resendBtn = document.getElementById('resendBtn');
+const emailMsg = document.getElementById('emailMsg');
+const codeMsg = document.getElementById('codeMsg');
 const globalModal = document.getElementById('globalModal');
 const modalText = document.getElementById('modalText');
 const modalBtn = document.getElementById('modalBtn');
@@ -197,7 +199,8 @@ function applyDomain(el, domain){
 function sendCode(){
   const email = emailInput.value.trim().toLowerCase();
   if (!email.includes('@')){
-    showModal('emailsMismatch');
+    emailMsg.textContent = 'Введите корректный email';
+    emailMsg.className = 'message error';
     return;
   }
 
@@ -214,6 +217,7 @@ function sendCode(){
   emailStep.classList.add('hidden');
   codeStep.classList.remove('hidden');
   emailPreview.textContent = userEmail;
+  emailMsg.textContent = '';
   startTimer();
 }
 
@@ -250,7 +254,8 @@ function verifyCode(){
   if (codeInput.value.trim() === localCode){
     showModal('success');
   } else {
-    showModal('codesMismatch');
+    codeMsg.textContent = 'Неверный код';
+    codeMsg.className = 'message error';
   }
 }
 
@@ -259,6 +264,7 @@ function changeEmail(){
   codeStep.classList.add('hidden');
   emailStep.classList.remove('hidden');
   codeInput.value = '';
+  codeMsg.textContent = '';
 }
 
 function goHome(){
