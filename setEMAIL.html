@@ -30,24 +30,30 @@ html,body{
   text-align:center;
 }
 .back-btn{
-  width:100%;
-  background:#251897;
-  color:#fff;
-  border-radius:14px;
-  padding:12px;
-  font-size:14px;
-  font-weight:500;
-  margin-bottom:16px;
-  cursor:pointer;
+  width:100%;background:#251897;color:#fff;
+  border-radius:14px;padding:12px;
+  font-size:14px;font-weight:500;
+  margin-bottom:16px;cursor:pointer;
 }
 h2{margin:0 0 6px;font-weight:600}
-.subtitle{font-size:14px;opacity:.7;margin-bottom:18px}
+.subtitle{font-size:14px;opacity:.7;margin-bottom:12px}
 input{
-  width:100%;padding:14px 16px;
-  border-radius:14px;border:none;outline:none;
+  width:100%;padding:14px 16px;border-radius:14px;
+  border:none;outline:none;
   background:rgba(255,255,255,.15);
   color:#fff;font-size:15px;
 }
+.domains{
+  display:flex;flex-wrap:wrap;gap:8px;
+  margin-top:10px;justify-content:center;
+}
+.domain{
+  padding:6px 12px;font-size:13px;
+  border-radius:999px;
+  background:rgba(255,255,255,.15);
+  cursor:pointer;
+}
+.domain.active{background:#2563eb}
 button{
   width:100%;margin-top:14px;padding:14px;
   border-radius:999px;border:none;
@@ -61,46 +67,31 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .error{color:#f87171}
 .success{color:#4ade80}
 .hidden{display:none}
-
-/* modal */
-.modal{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.6);
-  display:none;align-items:center;justify-content:center;
-  z-index:100;
-}
-.modal.show{display:flex}
-.modal-card{
-  background:#020617;
-  border-radius:18px;
-  padding:20px;
-  max-width:320px;
-  text-align:center;
-}
 </style>
 </head>
 
 <body>
 
-<!-- Модалка -->
-<div class="modal" id="modal">
-  <div class="modal-card">
-    <div id="modalText"></div>
-    <button style="margin-top:14px" onclick="closeModal()">Закрыть</button>
-  </div>
-</div>
-
-<!-- ШАГ EMAIL -->
+<!-- EMAIL -->
 <div class="card" id="emailStep">
   <div class="back-btn" onclick="goHome()">ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ</div>
   <h2>Подключение почты</h2>
-  <div class="subtitle">Введите почту полностью</div>
-  <input id="emailInput" placeholder="user@gmail.com">
+  <div class="subtitle">Введите имя и выберите домен</div>
+
+  <input id="emailInput" placeholder="username">
+
+  <div class="domains">
+    <div class="domain" onclick="applyDomain(this,'@gmail.com')">@gmail.com</div>
+    <div class="domain" onclick="applyDomain(this,'@mail.ru')">@mail.ru</div>
+    <div class="domain" onclick="applyDomain(this,'@yandex.ru')">@yandex.ru</div>
+    <div class="domain" onclick="applyDomain(this,'@outlook.com')">@outlook.com</div>
+  </div>
+
   <button onclick="sendCode()">Отправить код</button>
   <div id="emailMsg" class="message"></div>
 </div>
 
-<!-- ШАГ КОД -->
+<!-- CODE -->
 <div class="card hidden" id="codeStep">
   <div class="back-btn" onclick="goHome()">ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ</div>
   <h2>Введите код</h2>
@@ -123,6 +114,7 @@ let localCode = '';
 let resendTimer = 30;
 let timer = null;
 
+const emailInput = document.getElementById('emailInput');
 const emailStep = document.getElementById('emailStep');
 const codeStep  = document.getElementById('codeStep');
 const emailMsg  = document.getElementById('emailMsg');
@@ -130,46 +122,30 @@ const codeMsg   = document.getElementById('codeMsg');
 const emailPreview = document.getElementById('emailPreview');
 const resendBtn = document.getElementById('resendBtn');
 
-/* ───── Навигация ───── */
 function goHome(){
   window.location.href = 'index.html';
 }
 
-/* ───── Модалка ───── */
-function showModal(text){
-  document.getElementById('modalText').textContent = text;
-  document.getElementById('modal').classList.add('show');
-}
-function closeModal(){
-  document.getElementById('modal').classList.remove('show');
-}
+/* ───── ДОМЕН → В INPUT ───── */
+function applyDomain(el, domain){
+  document.querySelectorAll('.domain').forEach(d=>d.classList.remove('active'));
+  el.classList.add('active');
 
-/* ───── startapp проверка ───── */
-async function checkStartApp(){
-  const sp = Telegram?.WebApp?.initDataUnsafe?.start_param;
-  if (!sp) return;
+  let value = emailInput.value.trim();
 
-  try{
-    const res = await fetch(GAS_URL + '?startapp=' + encodeURIComponent(sp));
-    const json = await res.json();
-
-    if (json.ok){
-      localStorage.setItem('email', json.email);
-      showModal('Почта успешно подтверждена');
-      setTimeout(goHome, 1500);
-    } else {
-      showModal('Ошибка подтверждения: ' + json.error);
-    }
-  }catch{
-    showModal('Ошибка соединения с сервером');
+  // если уже есть домен — отрезаем
+  if (value.includes('@')) {
+    value = value.split('@')[0];
   }
-}
-checkStartApp();
 
-/* ───── Отправка кода ───── */
+  emailInput.value = value + domain;
+}
+
+/* ───── ОТПРАВКА КОДА ───── */
 function sendCode(){
   const email = emailInput.value.trim().toLowerCase();
-  if (!email.includes('@')){
+
+  if (!email.includes('@') || email.startsWith('@')){
     emailMsg.textContent = 'Введите корректный email';
     emailMsg.className = 'message error';
     return;
@@ -178,20 +154,23 @@ function sendCode(){
   userEmail = email;
   localCode = Math.floor(100000 + Math.random()*900000).toString();
 
-  fetch(GAS_URL,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({ email:userEmail, code:localCode })
+  fetch(GAS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email: userEmail,
+      code: localCode
+    })
   });
 
   emailStep.classList.add('hidden');
   codeStep.classList.remove('hidden');
   emailPreview.textContent = userEmail;
-
   startTimer();
 }
 
-/* ───── Таймер повторной отправки ───── */
+/* ───── ТАЙМЕР ───── */
 function startTimer(){
   resendTimer = 30;
   resendBtn.disabled = true;
@@ -210,15 +189,21 @@ function startTimer(){
 
 function resendCode(){
   localCode = Math.floor(100000 + Math.random()*900000).toString();
-  fetch(GAS_URL,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({ email:userEmail, code:localCode })
+
+  fetch(GAS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email: userEmail,
+      code: localCode
+    })
   });
+
   startTimer();
 }
 
-/* ───── Проверка кода (UX) ───── */
+/* ───── ПРОВЕРКА КОДА (UX) ───── */
 function verifyCode(){
   if (codeInput.value.trim() === localCode){
     codeMsg.textContent = 'Код верный. Можно вернуться в бот';
