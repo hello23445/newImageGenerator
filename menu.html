@@ -146,6 +146,7 @@
     <a id="telegramLink" href="setID.html" class="btn">Изменить мой Telegram ID</a>
     <a id="emailLink" href="setEMAIL.html" class="btn">Подключить Email</a>
     <a href="story.html" class="btn">История генераций</a>
+    <a id="sendPhotoBtn" href="sendImageUsingID.html" class="btn" style="display:none;">Отправить фото по Telegram ID</a>
     <!-- Кнопка появится/работает только на iPhone -->
     <a id="liquidToggle" href="javascript:void(0)" class="btn liquid-toggle" style="display:none;">
       Liquid glass: ...
@@ -206,6 +207,14 @@
         toggleBtn.textContent = `Liquid Glass: ${next}`;
       });
     }
+    // Показываем кнопку отправки фото если админ
+    (function showAdminButton(){
+      const sendPhotoBtn = document.getElementById('sendPhotoBtn');
+      const isAdmin = localStorage.getItem('admin') === 'true';
+      if (isAdmin && sendPhotoBtn) {
+        sendPhotoBtn.style.display = 'block';
+      }
+    })();
     // Обновление текста ссылок в меню в зависимости от localStorage
     (function updateMenuLinks(){
       function isValidUserID(uid){
