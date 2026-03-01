@@ -203,11 +203,10 @@ function hidePreloader(){
     return;
   }
 
+  // determine whether the start_param indicates an email verification
+  let noEmailVerification = false;
   if (sp.includes('_emailVerification')){
-    const noEmailVerification = true;
-  }
-  else{
-    const noEmailVerification = false;
+    noEmailVerification = true;
   }
   if (!noEmailVerification) {
     try{
