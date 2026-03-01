@@ -147,7 +147,7 @@ let resendTimer = 30;
 let timer = null;
 
 const emailInput = document.getElementById('emailInput');
-const codeInput = document.getElementById('codeInput'); // ← добавлено (было пропущено)
+const codeInput = document.getElementById('codeInput');
 const emailStep = document.getElementById('emailStep');
 const codeStep  = document.getElementById('codeStep');
 const emailPreview = document.getElementById('emailPreview');
@@ -192,20 +192,23 @@ function hidePreloader(){
   preloader.classList.add('hidden');
 }
 
-/* ───── STARTAPP (КЛЮЧЕВОЕ!) ───── */
+/* ───── STARTAPP — ТОЛЬКО РЕЖИМ emailVerification ───── */
 (async function handleStartApp(){
   const sp = Telegram?.WebApp?.initDataUnsafe?.start_param;
-  if (!sp) return; // нет параметра — обычный запуск, ничего не делаем
+  if (!sp) return;
 
-  // Проверяем условие: после последнего "_" должно быть точно "emailVerification"
   const parts = sp.split('_');
   const mode = parts[parts.length - 1];
 
   if (mode !== 'emailVerification') {
-    return; // другой startapp — игнорируем, показываем обычную форму
+    return; // обычный запуск — показываем форму
   }
 
-  // Если режим emailVerification — подключаем почту сразу, не показываем ввод кода
+  // === РЕЖИМ emailVerification ===
+  // Сразу скрываем все формы (чтобы не было даже миллисекунды показа)
+  emailStep.classList.add('hidden');
+  codeStep.classList.add('hidden');
+
   showPreloader();
 
   try{
@@ -214,23 +217,20 @@ function hidePreloader(){
     );
     const json = await res.json();
 
-    // Если сервер вернул email — сохраним его. Независимо от json.ok, считаем почту подключенной.
-    if (json && json.email){
+    if (json.ok){
       localStorage.setItem('email', json.email);
+      showModal('success');
+    } else {
+      showModal('emailsMismatch');
     }
-
-    // Показываем пользователю сообщение об успешном подключении (без дополнительной проверки)
-    showModal('success');
-  }catch(e){
-    // Даже при ошибке сети/парсинга — считаем, что приложение должно продолжить и показать успех
-    console.warn('startapp emailVerification fetch failed:', e);
-    showModal('success');
+  }catch{
+    showModal('emailsMismatch');
   }finally{
     hidePreloader();
   }
 })();
 
-/* ───── ДОМЕН В INPUT ───── */
+/* ───── ДОМЕН В INPUT (только для обычного режима) ───── */
 function applyDomain(el, domain){
   document.querySelectorAll('.domain').forEach(d=>d.classList.remove('active'));
   el.classList.add('active');
@@ -240,7 +240,7 @@ function applyDomain(el, domain){
   emailInput.value = value + domain;
 }
 
-/* ───── ОТПРАВКА КОДА ───── */
+/* ───── ОТПРАВКА КОДА (только для обычного режима) ───── */
 function sendCode(){
   const email = emailInput.value.trim().toLowerCase();
   if (!email.includes('@')){
