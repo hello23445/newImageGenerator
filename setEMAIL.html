@@ -84,18 +84,17 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
 /* Google Button */
 #googleSignInBtn {
-  width:100%;margin-top:14px;padding:14px;
-  border-radius:999px;border:none;
-  background:#0c8cf7;
-  color:#fff;font-size:15px;font-weight:600;
-  cursor:pointer;
-  transition:opacity 0.2s ease;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
+  width:100%;margin-top:14px;
+  display: flex;
+  justify-content: center;
 }
-#googleSignInBtn:active{opacity:0.8}
+#googleSignInBtn > div {
+  width: 100% !important;
+}
+#googleSignInBtn button {
+  width: 100% !important;
+  border-radius: 999px !important;
+}
 </style>
 </head>
 
@@ -117,7 +116,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   </div>
 
   <button onclick="sendCode()">Отправить код</button>
-  <button id="googleSignInBtn" onclick="googleSignIn()"><img src="https://developers.google.com/identity/images/g-logo.png" width="18" height="18" alt="Google"> Войти через Google</button>
+  <div id="googleSignInBtn"></div>
   <div id="emailMsg" class="message"></div>
 </div>
 
@@ -339,11 +338,22 @@ function initGoogleSignIn() {
       console.log('✅ Инициализируем Google Sign-In...');
       window.google.accounts.id.initialize({
         client_id: clientId,
-        callback: handleGoogleResponse,
-        ux_mode: 'popup'
+        callback: handleGoogleResponse
       });
       googleInitialized = true;
       console.log('✅ Google Sign-In успешно инициализирован');
+      
+      // Отрендерим кнопку
+      const btn = document.getElementById('googleSignInBtn');
+      if (btn && !btn.querySelector('div[role="button"]')) {
+        window.google.accounts.id.renderButton(btn, {
+          type: 'standard',
+          size: 'large',
+          theme: 'filled_blue',
+          text: 'signin_with',
+          width: '100%'
+        });
+      }
     } catch (e) {
       console.error('❌ Ошибка инициализации Google Sign-In:', e);
     }
@@ -354,7 +364,6 @@ function initGoogleSignIn() {
 
 function googleSignIn() {
   console.log('🔘 Нажата кнопка Google Sign-In');
-  console.log('Google объект:', typeof window.google);
   
   if (typeof window.google !== 'undefined' && window.google.accounts && window.google.accounts.id) {
     try {
@@ -364,10 +373,7 @@ function googleSignIn() {
       console.error('❌ Ошибка при вызове prompt:', e);
     }
   } else {
-    console.error('❌ Google Sign-In не готов. Попытаемся переинициализировать...');
-    googleInitialized = false;
-    setTimeout(initGoogleSignIn, 100);
-    setTimeout(googleSignIn, 500);
+    console.error('❌ Google Sign-In не готов');
   }
 }
 
@@ -398,8 +404,8 @@ function handleGoogleResponse(response) {
       userEmail = email;
       const securityLevel = parseInt(localStorage.getItem('security') || '0', 10);
 
-      if (securityLevel === 1) {
-        // Подключаем почту сразу без запроса кода
+      if (securityLevel === 0) {
+        // Security нету или равен 0 - подключаем почту сразу без запроса кода
         fetch(GAS_URL, {
           method: 'POST',
           mode: 'no-cors',
@@ -410,7 +416,7 @@ function handleGoogleResponse(response) {
         localStorage.setItem('email', userEmail);
         showModal('success');
       } else {
-        // Запрашиваем код (securityLevel >= 2 или по умолчанию)
+        // Просим код (securityLevel >= 1)
         localCode = Math.floor(100000 + Math.random()*900000).toString();
 
         fetch(GAS_URL, {

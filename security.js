@@ -67,7 +67,7 @@ document.addEventListener("mousemove", (e) => {
     const speed = distance / deltaTime; // пикселей за миллисекунду
 
     // Если скорость больше порога — считаем это быстрым движением
-    if (speed > 5) {
+    if (speed > 12  ) {
       let counter = Number(localStorage.getItem("security")) || 0;
       counter++;
       if (Number(localStorage.getItem("security")) < 10){
