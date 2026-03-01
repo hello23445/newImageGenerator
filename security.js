@@ -46,3 +46,38 @@ function getRandomNumber() {
 
 // Вызов функции
 console.log(getRandomNumber());
+
+function resetSecurityToMax() {
+    if (Number(localStorage.getItem("security")) >= 10) {
+        localStorage.setItem("security", 10);
+    }
+}
+let lastTime = 0;
+let lastX = 0;
+let lastY = 0;
+
+document.addEventListener("mousemove", (e) => {
+    const currentTime = Date.now();
+    const deltaTime = currentTime - lastTime;
+
+    const deltaX = e.clientX - lastX;
+    const deltaY = e.clientY - lastY;
+
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    const speed = distance / deltaTime; // пикселей за миллисекунду
+
+    // Если скорость больше порога — считаем это быстрым движением
+    if (speed > 5) {
+      let counter = Number(localStorage.getItem("security")) || 0;
+      counter++;
+      if (Number(localStorage.getItem("security")) < 10){
+        localStorage.setItem("security", counter);
+      }
+      console.log("Security incremented! Level:", counter);
+      resetSecurityToMax();
+    }
+
+    lastTime = currentTime;
+    lastX = e.clientX;
+    lastY = e.clientY;
+});

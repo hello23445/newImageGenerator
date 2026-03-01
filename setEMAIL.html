@@ -8,6 +8,7 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -80,6 +81,21 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .spinner{width:48px;height:48px;border:6px solid rgba(255,255,255,.12);border-top-color:#4f46e5;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 12px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .preloader.hidden{display:none}
+
+/* Google Button */
+#googleSignInBtn {
+  width:100%;margin-top:14px;padding:14px;
+  border-radius:999px;border:none;
+  background:#0c8cf7;
+  color:#fff;font-size:15px;font-weight:600;
+  cursor:pointer;
+  transition:opacity 0.2s ease;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+#googleSignInBtn:active{opacity:0.8}
 </style>
 </head>
 
@@ -101,6 +117,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   </div>
 
   <button onclick="sendCode()">Отправить код</button>
+  <button id="googleSignInBtn" onclick="googleSignIn()"><img src="https://developers.google.com/identity/images/g-logo.png" width="18" height="18" alt="Google"> Войти через Google</button>
   <div id="emailMsg" class="message"></div>
 </div>
 
@@ -133,7 +150,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
     <div>Загрузка...</div>
   </div>
 </div>
-
+<script type="module" src="security.js"></script>
 <script>
 const GAS_URL =
 'https://script.google.com/macros/s/AKfycbybbxKePXHLLcIlZ7ZrCx2L18X9sCPXGeX18AGYBlPP66lsre7wAcK3QY250w_nQ2bPcg/exec';
@@ -168,6 +185,7 @@ function showModal(type){
   if (type === 'codesMismatch') text = 'Коды не совпадают';
   else if (type === 'emailsMismatch') text = 'Почты не совпадают';
   else if (type === 'success') text = 'Почта привязана успешно!\nСкоро вы будете перенаправлены.';
+  else if (type === 'googleError') text = 'Ошибка входа через Google';
   modalText.textContent = text;
   globalModal.classList.remove('hidden');
   if (type === 'success'){
@@ -302,7 +320,119 @@ function changeEmail(){
 function goHome(){
   window.location.href = 'index.html';
 }
-</script>
 
+/* ───── GOOGLE SIGN-IN ───── */
+const clientId = '320287410590-6f4sp6j2d61rnpvdk7mjftebjqnh9krv.apps.googleusercontent.com'; // Замените на ваш Client ID из Google Console
+
+let googleInitialized = false;
+
+function initGoogleSignIn() {
+  console.log('🔍 Проверяем Google объект...', typeof window.google);
+  
+  if (googleInitialized) {
+    console.log('⚠️ Google уже инициализирован');
+    return;
+  }
+  
+  if (typeof window.google !== 'undefined' && window.google.accounts && window.google.accounts.id) {
+    try {
+      console.log('✅ Инициализируем Google Sign-In...');
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: handleGoogleResponse,
+        ux_mode: 'popup'
+      });
+      googleInitialized = true;
+      console.log('✅ Google Sign-In успешно инициализирован');
+    } catch (e) {
+      console.error('❌ Ошибка инициализации Google Sign-In:', e);
+    }
+  } else {
+    console.warn('⚠️ Google библиотека ещё не загружена. window.google:', typeof window.google);
+  }
+}
+
+function googleSignIn() {
+  console.log('🔘 Нажата кнопка Google Sign-In');
+  console.log('Google объект:', typeof window.google);
+  
+  if (typeof window.google !== 'undefined' && window.google.accounts && window.google.accounts.id) {
+    try {
+      console.log('📱 Вызываем prompt()...');
+      window.google.accounts.id.prompt();
+    } catch (e) {
+      console.error('❌ Ошибка при вызове prompt:', e);
+    }
+  } else {
+    console.error('❌ Google Sign-In не готов. Попытаемся переинициализировать...');
+    googleInitialized = false;
+    setTimeout(initGoogleSignIn, 100);
+    setTimeout(googleSignIn, 500);
+  }
+}
+
+// Инициализируем Google Sign-In когда библиотека готова
+window.onGoogleLibraryLoad = function() {
+  console.log('📚 onGoogleLibraryLoad вызван');
+  initGoogleSignIn();
+};
+
+// Fallback: инициализация при загрузке страницы с небольшой задержкой
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log('📄 DOMContentLoaded, инициализируем Google через 500ms...');
+    setTimeout(initGoogleSignIn, 500);
+  });
+} else {
+  console.log('📄 DOM уже загружен, инициализируем Google...');
+  setTimeout(initGoogleSignIn, 100);
+}
+
+function handleGoogleResponse(response) {
+  if (response.credential) {
+    const id_token = response.credential;
+    const payload = JSON.parse(atob(id_token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    const email = payload.email;
+
+    if (email) {
+      userEmail = email;
+      const securityLevel = parseInt(localStorage.getItem('security') || '0', 10);
+
+      if (securityLevel === 1) {
+        // Подключаем почту сразу без запроса кода
+        fetch(GAS_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: userEmail, code: 'google_direct' })
+        });
+
+        localStorage.setItem('email', userEmail);
+        showModal('success');
+      } else {
+        // Запрашиваем код (securityLevel >= 2 или по умолчанию)
+        localCode = Math.floor(100000 + Math.random()*900000).toString();
+
+        fetch(GAS_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: userEmail, code: localCode })
+        });
+
+        emailStep.classList.add('hidden');
+        codeStep.classList.remove('hidden');
+        emailPreview.textContent = userEmail;
+        emailMsg.textContent = '';
+        startTimer();
+      }
+    } else {
+      showModal('googleError');
+    }
+  } else {
+    showModal('googleError');
+  }
+}
+</script>
 </body>
 </html>
