@@ -147,6 +147,7 @@ let resendTimer = 30;
 let timer = null;
 
 const emailInput = document.getElementById('emailInput');
+const codeInput = document.getElementById('codeInput'); // ← добавлено (было пропущено)
 const emailStep = document.getElementById('emailStep');
 const codeStep  = document.getElementById('codeStep');
 const emailPreview = document.getElementById('emailPreview');
@@ -165,7 +166,6 @@ function hideModal(){
 modalBtn.addEventListener('click', hideModal);
 
 function showModal(type){
-  // Only three modal types allowed
   if (!globalModal) return;
   let text = '';
   if (type === 'codesMismatch') text = 'Коды не совпадают';
@@ -193,84 +193,34 @@ function hidePreloader(){
 }
 
 /* ───── STARTAPP (КЛЮЧЕВОЕ!) ───── */
-/* ───── STARTAPP (КЛЮЧЕВОЕ!) ───── */
 (async function handleStartApp(){
   const sp = Telegram?.WebApp?.initDataUnsafe?.start_param;
-  // show preloader while waiting for startapp
-  showPreloader();
-  if (!sp){
-    hidePreloader();
-    return;
+  if (!sp) return; // нет параметра — обычный запуск, ничего не делаем
+
+  // Проверяем условие: после последнего "_" должно быть точно "emailVerification"
+  const parts = sp.split('_');
+  const mode = parts[parts.length - 1];
+
+  if (mode !== 'emailVerification') {
+    return; // другой startapp — игнорируем, показываем обычную форму
   }
 
-  // Попытки декодирования хэша: base64 -> decodeURIComponent -> hex
-  function tryDecodeHash(hash){
-    if (!hash) return null;
-    // 1) Base64
-    try{
-      const decoded = atob(hash);
-      if (decoded && decoded.includes('@')) return decoded;
-    }catch(e){}
-    // 2) URI component
-    try{
-      const uri = decodeURIComponent(hash);
-      if (uri && uri.includes('@')) return uri;
-    }catch(e){}
-    // 3) hex pairs
-    try{
-      if (/^[0-9a-fA-F]+$/.test(hash) && hash.length % 2 === 0){
-        let s = '';
-        for(let i=0;i<hash.length;i+=2){
-          s += String.fromCharCode(parseInt(hash.substr(i,2),16));
-        }
-        if (s.includes('@')) return s;
-      }
-    }catch(e){}
-    return null;
-  }
+  // Если режим emailVerification — показываем прелоадер и проверяем ТОЛЬКО почту
+  showPreloader();
 
   try{
-    // Случай: параметр вида "{hash}_emailVerification"
-    if (sp && sp.endsWith('_emailVerification')){
-      const hash = sp.slice(0, -'_emailVerification'.length);
-      const decodedEmail = tryDecodeHash(hash);
-      if (decodedEmail){
-        // проверяем почту через GAS
-        try{
-          const res = await fetch(GAS_URL + '?verifyEmail=' + encodeURIComponent(decodedEmail));
-          const json = await res.json();
-          if (json && json.ok){
-            localStorage.setItem('email', decodedEmail);
-            showModal('success');
-          } else {
-            showModal('emailsMismatch');
-          }
-          return;
-        }catch(e){
-          // если запрос провалился — fallback на стандартную логику ниже
-          console.error('GAS verifyEmail error', e);
-        }
-      } else {
-        // не удалось декодировать — fallback на стандартную логику
-        console.warn('Не удалось декодировать hash из start_param');
-      }
-    }
-
-    // Стандартная логика (или fallback)
     const res = await fetch(
       GAS_URL + '?startapp=' + encodeURIComponent(sp)
     );
     const json = await res.json();
 
-    if (json && json.ok){
-      if (json.email) localStorage.setItem('email', json.email);
+    if (json.ok){
+      localStorage.setItem('email', json.email);
       showModal('success');
     } else {
       showModal('emailsMismatch');
     }
-
-  }catch(err){
-    console.error('handleStartApp error', err);
+  }catch{
     showModal('emailsMismatch');
   }finally{
     hidePreloader();
@@ -362,9 +312,6 @@ function changeEmail(){
 function goHome(){
   window.location.href = 'index.html';
 }
-
-
-
 </script>
 </body>
 </html>
