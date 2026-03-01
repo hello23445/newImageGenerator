@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Быстрый вход через Google для Generator Photos Bot">
+    <title>Вход • Generator Photos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap');
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full">
+        <!-- Карточка -->
+        <div class="glass rounded-3xl shadow-2xl overflow-hidden border border-white/20">
+            <!-- Шапка -->
+            <div class="bg-white/80 px-8 pt-8 pb-6 text-center">
+                <div class="mx-auto w-16 h-16 bg-gradient-to-br from-indigo-500 to-pink-500 rounded-2xl flex items-center justify-center text-4xl shadow-inner mb-4">
+                    📸
+                </div>
+                <h1 class="text-3xl font-semibold text-gray-900">Generator Photos</h1>
+                <p class="text-gray-600 mt-2 text-sm">Быстрый и безопасный вход</p>
+            </div>
+
+            <!-- Основное содержимое -->
+            <div class="px-8 py-8">
+                <div class="text-center mb-8">
+                    <p class="text-gray-700 font-medium">Войдите через Google</p>
+                    <p class="text-xs text-gray-500 mt-1">После входа вы автоматически будете перенаправлены в Telegram-бот</p>
+                </div>
+
+                <!-- Кнопка Google -->
+                <div id="signInDiv" class="flex justify-center"></div>
+
+                <!-- Статус -->
+                <div id="status" class="mt-6 text-center text-xs text-gray-500 hidden">
+                    <div class="flex items-center justify-center gap-2">
+                        <div class="animate-spin w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full"></div>
+                        <span id="statusText">Обработка...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Подвал -->
+            <div class="bg-white/60 px-8 py-4 text-center text-[10px] text-gray-500 border-t border-white/30">
+                Защищено Google • SHA-256 хэширование • Только для Generator Photos Bot
+            </div>
+        </div>
+
+        <!-- Подсказка -->
+        <p class="text-center text-white/70 text-xs mt-6">
+            Одностраничный сайт • 100% клиентская обработка • Оптимизирован для скорости
+        </p>
+    </div>
+
+    <script>
+        // ========== Конфигурация (замените на свой Client ID) ==========
+        const CLIENT_ID = '320287410590-6f4sp6j2d61rnpvdk7mjftebjqnh9krv.apps.googleusercontent.com'; // ← ВСТАВЬТЕ СВОЙ CLIENT ID ИЗ GOOGLE CLOUD CONSOLE
+
+        // ========== Декодирование JWT (Google ID token) ==========
+        function decodeJwtResponse(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        // ========== Хэширование email (SHA-256 → hex) ==========
+        async function hashEmail(email) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(email.toLowerCase().trim());
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // ========== Основной обработчик успешного входа ==========
+        async function handleCredentialResponse(response) {
+            const statusEl = document.getElementById('status');
+            const statusText = document.getElementById('statusText');
+            
+            try {
+                statusEl.classList.remove('hidden');
+                statusText.textContent = 'Получаем данные...';
+
+                const payload = decodeJwtResponse(response.credential);
+                
+                if (!payload.email) {
+                    throw new Error('Email не получен');
+                }
+
+                statusText.textContent = 'Хэшируем почту...';
+                const hashedEmail = await hashEmail(payload.email);
+
+                // Формируем ссылку для Telegram
+                const redirectUrl = `https://t.me/GeneratorPhotosBot/email?startapp=${hashedEmail}_emailVerification`;
+
+                statusText.textContent = 'Перенаправляем в Telegram...';
+                
+                // Небольшая задержка для показа анимации
+                setTimeout(() => {
+                    window.location.href = redirectUrl;
+                }, 600);
+
+            } catch (error) {
+                console.error(error);
+                statusText.textContent = 'Ошибка. Попробуйте ещё раз.';
+                setTimeout(() => {
+                    statusEl.classList.add('hidden');
+                }, 3000);
+            }
+        }
+
+        // ========== Инициализация Google Identity Services ==========
+        function initGoogleSignIn() {
+            if (typeof google === 'undefined' || !google.accounts) {
+                console.warn('Google Identity Services ещё не загружены. Повторная попытка...');
+                setTimeout(initGoogleSignIn, 300);
+                return;
+            }
+
+            if (CLIENT_ID === 'YOUR_CLIENT_ID_HERE') {
+                alert('❌ Вставьте ваш Google Client ID в переменную CLIENT_ID в коде!');
+                return;
+            }
+
+            google.accounts.id.initialize({
+                client_id: CLIENT_ID,
+                callback: handleCredentialResponse,
+                auto_select: false,
+                context: 'signin'
+            });
+
+            // Рендерим кнопку с русским текстом
+            google.accounts.id.renderButton(
+                document.getElementById('signInDiv'),
+                {
+                    theme: 'filled_blue',
+                    size: 'large',
+                    text: 'signin_with',
+                    shape: 'pill',
+                    logo_alignment: 'left',
+                    width: 320,
+                    locale: 'ru'
+                }
+            );
+
+            // Дополнительно: One Tap (по желанию, можно отключить)
+            // google.accounts.id.prompt();
+        }
+
+        // Запуск после загрузки страницы
+        window.onload = function () {
+            // Tailwind уже инициализирован через CDN
+            initGoogleSignIn();
+        };
+    </script>
+</body>
+</html>

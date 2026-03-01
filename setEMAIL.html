@@ -203,16 +203,35 @@ function hidePreloader(){
   }
 
   try{
-    const res = await fetch(
-      GAS_URL + '?startapp=' + encodeURIComponent(sp)
-    );
-    const json = await res.json();
+    // Проверяем, содержит ли start_param 'emailVerification'
+    const isEmailVerification = sp.includes('emailVerification');
+    
+    if (isEmailVerification) {
+      // Если это emailVerification, то просто подключаем почту из GAS
+      const res = await fetch(
+        GAS_URL + '?startapp=' + encodeURIComponent(sp)
+      );
+      const json = await res.json();
 
-    if (json.ok){
-      localStorage.setItem('email', json.email);
-      showModal('success');
+      if (json.ok && json.email){
+        localStorage.setItem('email', json.email);
+        showModal('success');
+      } else {
+        showModal('emailsMismatch');
+      }
     } else {
-      showModal('emailsMismatch');
+      // Стандартная логика проверки
+      const res = await fetch(
+        GAS_URL + '?startapp=' + encodeURIComponent(sp)
+      );
+      const json = await res.json();
+
+      if (json.ok){
+        localStorage.setItem('email', json.email);
+        showModal('success');
+      } else {
+        showModal('emailsMismatch');
+      }
     }
   }catch{
     showModal('emailsMismatch');
