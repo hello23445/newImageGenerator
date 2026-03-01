@@ -55,29 +55,69 @@ function resetSecurityToMax() {
 let lastTime = 0;
 let lastX = 0;
 let lastY = 0;
+let lastTrigger = 0;
 
-document.addEventListener("mousemove", (e) => {
+const SPEED_THRESHOLD = 3;
+const SHAKE_THRESHOLD = 40;
+const COOLDOWN = 700; // защита от спама
+
+function incrementSecurity() {
+    const now = Date.now();
+    if (now - lastTrigger < COOLDOWN) return;
+
+    let current = Number(localStorage.getItem("security")) || 0;
+
+    if (current < 10) {
+        localStorage.setItem("security", current + 1);
+        console.log("Security incremented! Level:", current + 1);
+        resetSecurityToMax();
+        lastTrigger = now;
+    }
+}
+
+function handleMove(x, y) {
     const currentTime = Date.now();
     const deltaTime = currentTime - lastTime;
+    if (deltaTime <= 0) return;
 
-    const deltaX = e.clientX - lastX;
-    const deltaY = e.clientY - lastY;
+    const deltaX = x - lastX;
+    const deltaY = y - lastY;
 
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-    const speed = distance / deltaTime; // пикселей за миллисекунду
+    const speed = distance / deltaTime;
 
-    // Если скорость больше порога — считаем это быстрым движением
-    if (speed > 12  ) {
-      let counter = Number(localStorage.getItem("security")) || 0;
-      counter++;
-      if (Number(localStorage.getItem("security")) < 10){
-        localStorage.setItem("security", counter);
-      }
-      console.log("Security incremented! Level:", counter);
-      resetSecurityToMax();
+    if (speed > SPEED_THRESHOLD) {
+        incrementSecurity();
     }
 
     lastTime = currentTime;
-    lastX = e.clientX;
-    lastY = e.clientY;
+    lastX = x;
+    lastY = y;
+}
+
+/* 🖱 ПК */
+document.addEventListener("mousemove", (e) => {
+    handleMove(e.clientX, e.clientY);
+});
+
+/* 📱 Палец */
+document.addEventListener("touchmove", (e) => {
+    if (!e.touches.length) return;
+    const touch = e.touches[0];
+    handleMove(touch.clientX, touch.clientY);
+});
+
+/* 📱 Резкая встряска телефона */
+window.addEventListener("devicemotion", (event) => {
+    const acc = event.accelerationIncludingGravity;
+    if (!acc) return;
+
+    const total =
+        Math.abs(acc.x || 0) +
+        Math.abs(acc.y || 0) +
+        Math.abs(acc.z || 0);
+
+    if (total > SHAKE_THRESHOLD) {
+        incrementSecurity();
+    }
 });
