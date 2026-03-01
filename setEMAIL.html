@@ -103,7 +103,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   </div>
 
   <button onclick="sendCode()">Отправить код</button>
-  <button onclick="window.open('https://hello23445.github.io/newImageGenerator/settingemail.html','_blank')" style="margin-top:8px;">Войти через Google</button>
+  <button id="googleLoginBtn" onclick="window.open('https://hello23445.github.io/newImageGenerator/settingemail.html','_blank')">Войти через Google</button>
   <div id="emailMsg" class="message"></div>
 </div>
 
@@ -138,6 +138,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 </div>
 <script type="module" src="security.js"></script>
 <script>
+  alert("ВНИМАНИЕ! В связи с обновлением системы безопасности, для продолжения использования бота необходимо подключить почту. Это займет не более 1 минуты. Пожалуйста, следуйте инструкциям на экране.");
 const GAS_URL =
 'https://script.google.com/macros/s/AKfycbybbxKePXHLLcIlZ7ZrCx2L18X9sCPXGeX18AGYBlPP66lsre7wAcK3QY250w_nQ2bPcg/exec';
 
@@ -147,7 +148,6 @@ let resendTimer = 30;
 let timer = null;
 
 const emailInput = document.getElementById('emailInput');
-const codeInput = document.getElementById('codeInput');
 const emailStep = document.getElementById('emailStep');
 const codeStep  = document.getElementById('codeStep');
 const emailPreview = document.getElementById('emailPreview');
@@ -166,6 +166,7 @@ function hideModal(){
 modalBtn.addEventListener('click', hideModal);
 
 function showModal(type){
+  // Only three modal types allowed
   if (!globalModal) return;
   let text = '';
   if (type === 'codesMismatch') text = 'Коды не совпадают';
@@ -192,45 +193,59 @@ function hidePreloader(){
   preloader.classList.add('hidden');
 }
 
-/* ───── STARTAPP — ТОЛЬКО РЕЖИМ emailVerification ───── */
+/* ───── STARTAPP (КЛЮЧЕВОЕ!) ───── */
 (async function handleStartApp(){
   const sp = Telegram?.WebApp?.initDataUnsafe?.start_param;
-  if (!sp) return;
-
-  const parts = sp.split('_');
-  const mode = parts[parts.length - 1];
-
-  if (mode !== 'emailVerification') {
-    return; // обычный запуск — показываем форму
+  // show preloader while waiting for startapp
+  showPreloader();
+  if (!sp){
+    hidePreloader();
+    return;
   }
 
-  // === РЕЖИМ emailVerification ===
-  // Сразу скрываем все формы (чтобы не было даже миллисекунды показа)
-  emailStep.classList.add('hidden');
-  codeStep.classList.add('hidden');
-
-  showPreloader();
-
-  try{
-    const res = await fetch(
-      GAS_URL + '?startapp=' + encodeURIComponent(sp)
-    );
-    const json = await res.json();
-
-    if (json.ok){
-      localStorage.setItem('email', json.email);
-      showModal('success');
-    } else {
+  if (sp.includes('_emailVerification')){
+    const noEmailVerification = true;
+  }
+  else{
+    const noEmailVerification = false;
+  }
+  if (!noEmailVerification) {
+    try{
+      const res = await fetch(
+        GAS_URL + '?startapp=' + encodeURIComponent(sp)
+      );
+      const json = await res.json();
+  
+      if (json.ok){
+        localStorage.setItem('email', json.email);
+        showModal('success');
+      } else {
+        showModal('emailsMismatch');
+      }
+    }catch{
       showModal('emailsMismatch');
+    }finally{
+      hidePreloader();
     }
-  }catch{
-    showModal('emailsMismatch');
-  }finally{
+  }
+  else{
+    // исходная строка
+    const input = sp;
+
+    // 1. берём всё до _
+    const encoded = input.split("_")[0];
+
+    // 2. unhash (если это base64)
+    const email = atob(encoded);
+
+    // 3. сохраняем в localStorage
+    localStorage.setItem("email", email);
+    showModal('success');
     hidePreloader();
   }
 })();
 
-/* ───── ДОМЕН В INPUT (только для обычного режима) ───── */
+/* ───── ДОМЕН В INPUT ───── */
 function applyDomain(el, domain){
   document.querySelectorAll('.domain').forEach(d=>d.classList.remove('active'));
   el.classList.add('active');
@@ -240,7 +255,7 @@ function applyDomain(el, domain){
   emailInput.value = value + domain;
 }
 
-/* ───── ОТПРАВКА КОДА (только для обычного режима) ───── */
+/* ───── ОТПРАВКА КОДА ───── */
 function sendCode(){
   const email = emailInput.value.trim().toLowerCase();
   if (!email.includes('@')){
@@ -315,6 +330,9 @@ function changeEmail(){
 function goHome(){
   window.location.href = 'index.html';
 }
+
+
+
 </script>
 </body>
 </html>
