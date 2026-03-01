@@ -138,7 +138,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
 </div>
 <script type="module" src="security.js"></script>
 <script>
-  alert("ВНИМАНИЕ! В связи с обновлением системы безопасности, для продолжения использования бота необходимо подключить почту. Это займет не более 1 минуты. Пожалуйста, следуйте инструкциям на экране.");
 const GAS_URL =
 'https://script.google.com/macros/s/AKfycbybbxKePXHLLcIlZ7ZrCx2L18X9sCPXGeX18AGYBlPP66lsre7wAcK3QY250w_nQ2bPcg/exec';
 
@@ -236,6 +235,7 @@ function hidePreloader(){
 
     // 2. unhash (если это base64)
     const email = atob(encoded);
+    alert(email)
 
     // 3. сохраняем в localStorage
     localStorage.setItem("email", email);
