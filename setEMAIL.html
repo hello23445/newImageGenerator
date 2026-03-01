@@ -233,9 +233,15 @@ function hidePreloader(){
     // 1. берём всё до _
     const encoded = input.split("_")[0];
 
-    // 2. unhash (если это base64)
-    const email = atob(encoded);
-    alert(email)
+    // 2. unhash (если это base64 url-safe)
+    // URL-safe base64 uses '-' instead of '+' and '_' instead of '/'.
+    // also may omit padding. we normalize before decoding.
+    function decodeBase64Url(str){
+      str = str.replace(/-/g, '+').replace(/_/g, '/');
+      while (str.length % 4) str += '='; // pad
+      return atob(str);
+    }
+    const email = decodeBase64Url(encoded);
 
     // 3. сохраняем в localStorage
     localStorage.setItem("email", email);
