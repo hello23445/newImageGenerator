@@ -8,6 +8,7 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -129,6 +130,15 @@ button:disabled{opacity:.5;cursor:not-allowed}
   </div>
 </div>
 
+<!-- Recaptcha modal for email verification -->
+<div id="recaptchaModal" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <p style="margin-bottom: 16px;">Проверка безопасности</p>
+    <div class="g-recaptcha" data-sitekey="6LdRJnwsAAAAAOMMnSDyNirpDCLzOJmC_03zah2U" data-callback="onRecaptchaSuccess"></div>
+    <button id="recaptchaContinue" class="modal-btn" disabled onclick="recaptchaContinueEmail();" style="margin-top: 12px;">Продолжить</button>
+  </div>
+</div>
+
 <!-- Preloader shown while startapp response is pending -->
 <div id="preloader" class="preloader hidden" aria-hidden="true">
   <div class="loader-box">
@@ -145,6 +155,8 @@ let userEmail = '';
 let localCode = '';
 let resendTimer = 30;
 let timer = null;
+let needsSecurityCheck = false;
+let emailFromStartParam = '';
 
 const emailInput = document.getElementById('emailInput');
 const emailStep = document.getElementById('emailStep');
@@ -163,6 +175,42 @@ function hideModal(){
 }
 
 modalBtn.addEventListener('click', hideModal);
+
+function showRecaptchaModal(){
+  const m = document.getElementById('recaptchaModal');
+  if(m){
+    m.classList.remove('hidden');
+    m.style.display = 'flex';
+  }
+  if(window.grecaptcha && typeof grecaptcha.reset === 'function'){
+    try{
+      grecaptcha.reset();
+    }catch(e){
+      console.warn('Не удалось сбросить reCAPTCHA', e);
+    }
+  }
+}
+
+function hideRecaptchaModal(){
+  const m = document.getElementById('recaptchaModal');
+  if(m){
+    m.classList.add('hidden');
+    m.style.display = 'none';
+  }
+  const btn = document.getElementById('recaptchaContinue');
+  if(btn) btn.disabled = true;
+}
+
+function onRecaptchaSuccess(token){
+  const btn = document.getElementById('recaptchaContinue');
+  if(btn) btn.disabled = false;
+}
+
+function recaptchaContinueEmail(){
+  hideRecaptchaModal();
+  // Отправляем код на почту после капчи
+  startEmailVerification();
+}
 
 function showModal(type){
   // Only three modal types allowed
@@ -195,19 +243,17 @@ function hidePreloader(){
 /* ───── STARTAPP (КЛЮЧЕВОЕ!) ───── */
 (async function handleStartApp(){
   const sp = Telegram?.WebApp?.initDataUnsafe?.start_param;
-  // show preloader while waiting for startapp
   showPreloader();
   if (!sp){
     hidePreloader();
     return;
   }
 
-  // determine whether the start_param indicates an email verification
-  let noEmailVerification = false;
-  if (sp.includes('_emailVerification')){
-    noEmailVerification = true;
-  }
-  if (!noEmailVerification) {
+  // Проверяем наличие _emailVerification в start_param
+  const hasEmailVerification = sp.includes('_emailVerification');
+  
+  if (!hasEmailVerification) {
+    // Обычный способ проверки почты через GAS
     try{
       const res = await fetch(
         GAS_URL + '?startapp=' + encodeURIComponent(sp)
@@ -227,26 +273,40 @@ function hidePreloader(){
     }
   }
   else{
-    // исходная строка
+    // Режим _emailVerification: проверяем security
+    const security = parseInt(localStorage.getItem('security') || '0', 10);
+    
+    // Извлекаем email из start_param
     const input = sp;
-
-    // 1. берём всё до _
     const encoded = input.split("_")[0];
-
-    // 2. unhash (если это base64 url-safe)
-    // URL-safe base64 uses '-' instead of '+' and '_' instead of '/'.
-    // also may omit padding. we normalize before decoding.
+    
     function decodeBase64Url(str){
       str = str.replace(/-/g, '+').replace(/_/g, '/');
-      while (str.length % 4) str += '='; // pad
+      while (str.length % 4) str += '=';
       return atob(str);
     }
-    const email = decodeBase64Url(encoded);
-
-    // 3. сохраняем в localStorage
-    localStorage.setItem("email", email);
-    showModal('success');
+    
+    try {
+      emailFromStartParam = decodeBase64Url(encoded);
+    } catch {
+      emailFromStartParam = '';
+    }
+    
     hidePreloader();
+    
+    if (security >= 2) {
+      // Нужна капча и отправка кода
+      needsSecurityCheck = true;
+      showRecaptchaModal();
+    } else {
+      // Прямо привязываем без капчи и кода
+      if (emailFromStartParam) {
+        localStorage.setItem('email', emailFromStartParam);
+        showModal('success');
+      } else {
+        showModal('emailsMismatch');
+      }
+    }
   }
 })();
 
@@ -258,6 +318,30 @@ function applyDomain(el, domain){
   let value = emailInput.value.trim();
   if (value.includes('@')) value = value.split('@')[0];
   emailInput.value = value + domain;
+}
+
+/* ───── ОТПРАВКА КОДА НА ПОЧТУ (ПОСЛЕ КАПЧИ) ───── */
+function startEmailVerification(){
+  userEmail = emailFromStartParam;
+  if (!userEmail) {
+    showModal('emailsMismatch');
+    return;
+  }
+  
+  localCode = Math.floor(100000 + Math.random()*900000).toString();
+
+  fetch(GAS_URL,{
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ email:userEmail, code:localCode })
+  });
+
+  emailStep.classList.add('hidden');
+  codeStep.classList.remove('hidden');
+  emailPreview.textContent = userEmail;
+  emailMsg.textContent = '';
+  startTimer();
 }
 
 /* ───── ОТПРАВКА КОДА ───── */
@@ -317,6 +401,10 @@ function resendCode(){
 /* ───── UX-ПРОВЕРКА КОДА ───── */
 function verifyCode(){
   if (codeInput.value.trim() === localCode){
+    // Сохраняем email в localStorage если был режим с капчой
+    if (needsSecurityCheck && emailFromStartParam) {
+      localStorage.setItem('email', emailFromStartParam);
+    }
     showModal('success');
   } else {
     codeMsg.textContent = 'Неверный код';

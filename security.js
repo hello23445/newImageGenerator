@@ -57,9 +57,9 @@ let lastX = 0;
 let lastY = 0;
 let lastTrigger = 0;
 
-const SPEED_THRESHOLD = 3;
-const SHAKE_THRESHOLD = 40;
-const COOLDOWN = 700; // защита от спама
+const SPEED_THRESHOLD = 10;
+const SHAKE_THRESHOLD = 65;
+const COOLDOWN = 2000; // защита от спама
 
 function incrementSecurity() {
     const now = Date.now();
