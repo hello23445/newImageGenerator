@@ -401,9 +401,10 @@ function resendCode(){
 /* ───── UX-ПРОВЕРКА КОДА ───── */
 function verifyCode(){
   if (codeInput.value.trim() === localCode){
-    // Сохраняем email в localStorage если был режим с капчой
-    if (needsSecurityCheck && emailFromStartParam) {
-      localStorage.setItem('email', emailFromStartParam);
+    // Сохраняем email в localStorage после успешной проверки кода
+    const emailToStore = (needsSecurityCheck && emailFromStartParam) ? emailFromStartParam : userEmail;
+    if (emailToStore) {
+      localStorage.setItem('email', emailToStore);
     }
     showModal('success');
   } else {
