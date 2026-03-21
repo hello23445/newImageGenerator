@@ -591,7 +591,7 @@ function checkAttempts() {
   const today = new Date().toISOString().split('T')[0];
   if (!data.date || data.date !== today) {
     data.date = today;
-    data.attempts = 0;
+    data.attempts = 1;
     data.promoCode = null;
     data.promoUsed = false;
     data.maxAttempts = null;
