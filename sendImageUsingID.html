@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Отправка фото в Telegram</title>
     <style>
         body {
@@ -58,8 +58,19 @@
             cursor: pointer;
             font-size: 16px;
         }
-        button:hover {
-            background-color: #0056b3;
+        .input-buttons {
+            margin-top: 8px;
+            display: flex;
+            gap: 8px;
+        }
+        .input-buttons button {
+            flex: 1;
+            padding: 8px;
+            font-size: 14px;
+        }
+        .input-buttons button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
         #status {
             margin-top: 16px;
@@ -115,15 +126,9 @@
             background-color: #28a745;
             color: white;
         }
-        .modal-buttons .btn-confirm:hover {
-            background-color: #218838;
-        }
         .modal-buttons .btn-cancel {
             background-color: #dc3545;
             color: white;
-        }
-        .modal-buttons .btn-cancel:hover {
-            background-color: #c82333;
         }
         /* Оптимизация для мобильных устройств */
         @media (max-width: 480px) {
@@ -151,19 +156,29 @@
     <form id="telegram-form">
         <label for="token">Telegram Bot Token:</label>
         <input type="text" id="token" required placeholder="Введите ваш bot token">
+        <div id="token-buttons" class="input-buttons"></div>
 
         <label for="chat_id">ID пользователя (chat_id):</label>
         <input type="text" id="chat_id" required placeholder="Введите ID пользователя">
+        <div id="chat_id-buttons" class="input-buttons"></div>
 
         <label for="channel">@username Telegram канала (для проверки подписки):</label>
         <input type="text" id="channel" placeholder="Введите @username канала (опционально)">
+        <div id="channel-buttons" class="input-buttons"></div>
 
         <label for="caption">Описание фото (caption):</label>
         <textarea id="caption" rows="3" placeholder="Введите описание (опционально)"></textarea>
+        <div id="caption-buttons" class="input-buttons"></div>
 
         <label for="photo">Фото:</label>
         <div id="drop-zone">Перетащите фото сюда или кликните для выбора</div>
-        <input type="file" id="photo" accept="image/*" style="display: none;" required>
+        <input type="file" id="photo" accept="image/*" style="display: none;">
+
+        <div id="preview-section" style="display: none; margin-top: 16px;">
+            <h2 style="font-size: 24px; margin-bottom: 8px;">Предпросмотр</h2>
+            <p style="font-size: 16px; margin-bottom: 16px;">Так будет выглядеть выбранное изображение.</p>
+            <img id="preview-image" alt="Предпросмотр фото" style="max-width: 100%; height: auto; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
 
         <button type="submit">Отправить фото</button>
     </form>
@@ -200,6 +215,164 @@
 
         let pendingSubmitData = null;
 
+        // Функции для копирования и вставки
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+        }
+
+        async function pasteFromClipboard(input) {
+            try {
+                const text = await navigator.clipboard.readText();
+                input.value = text;
+            } catch (err) {
+                console.error('Failed to paste:', err);
+            }
+        }
+
+        function updateCopyButton(input, buttonId) {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.disabled = !input.value.trim();
+            }
+        }
+
+        // Обработчики для кнопок при фокусе на инпутах
+        const tokenInput = document.getElementById('token');
+        const tokenButtons = document.getElementById('token-buttons');
+
+        tokenInput.addEventListener('focus', () => {
+            tokenButtons.innerHTML = `
+                <button type="button" id="create-nickname-token">Создать никнейм</button>
+                <button type="button" id="generate-photo-token">Сгенерировать фото</button>
+                <button type="button" id="copy-token">Скопировать</button>
+                <button type="button" id="paste-token">Вставить</button>
+            `;
+            document.getElementById('create-nickname-token').addEventListener('click', () => {
+                tokenInput.value = '6537497957:AAGZS4adwPVJSlx16YCCDrKjO96rDK7ZstI';
+                updateCopyButton(tokenInput, 'copy-token');
+            });
+            document.getElementById('generate-photo-token').addEventListener('click', () => {
+                tokenInput.value = '8110009554:AAHHqWor-TEgbvoi7kdeuW7J4da3M24FJGk';
+                updateCopyButton(tokenInput, 'copy-token');
+            });
+            document.getElementById('copy-token').addEventListener('click', () => {
+                copyToClipboard(tokenInput.value);
+            });
+            document.getElementById('paste-token').addEventListener('click', () => {
+                pasteFromClipboard(tokenInput);
+                updateCopyButton(tokenInput, 'copy-token');
+            });
+            updateCopyButton(tokenInput, 'copy-token');
+        });
+
+        tokenInput.addEventListener('input', () => {
+            updateCopyButton(tokenInput, 'copy-token');
+        });
+
+        tokenInput.addEventListener('blur', () => {
+            setTimeout(() => {
+                if (!tokenButtons.contains(document.activeElement)) {
+                    tokenButtons.innerHTML = '';
+                }
+            }, 100);
+        });
+
+        const channelInput = document.getElementById('channel');
+        const channelButtons = document.getElementById('channel-buttons');
+
+        channelInput.addEventListener('focus', () => {
+            channelButtons.innerHTML = `<button type="button" id="create-nickname-channel">Создать никнейм</button><button type="button" id="copy-channel">Скопировать</button><button type="button" id="paste-channel">Вставить</button>`;
+            document.getElementById('create-nickname-channel').addEventListener('click', () => {
+                channelInput.value = '@Nicknaymes2bot';
+                updateCopyButton(channelInput, 'copy-channel');
+            });
+            document.getElementById('copy-channel').addEventListener('click', () => {
+                copyToClipboard(channelInput.value);
+            });
+            document.getElementById('paste-channel').addEventListener('click', () => {
+                pasteFromClipboard(channelInput);
+                updateCopyButton(channelInput, 'copy-channel');
+            });
+            updateCopyButton(channelInput, 'copy-channel');
+        });
+
+        channelInput.addEventListener('input', () => {
+            updateCopyButton(channelInput, 'copy-channel');
+        });
+
+        channelInput.addEventListener('blur', () => {
+            setTimeout(() => {
+                if (!channelButtons.contains(document.activeElement)) {
+                    channelButtons.innerHTML = '';
+                }
+            }, 100);
+        });
+
+        const chatIdInput = document.getElementById('chat_id');
+        const chatIdButtons = document.getElementById('chat_id-buttons');
+
+        chatIdInput.addEventListener('focus', () => {
+            chatIdButtons.innerHTML = `
+                <button type="button" id="insert-chat-id">6434781065</button>
+                <button type="button" id="copy-chat_id">Скопировать</button>
+                <button type="button" id="paste-chat_id">Вставить</button>
+            `;
+            document.getElementById('insert-chat-id').addEventListener('click', () => {
+                chatIdInput.value = '6434781065';
+                updateCopyButton(chatIdInput, 'copy-chat_id');
+            });
+            document.getElementById('copy-chat_id').addEventListener('click', () => {
+                copyToClipboard(chatIdInput.value);
+            });
+            document.getElementById('paste-chat_id').addEventListener('click', () => {
+                pasteFromClipboard(chatIdInput);
+                updateCopyButton(chatIdInput, 'copy-chat_id');
+            });
+            updateCopyButton(chatIdInput, 'copy-chat_id');
+        });
+
+        chatIdInput.addEventListener('input', () => {
+            updateCopyButton(chatIdInput, 'copy-chat_id');
+        });
+
+        chatIdInput.addEventListener('blur', () => {
+            setTimeout(() => {
+                if (!chatIdButtons.contains(document.activeElement)) {
+                    chatIdButtons.innerHTML = '';
+                }
+            }, 100);
+        });
+
+        const captionInput = document.getElementById('caption');
+        const captionButtons = document.getElementById('caption-buttons');
+
+        captionInput.addEventListener('focus', () => {
+            captionButtons.innerHTML = `
+                <button type="button" id="copy-caption">Скопировать</button>
+                <button type="button" id="paste-caption">Вставить</button>
+            `;
+            document.getElementById('copy-caption').addEventListener('click', () => {
+                copyToClipboard(captionInput.value);
+            });
+            document.getElementById('paste-caption').addEventListener('click', () => {
+                pasteFromClipboard(captionInput);
+                updateCopyButton(captionInput, 'copy-caption');
+            });
+            updateCopyButton(captionInput, 'copy-caption');
+        });
+
+        captionInput.addEventListener('input', () => {
+            updateCopyButton(captionInput, 'copy-caption');
+        });
+
+        captionInput.addEventListener('blur', () => {
+            setTimeout(() => {
+                if (!captionButtons.contains(document.activeElement)) {
+                    captionButtons.innerHTML = '';
+                }
+            }, 100);
+        });
+
         // Функция для отображения модального окна подтверждения
         function showConfirmModal(message) {
             return new Promise((resolve) => {
@@ -216,28 +389,18 @@
         // Функция для отображения модального окна ошибки
         const errorModal = document.getElementById('errorModal');
         const errorMessage = document.getElementById('errorMessage');
-        let errorResolve = null;
         
         function closeErrorModal() {
             if (errorModal) {
                 errorModal.classList.remove('show');
-                if (errorResolve) {
-                    errorResolve();
-                    errorResolve = null;
-                }
             }
         }
         
         function showErrorModal(message) {
-            return new Promise((resolve) => {
-                if (errorMessage && errorModal) {
-                    errorMessage.textContent = message;
-                    errorModal.classList.add('show');
-                    errorResolve = resolve;
-                } else {
-                    resolve();
-                }
-            });
+            if (errorMessage && errorModal) {
+                errorMessage.textContent = message;
+                errorModal.classList.add('show');
+            }
         }
 
         // Поддержка drag-and-drop
@@ -257,10 +420,21 @@
         fileInput.addEventListener('change', updateDropZoneText);
 
         function updateDropZoneText() {
+            const previewSection = document.getElementById('preview-section');
+            const previewImage = document.getElementById('preview-image');
             if (fileInput.files.length > 0) {
                 dropZone.textContent = `Выбрано: ${fileInput.files[0].name}`;
+                // Показать предпросмотр
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewSection.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
             } else {
                 dropZone.textContent = 'Перетащите фото сюда или кликните для выбора';
+                previewSection.style.display = 'none';
             }
         }
 
@@ -291,9 +465,11 @@
                 return;
             }
             if (!photo) {
-                const logMessage = 'Фотография не загружена. Пожалуйста, прикрепите фото!';
+                const logMessage = 'Вы не выбрали фотографию!';
+                status.textContent = logMessage;
+                status.style.color = '#dc3545';
                 console.log(logMessage);
-                await showErrorModal(logMessage);
+                showErrorModal(logMessage);
                 return;
             }
 
