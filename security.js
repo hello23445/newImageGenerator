@@ -30,9 +30,21 @@ export const blockedUsers = [
   "UChpIovcDqcQG-iZj3gxz3SN0Gdhc-",
   "leTO44dN3Qjxxi2ImcwtACrcMx1WQX"
 ];
+const tg = window.Telegram.WebApp;
 // if (localStorage.getItem('user_Token') === '282e6391-ecd5-4691-bd8f-67842d47f950'){
 //   localStorage.setItem('user_Token', 'DTtJAc6FvnAVa10YPYh7g-G1MGLY87' );
 // }
+setInterval(() => {
+    if (localStorage.getItem('enableconfirmation') === 'true') {
+        window.Telegram.WebApp.enableClosingConfirmation();
+    }
+    else{
+        window.Telegram.WebApp.disableClosingConfirmation();
+    }
+    if (!localStorage.getItem('enableconfirmation')) {
+        localStorage.setItem('enableconfirmation', 'false');
+    }
+}, 1000);
 function getRandomNumber() {
   const number = Math.floor(Math.random() * (15 - 5 + 1)) + 5; // 5–15
 
@@ -56,7 +68,21 @@ let lastTime = 0;
 let lastX = 0;
 let lastY = 0;
 let lastTrigger = 0;
-
+const bannedLocations = ['settings.html', 'generatingImage.html', 'ad.html', 'block.html'];
+setInterval(() => {
+    if (!bannedLocations.includes(window.location.pathname.split('/').pop())){
+        tg.SettingsButton.show();
+        tg.onEvent('settingsButtonClicked', () => {
+          window.location.href = 'settings.html';
+        });
+    }
+}, 3000);
+// const ADMINTOKENS = [
+//     'DTtJAc6FvnAVa10YPYh7g-G1MGLY87'
+// ]
+// if (ADMINTOKENS.includes(localStorage.getItem('user_Token'))) {
+//     localStorage.setItem('userCrystals', 9999)
+// }
 const SPEED_THRESHOLD = 10;
 const SHAKE_THRESHOLD = 65;
 const COOLDOWN = 2000; // защита от спама
@@ -121,3 +147,4 @@ window.addEventListener("devicemotion", (event) => {
         incrementSecurity();
     }
 });
+localStorage.setItem('windowHistoryBack', document.referrer.split('/').pop());

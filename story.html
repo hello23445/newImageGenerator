@@ -7,230 +7,404 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <meta name="color-scheme" content="light dark" />
   <style>
-    /* ============== CSS VARIABLES ============== */
     :root {
-      --bg1: #74ABE2;
-      --bg2: #5563DE;
-      --card-bg: rgba(255,255,255,.12);
-      --card-stroke: rgba(255,255,255,.24);
-      --surface: rgba(255,255,255,.18);
-      --text: #ffffff;
-      --text-dim: rgba(255,255,255,.8);
-      --btn: #4CAF50;
-      --btn-danger: #ff3b30;
-      --btn-neutral: #1E88E5;
-      --shadow: 0 20px 40px rgba(0,0,0,.25);
-      --radius-xl: 22px;
-      --radius-md: 14px;
-      --radius-sm: 10px;
-      --gap: 14px;
+      --bg: #f2f2f7;
+      --bg-1: #f5f5fa;
+      --bg-2: #ebebf5;
+      --surface: #ffffff;
+      --text: #1c1c1e;
+      --text-dim: #8e8e93;
+      --accent: #007aff;
+      --danger: #ff3b30;
+      --border: #e5e5ea;
+      --shadow: 0 4px 14px rgba(0,0,0,0.05);
+      --radius-lg: 20px;
+      --radius-md: 12px;
+      --gap: 12px;
+      --panel-bg:
+        radial-gradient(900px 500px at 20% 0%, rgba(0,122,255,0.08), transparent 60%),
+        radial-gradient(900px 500px at 80% 10%, rgba(0,122,255,0.06), transparent 60%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-2));
     }
+
     @media (prefers-color-scheme: dark) {
-      :root { --card-bg: rgba(255,255,255,.10); --surface: rgba(255,255,255,.14); }
+      :root {
+        --bg: #000000;
+        --bg-1: #060a18;
+        --bg-2: #08122a;
+        --surface: #1c1c1e;
+        --text: #f2f2f7;
+        --text-dim: #98989d;
+        --border: #38383a;
+        --shadow: 0 4px 14px rgba(0,0,0,0.4);
+        --panel-bg:
+          radial-gradient(900px 500px at 20% 0%, rgba(59,130,246,0.35), transparent 60%),
+          radial-gradient(900px 500px at 80% 10%, rgba(34,211,238,0.28), transparent 60%),
+          linear-gradient(180deg, var(--bg-1), var(--bg-2));
+      }
     }
-    /* ============== GLOBAL ============== */
-    * { box-sizing: border-box; }
-    html, body { height: 100%; touch-action: manipulation; }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    
     body {
       margin: 0;
+      background: var(--panel-bg);
       color: var(--text);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji", "Segoe UI Symbol";
-      background:
-  radial-gradient(900px 500px at 20% 0%, rgba(59,130,246,0.35), transparent 60%),
-  radial-gradient(900px 500px at 80% 10%, rgba(34,211,238,0.28), transparent 60%),
-  linear-gradient(180deg, #0f172a, #020617);
-
-      display: grid;
-      place-items: start center;
-      padding: 24px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 20px;
       min-height: 100vh;
-        background-repeat: no-repeat;
-  background-size: cover;
-  background-attachment: fixed;
+      display: flex;
+      justify-content: center;
     }
-    .page { width: min(980px, 100%); }
-    /* ============== HEADER ============== */
+
+    .page { width: min(800px, 100%); }
+
     .header {
-      display: grid;
-      gap: 10px;
-      margin-bottom: 16px;
+      text-align: left;
+      margin-bottom: 24px;
+      padding-top: 10px;
     }
+
     .title {
-      margin: 0;
-      font-weight: 800;
-      line-height: 1.15;
-      letter-spacing: .2px;
-      text-wrap: balance;
-      font-size: clamp(24px, 3vw, 40px);
-      text-shadow: 0 1px 0 rgba(0,0,0,.15);
+      margin: 0 0 8px 0;
+      font-weight: 700;
+      font-size: 32px;
+      letter-spacing: -0.5px;
     }
-    .sub { margin: 0; color: var(--text-dim); font-size: clamp(14px, 2.2vw, 16px); }
-    /* ============== ACTION BAR ============== */
+
+    .sub { 
+      margin: 0; 
+      color: var(--text-dim); 
+      font-size: 15px; 
+    }
+
     .actions {
+      display: flex;
+      gap: var(--gap);
+      margin-bottom: 24px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 14px 20px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      flex: 1;
+      transition: all 0.2s ease;
+      background: var(--surface);
+      color: var(--accent);
+      box-shadow: var(--shadow);
+    }
+
+    .btn:active { transform: scale(0.97); opacity: 0.8; }
+    
+    .btn--neutral {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn--danger {
+      color: var(--danger);
+    }
+
+    .filters {
+      background: var(--surface);
+      padding: 16px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .filter-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: var(--gap);
-      margin: 14px 0 20px;
     }
-    .btn {
-      -webkit-tap-highlight-color: transparent;
-      border: 0;
-      border-radius: var(--radius-md);
-      padding: 14px 16px;
-      font-weight: 700;
-      color: #fff;
-      background: var(--btn);
-      box-shadow: var(--shadow);
-      outline: none;
+
+    .filter-group { display: flex; flex-direction: column; gap: 6px; }
+    
+    .filter-label { 
+      font-size: 12px; 
+      font-weight: 500;
+      color: var(--text-dim); 
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input, select {
       width: 100%;
-      text-align: center;
-      display: inline-flex;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+      appearance: none;
+    }
+
+    .input:focus, select:focus {
+      border-color: var(--accent);
+    }
+
+    .date-filters, .keyword-filter { display: none; }
+    .date-filters[data-visible="true"] { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+    .keyword-filter[data-visible="true"] { display: block; }
+
+    .stats { margin-bottom: 20px; }
+    
+    .stat {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      display: flex;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: transform .06s ease;
     }
-    .btn:active { transform: scale(.98); }
-    .btn:focus-visible { outline: 3px solid rgba(255,255,255,.6); outline-offset: 2px; }
-    .btn--danger { background: var(--btn-danger); }
-    .btn--neutral { background: var(--btn-neutral); }
-    .input {
-      width: 100%;
-      border: 0;
-      border-radius: var(--radius-md);
-      padding: 14px 16px;
-      color: #fff;
-      background: var(--surface);
-      backdrop-filter: blur(8px);
-      outline: none;
-      box-shadow: inset 0 0 0 1px var(--card-stroke);
+    
+    .stat .k { font-size: 15px; font-weight: 500; }
+    .stat .v { font-weight: 700; font-size: 16px; color: var(--accent); }
+
+    .list { 
+      display: grid; 
+      gap: 16px; 
+      margin: 0; 
+      padding: 0; 
+      list-style: none; 
     }
-    .input::placeholder { color: rgba(255,255,255,.65); }
-    .input:focus-visible { outline: 3px solid rgba(255,255,255,.6); outline-offset: 2px; }
-    /* ============== FILTERS ============== */
-    .filters {
-      display: grid;
-      grid-template-columns: 1fr 1fr; /* сортировка слева, поиск справа */
-      align-items: end;
-      gap: var(--gap);
-      margin-bottom: 16px;
+
+    .card { 
+      background: var(--surface); 
+      border-radius: var(--radius-lg); 
+      padding: 20px; 
+      box-shadow: var(--shadow); 
+      display: flex;
+      flex-direction: column;
+      gap: 16px; 
     }
-    .filter-group { display: grid; gap: 6px; }
-    .filter-label { font-size: 12px; color: var(--text-dim); }
-    select {
-      width: 100%;
-      border: 0;
-      border-radius: var(--radius-md);
-      padding: 14px 16px;
-      color: #000;
-      background: var(--surface);
-      backdrop-filter: blur(8px);
-      outline: none;
-      box-shadow: inset 0 0 0 1px var(--card-stroke);
-      font-size: 14px;
-    }
-    select:focus-visible { outline: 3px solid rgba(255,255,255,.6); outline-offset: 2px; }
-    /* Дата: ВСЕГДА рядом справа/слева при показе */
-    .date-filters { display: none; grid-template-columns: 1fr 1fr; gap: var(--gap); }
-    .date-filters[data-visible="true"] { display: grid; }
-    /* Ключевое слово (новая сортировка/фильтр) */
-    .keyword-filter { display: none; }
-    .keyword-filter[data-visible="true"] { display: grid; }
-    /* ============== STATS STRIP ============== */
-    .stats { display: grid; grid-template-columns: 1fr; gap: var(--gap); margin-bottom: 16px; }
-    .stat { border-radius: var(--radius-md); padding: 12px 14px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--card-stroke); display: grid; gap: 6px; }
-    .stat .k { font-size: 12px; color: var(--text-dim); }
-    .stat .v { font-weight: 800; font-size: 18px; display: flex; align-items: center; gap: 8px; }
-    /* ============== LIST ============== */
-    .list { display: grid; gap: var(--gap); margin: 0; padding: 0; list-style: none; }
-    .card { background: var(--card-bg); backdrop-filter: blur(10px); border-radius: var(--radius-xl); padding: 16px 16px; box-shadow: var(--shadow); border: 1px solid var(--card-stroke); display: grid; gap: 10px; }
-    .row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: start; }
-    .desc { white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere; line-height: 1.4; letter-spacing: .2px; font-size: 16px; }
-    .pill { display: inline-flex; align-items: center; gap: 8px; background: rgba(25,118,210,.32); border: 1px solid rgba(25,118,210,.5); padding: 6px 10px; border-radius: 999px; font-size: 13px; color: #fff; white-space: nowrap; }
-    .card .btn { width: auto; padding: 10px 12px; box-shadow: none; font-size: 14px; }
-    /* ============== EMPTY / NO RESULTS ============== */
-    .empty, .noresults {
-      text-align: center;
-      padding: 24px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-stroke);
-      border-radius: var(--radius-xl);
-      backdrop-filter: blur(8px);
-      box-shadow: var(--shadow);
-      display: grid;
+
+    .card .row { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: flex-start;
       gap: 12px;
     }
-    .empty[hidden], .noresults[hidden] { display: none; }
-    .empty h3 { margin: 0; font-size: 20px; }
-    .empty p { margin: 0; color: var(--text-dim); text-wrap: pretty; font-size: 16px; }
-    /* ============== MODALS ============== */
-    .modal, .confirm { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.45); padding: 20px; z-index: 1000; }
-    .modal[aria-hidden="false"], .confirm[aria-hidden="false"] { display: flex; }
-    .sheet { width: min(480px, 100%); max-height: 84vh; overflow: auto; background: #fff; color: #0d1321; border-radius: 18px; box-shadow: var(--shadow); padding: 18px; display: grid; gap: 12px; }
-    .sheet h2 { margin: 0 0 4px; font-size: 18px; }
-    .detail { font-size: 14px; padding: 10px 12px; border-radius: 12px;       background:
-  radial-gradient(900px 500px at 20% 0%, rgba(59,130,246,0.35), transparent 60%),
-  radial-gradient(900px 500px at 80% 10%, rgba(34,211,238,0.28), transparent 60%),
-  linear-gradient(180deg, #0f172a, #020617);; border: 1px solid #e6e9f2; word-break: break-word; color: white;}
-    .sheet .bar { display: grid; grid-auto-flow: column; justify-content: start; gap: 10px; }
-    .sheet .btn { color: #fff; padding: 12px 14px; font-size: 14px; }
-    .sheet .btn--danger { background: linear-gradient(135deg, #c81414, #ff0000); }
-    /* Центровка заголовка/кнопок только в confirm */
-    .confirm .sheet h2, .confirm #confirmText { text-align: center; }
-    .confirm .sheet .bar { justify-content: center; }
-    @media (prefers-reduced-motion: reduce) { .btn, .btn:active { transition: none; } }
-    select{color: white; background-color: rgb(3, 3, 48)}
+
+    .desc { 
+      font-size: 15px; 
+      line-height: 1.5; 
+      color: var(--text);
+      word-break: break-word; 
+    }
+
+    .pill { 
+      background: var(--bg); 
+      color: var(--text-dim); 
+      padding: 6px 12px; 
+      border-radius: 20px; 
+      font-size: 12px; 
+      font-weight: 600;
+      white-space: nowrap; 
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .card .btn {
+      padding: 10px 16px;
+      font-size: 14px;
+      box-shadow: none;
+      background: var(--bg);
+      flex: 0 1 auto;
+    }
+
+    .card .btn--neutral {
+      background: rgba(0, 122, 255, 0.1);
+      color: var(--accent);
+    }
+
+    .empty, .noresults {
+      text-align: center;
+      padding: 40px 20px;
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+    }
+
+    .empty h3, .noresults h3 { 
+      margin: 0 0 8px 0; 
+      font-size: 20px; 
+    }
+
+    .empty p, .noresults p { 
+      margin: 0 0 20px 0; 
+      color: var(--text-dim); 
+      font-size: 15px; 
+    }
+
+    .modal, .confirm { 
+      position: fixed; 
+      inset: 0; 
+      display: none; 
+      align-items: center; 
+      justify-content: center; 
+      background: transparent; 
+      backdrop-filter: none;
+      z-index: 1000; 
+      padding: 0;
+    }
+
+    .confirm { 
+      align-items: center; 
+      background: rgba(0,0,0,0.6); 
+      backdrop-filter: blur(4px);
+    }
+
+    .modal[aria-hidden="false"], .confirm[aria-hidden="false"] { 
+      display: flex; 
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .sheet { 
+      width: min(500px, 100%); 
+      max-height: 85vh; 
+      background: var(--surface); 
+      color: var(--text); 
+      border-radius: 24px; 
+      padding: 24px; 
+      display: flex;
+      flex-direction: column;
+      gap: 16px; 
+      animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow-y: auto;
+    }
+
+    .modal .sheet {
+      width: 100%;
+      height: 100vh;
+      max-height: 100vh;
+      border-radius: 0;
+      animation: none;
+    }
+
+    @media (max-width: 600px) {
+      .sheet {
+        max-height: 95vh;
+        width: calc(100% - 24px);
+      }
+      .modal .sheet {
+        width: 100%;
+        max-height: 100vh;
+      }
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    .sheet h2 { 
+      margin: 0; 
+      font-size: 22px; 
+      font-weight: 700; 
+    }
+
+    .details {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .detail { 
+      font-size: 14px; 
+      padding: 12px 16px; 
+      border-radius: var(--radius-md); 
+      background: var(--bg); 
+      color: var(--text);
+      word-break: break-word; 
+    }
+
+    .sheet .bar { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 10px; 
+      margin-top: 8px;
+    }
+
+    .confirm .sheet {
+      align-items: center;
+      text-align: center;
+      padding: 32px 24px;
+    }
+
+    .confirm .bar {
+      width: 100%;
+      flex-direction: row;
+    }
   </style>
 </head>
 <body>
   <main class="page" id="app" aria-live="polite">
-    <header class="header" style="text-align: center;">
-      <h1 class="title">Ваша история генераций</h1>
-      <p class="sub">Сохраняйте, просматривайте подробности и быстро возвращайтесь к нужным параметрам.</p>
+    <header class="header">
+      <center>
+        <h1 class="title">История генераций</h1>
+        <p class="sub">Ваши сохраненные параметры и настройки</p>
+      </center>
     </header>
 
     <section class="actions" aria-label="Действия">
-      <button class="btn btn--neutral" id="backBtn" type="button" style="background: linear-gradient(135deg, rgba(59,130,246,0.85), rgba(34,211,238,0.65));">Вернуться в меню</button>
-      <button class="btn btn--danger" id="clearBtn" type="button" style="background-color: red;">Удалить всю историю</button>
+      <button class="btn btn--neutral" id="backBtn" type="button">В меню</button>
+      <button class="btn btn--danger" id="clearBtn" type="button">Удалить всё</button>
     </section>
 
-    <!-- Сортировка (слева) и Поиск (справа) ВСЕГДА рядом -->
     <section class="filters" aria-label="Фильтры и сортировка">
-      <div class="filter-group">
-        <label class="filter-label" for="sort">Сортировка</label>
-        <select id="sort" aria-label="Сортировка">
-          <option value="date_desc">По дате создания (новые сначала)</option>
-          <option value="date_asc">По дате создания (старые сначала)</option>
-          <option value="date_custom">По дате (указать свою дату)</option>
-          <option value="length_desc">По длине описания (длинные сначала)</option>
-          <option value="length_asc">По длине описания (короткие сначала)</option>
-          <option value="alpha_asc">По алфавиту (А-Я)</option>
-          <option value="alpha_desc">По алфавиту (Я-А)</option>
-          <option value="keyword">По слову в описании или тексте</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label class="filter-label" for="search"></label>
-        <input class="input" id="search" type="search" placeholder="Поиск" aria-label="Поиск по истории" autocomplete="off" />
+      <div class="filter-row">
+        <div class="filter-group">
+          <label class="filter-label" for="sort">Сортировка</label>
+          <select id="sort" aria-label="Сортировка">
+            <option value="date_desc">Новые сначала</option>
+            <option value="date_asc">Старые сначала</option>
+            <option value="date_custom">Выбрать даты</option>
+            <option value="length_desc">Длинные сначала</option>
+            <option value="length_asc">Короткие сначала</option>
+            <option value="alpha_asc">А-Я</option>
+            <option value="alpha_desc">Я-А</option>
+            <option value="keyword">По слову</option>
+            <option value="today">Сегодня</option>
+            <option value="yesterday">Вчера</option>
+            <option value="day_before_yesterday">Позавчера</option>
+            <option value="last_month">В прошлом месяце</option>
+            <option value="last_year">В прошлом году</option>
+            <option value="this_year">В этом году (2026)</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label" for="search">Поиск</label>
+          <input class="input" id="search" type="search" placeholder="Поиск..." aria-label="Поиск по истории" autocomplete="off" />
+        </div>
       </div>
 
-      <!-- Дата (всегда рядом) -->
       <div class="date-filters" id="dateFilters" data-visible="false">
         <div class="filter-group">
-          <label class="filter-label" for="dateFrom">Дата от</label>
-          <input class="input" id="dateFrom" type="date" aria-label="Дата от" />
+          <label class="filter-label" for="dateFrom">От</label>
+          <input class="input" id="dateFrom" type="date" />
         </div>
         <div class="filter-group">
-          <label class="filter-label" for="dateTo">Дата до</label>
-          <input class="input" id="dateTo" type="date" aria-label="Дата до" />
+          <label class="filter-label" for="dateTo">До</label>
+          <input class="input" id="dateTo" type="date" />
         </div>
       </div>
 
-      <!-- Поле для слова (новая сортировка) -->
       <div class="keyword-filter" id="keywordFilter" data-visible="false">
-        <div class="filter-group" style="grid-column: 1 / -1;">
-          <label class="filter-label" for="keywordInput">Введите слово для фильтрации по описанию/тексту</label>
-          <input class="input" id="keywordInput" type="text" placeholder="Например: кот, лес, ночь…" autocomplete="off" />
+        <div class="filter-group">
+          <label class="filter-label" for="keywordInput">Ключевое слово</label>
+          <input class="input" id="keywordInput" type="text" placeholder="Введите слово..." autocomplete="off" />
         </div>
       </div>
     </section>
@@ -238,7 +412,7 @@
     <section class="stats" aria-label="Статистика">
       <div class="stat">
         <div class="k">Занято слотов</div>
-        <div class="v"><span id="usedCount">0</span>/<span id="maxCount">0</span></div>
+        <div class="v"><span id="usedCount">0</span> / <span id="maxCount">0</span></div>
       </div>
     </section>
 
@@ -251,91 +425,57 @@
 
     <section class="empty" id="empty" hidden>
       <h3>Тут пусто</h3>
-      <p>Начните генерировать своё первое фото прямо сейчас, а здесь появится ваша история.</p>
-      <button class="btn" id="goBtn" type="button">Перейти к генератору</button>
+      <p>Начните генерировать своё первое фото прямо сейчас.</p>
+      <button class="btn btn--neutral" id="goBtn" type="button">Перейти к генератору</button>
     </section>
   </main>
 
-  <!-- Детали -->
   <div class="modal" id="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="sheet" role="document" style="background:
-  radial-gradient(900px 500px at 20% 0%, rgba(59,130,246,0.35), transparent 60%),
-  radial-gradient(900px 500px at 80% 10%, rgba(34,211,238,0.28), transparent 60%),
-  linear-gradient(180deg, #0f172a, #020617);">
-      <h2 id="modalTitle" style="color: white;">Подробности параметров</h2>
+    <div class="sheet" role="document">
+      <h2 id="modalTitle">Подробности параметров</h2>
       <div id="details" class="details"></div>
       <div class="bar">
-        <button class="btn" id="applyBtn" type="button" style="background: linear-gradient(135deg, rgba(59,130,246,0.85), rgba(34,211,238,0.65));">Применить и вернуться к этим параметрам</button>
-        <button class="btn btn--danger" id="closeModal" type="button">Закрыть</button>
+        <button class="btn btn--neutral" id="applyBtn" type="button">Применить параметры</button>
+        <button class="btn" id="closeModal" type="button">Закрыть</button>
       </div>
     </div>
   </div>
 
-  <!-- Подтверждение -->
-  <div class="confirm" id="confirm" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" >
-    <div class="sheet" role="document" style="      background:
-  radial-gradient(900px 500px at 20% 0%, rgba(59,130,246,0.35), transparent 60%),
-  radial-gradient(900px 500px at 80% 10%, rgba(34,211,238,0.28), transparent 60%),
-  linear-gradient(180deg, #0f172a, #020617);; color: white;">
+  <div class="confirm" id="confirm" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="sheet" role="document">
       <h2 id="confirmTitle">Подтвердите действие</h2>
-      <p id="confirmText" style="margin:0"></p>
+      <p id="confirmText"></p>
       <div class="bar">
-        <button class="btn" id="confirmYes" type="button" style="background: linear-gradient(135deg, rgba(59,130,246,0.85), rgba(34,211,238,0.65));">Да</button>
-        <button class="btn btn--danger" id="confirmNo" type="button">Нет</button>
+        <button class="btn btn--neutral" id="confirmYes" type="button">Да</button>
+        <button class="btn" id="confirmNo" type="button">Отмена</button>
       </div>
     </div>
   </div>
 
   <script>
-    // ====== TRANSLATIONS FOR KEYS ======
     const keysTranslation = {
-      "text": "1. Текст",
-      "autoTextStyle": "2. Автоматический стиль текста",
-      "autoTextPosition": "3. Автоматическое позиционирование текста",
-      "description": "4. Описание",
-      "exclusions": "5. Исключения",
-      "quality": "6. Качество",
-      "sizeInput": "7. Размер фото",
-      "style": "8. Стиль",
-      "color-tone": "9. Цветовой тон",
-      "detail-level": "10. Уровень детализации",
-      "photo_theme": "11. Тема фото",
-      "razmitiyPHON": "12. Размытый фон",
-      "soot": "13. Соотношение",
-      "ram": "14. Рамка",
-      "rakurs": "15. Ракурс",
-      "selector": "16. ИИ",
-      "osvecheniye": "17. Освещение"
+      "text": "1. Текст", "autoTextStyle": "2. Авто стилизация", "autoTextPosition": "3. Авто позиция",
+      "description": "4. Описание", "exclusions": "5. Исключения", "quality": "6. Качество",
+      "sizeInput": "7. Размер", "style": "8. Стиль", "color-tone": "9. Цвет",
+      "detail-level": "10. Детализация", "photo_theme": "11. Тема", "razmitiyPHON": "12. Размытый фон",
+      "soot": "13. Соотношение", "ram": "14. Рамка", "rakurs": "15. Ракурс",
+      "selector": "16. ИИ", "osvecheniye": "17. Освещение"
     };
-    // ====== STATE ======
+    
     let currentIndex = null;
     let confirmCallback = null;
     let cache = { items: [], filtered: [] };
 
-    // ====== DOM ======
     const $ = (s, r = document) => r.querySelector(s);
-    const list = $('#list');
-    const empty = $('#empty');
-    const noResults = $('#noResults');
-    const noResultsTitle = $('#noResultsTitle');
-    const noResultsText = $('#noResultsText');
-    const usedCount = $('#usedCount');
-    const maxCount = $('#maxCount');
-    const modal = $('#modal');
-    const confirmBox = $('#confirm');
-    const detailsBox = $('#details');
-    const search = $('#search');
-    const dateFrom = $('#dateFrom');
-    const dateTo = $('#dateTo');
-    const sortSelect = $('#sort');
-    const dateFilters = $('#dateFilters');
-    const keywordFilter = $('#keywordFilter');
-    const keywordInput = $('#keywordInput');
-    const clearBtn = $('#clearBtn');
-    const filtersSection = $('.filters');
-    const statsSection = $('.stats');
+    const list = $('#list'), empty = $('#empty'), noResults = $('#noResults');
+    const noResultsTitle = $('#noResultsTitle'), noResultsText = $('#noResultsText');
+    const usedCount = $('#usedCount'), maxCount = $('#maxCount');
+    const modal = $('#modal'), confirmBox = $('#confirm'), detailsBox = $('#details');
+    const search = $('#search'), dateFrom = $('#dateFrom'), dateTo = $('#dateTo');
+    const sortSelect = $('#sort'), dateFilters = $('#dateFilters');
+    const keywordFilter = $('#keywordFilter'), keywordInput = $('#keywordInput');
+    const clearBtn = $('#clearBtn'), filtersSection = $('.filters'), statsSection = $('.stats');
 
-    // ====== UTILS ======
     const isPremium = () => localStorage.getItem('premium') === 'true';
     const maxSlots = () => (isPremium() ? 20 : 10);
 
@@ -359,6 +499,7 @@
       document.body.style.overflow = 'hidden';
       return trapFocus(el, () => closeLayer(el));
     }
+    
     function closeLayer(el) {
       el.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
@@ -373,13 +514,13 @@
       dateFilters.setAttribute('data-visible', v ? 'true' : 'false');
       if (!v) { dateFrom.value = ''; dateTo.value = ''; }
     }
+    
     function setKeywordVisible(v) {
       keywordFilter.setAttribute('data-visible', v ? 'true' : 'false');
       if (!v) keywordInput.value = '';
     }
 
     function toggleControlsForZeroSlots(isZeroAndNoSearch) {
-      // Показываем только кнопку "Вернуться в меню" и блок empty
       if (isZeroAndNoSearch) {
         filtersSection.style.display = 'none';
         statsSection.style.display = 'none';
@@ -392,13 +533,11 @@
         statsSection.style.display = '';
         clearBtn.style.display = '';
         list.style.display = '';
-        // Пустой экран контролируется отдельно по условиям
       }
     }
 
-    // ====== RENDER ======
     function renderStats() {
-      usedCount.textContent = cache.items.length; // ВСЕГО использовано слотов
+      usedCount.textContent = cache.items.length;
       maxCount.textContent = maxSlots();
     }
 
@@ -406,12 +545,7 @@
       list.innerHTML = '';
       noResults.hidden = true;
       if (!items.length) {
-        // Пустой экран показываем ТОЛЬКО если разрещено и слотов 0
-        if (allowEmptyScreen) {
-          empty.hidden = false;
-        } else {
-          empty.hidden = true; // не показываем "Тут пусто" в других случаях
-        }
+        empty.hidden = !allowEmptyScreen;
         return;
       }
       empty.hidden = true;
@@ -428,9 +562,9 @@
             <div class="desc">${escapeHtml(description)}</div>
             <span class="pill">${formattedDate}</span>
           </div>
-          <div class="row" style="grid-template-columns:auto auto; gap:10px; justify-content:start">
+          <div class="card-actions">
             <button class="btn" data-act="details">Подробнее</button>
-            <button class="btn btn--neutral" data-act="apply" style='background: linear-gradient(135deg, rgba(59,130,246,0.85), rgba(34,211,238,0.65));'>Применить</button>
+            <button class="btn btn--neutral" data-act="apply">Применить</button>
           </div>
         `;
         frag.appendChild(li);
@@ -442,7 +576,6 @@
       return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
-    // ====== LOAD & FILTER ======
     function loadHistory() {
       const max = maxSlots();
       const items = [];
@@ -458,7 +591,7 @@
             }
             items.push({ index: i, raw, data: parsed, description: parsed.description, createdAt: parsed.createdAt });
           }
-        } catch (e) { /* ignore broken slot */ }
+        } catch (e) {}
       }
       cache.items = items;
       applyFiltersAndSort();
@@ -466,22 +599,17 @@
 
     function applyFiltersAndSort() {
       let filtered = cache.items.slice();
-
-      // флаг поиска
       const q = search.value.trim().toLowerCase();
       const isSearching = q.length > 0;
 
-      // Фильтр по поиску (только по описанию)
       if (isSearching) {
         filtered = filtered.filter(x => String(x.description).toLowerCase().includes(q));
       }
 
-      // Видимость контролов дат/слова
       const sortVal = sortSelect.value;
       setDateFiltersVisible(sortVal === 'date_custom');
       setKeywordVisible(sortVal === 'keyword');
 
-      // Фильтр по дате (только для "date_custom")
       if (sortVal === 'date_custom') {
         const from = dateFrom.value ? new Date(dateFrom.value) : null;
         const to = dateTo.value ? new Date(dateTo.value) : null;
@@ -493,11 +621,9 @@
             return true;
           });
         }
-        // разумный дефолт сортировки по дате (новые сначала)
         filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       }
 
-      // Фильтр по слову (описание ИЛИ text)
       if (sortVal === 'keyword') {
         const kw = keywordInput.value.trim().toLowerCase();
         if (kw) {
@@ -508,19 +634,71 @@
         }
       }
 
-      // Сортировка
-      if (sortVal === 'date_desc') {
+      // Helper functions for date filtering
+      function isSameDay(date1, date2) {
+        return date1.getFullYear() === date2.getFullYear() &&
+               date1.getMonth() === date2.getMonth() &&
+               date1.getDate() === date2.getDate();
+      }
+
+      function isToday(date) {
+        return isSameDay(date, new Date());
+      }
+
+      function isYesterday(date) {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        return isSameDay(date, yesterday);
+      }
+
+      function isDayBeforeYesterday(date) {
+        const dayBefore = new Date();
+        dayBefore.setDate(dayBefore.getDate() - 2);
+        return isSameDay(date, dayBefore);
+      }
+
+      function isLastMonth(date) {
+        const now = new Date();
+        const lastMonth = now.getMonth() - 1;
+        const year = lastMonth < 0 ? now.getFullYear() - 1 : now.getFullYear();
+        const month = lastMonth < 0 ? 11 : lastMonth;
+        return date.getFullYear() === year && date.getMonth() === month;
+      }
+
+      function isLastYear(date) {
+        const now = new Date();
+        return date.getFullYear() === now.getFullYear() - 1;
+      }
+
+      function isThisYear(date) {
+        const now = new Date();
+        return date.getFullYear() === now.getFullYear();
+      }
+
+      // Apply date filters
+      if (sortVal === 'today') {
+        filtered = filtered.filter(x => isToday(new Date(x.createdAt)));
+      } else if (sortVal === 'yesterday') {
+        filtered = filtered.filter(x => isYesterday(new Date(x.createdAt)));
+      } else if (sortVal === 'day_before_yesterday') {
+        filtered = filtered.filter(x => isDayBeforeYesterday(new Date(x.createdAt)));
+      } else if (sortVal === 'last_month') {
+        filtered = filtered.filter(x => isLastMonth(new Date(x.createdAt)));
+      } else if (sortVal === 'last_year') {
+        filtered = filtered.filter(x => isLastYear(new Date(x.createdAt)));
+      } else if (sortVal === 'this_year') {
+        filtered = filtered.filter(x => isThisYear(new Date(x.createdAt)));
+      }
+
+      if (sortVal === 'date_desc') filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      else if (sortVal === 'date_asc') filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      else if (sortVal === 'length_desc') filtered.sort((a, b) => b.description.length - a.description.length);
+      else if (sortVal === 'length_asc') filtered.sort((a, b) => a.description.length - b.description.length);
+      else if (sortVal === 'alpha_asc') filtered.sort((a, b) => a.description.localeCompare(b.description, 'ru'));
+      else if (sortVal === 'alpha_desc') filtered.sort((a, b) => b.description.localeCompare(a.description, 'ru'));
+      else if (['today', 'yesterday', 'day_before_yesterday', 'last_month', 'last_year', 'this_year'].includes(sortVal)) {
+        // For date filters, sort by date descending
         filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      } else if (sortVal === 'date_asc') {
-        filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-      } else if (sortVal === 'length_desc') {
-        filtered.sort((a, b) => b.description.length - a.description.length);
-      } else if (sortVal === 'length_asc') {
-        filtered.sort((a, b) => a.description.length - b.description.length);
-      } else if (sortVal === 'alpha_asc') {
-        filtered.sort((a, b) => a.description.localeCompare(b.description, 'ru'));
-      } else if (sortVal === 'alpha_desc') {
-        filtered.sort((a, b) => b.description.localeCompare(a.description, 'ru'));
       }
 
       cache.filtered = filtered;
@@ -530,7 +708,6 @@
       const zeroSlotsNoSearch = totalSlots === 0 && !isSearching;
       toggleControlsForZeroSlots(zeroSlotsNoSearch);
 
-      // Сообщение о "Ничего не найдено" при поиске
       if (isSearching && filtered.length === 0) {
         noResults.hidden = false;
         noResultsTitle.textContent = 'Ничего не найдено';
@@ -539,11 +716,9 @@
         noResults.hidden = true;
       }
 
-      // Рендер списка. Пустой экран показываем только если слотов 0 и нет поиска
       renderList(cache.filtered, { allowEmptyScreen: zeroSlotsNoSearch });
     }
 
-    // ====== DETAILS ======
     function showDetails(slot) {
       currentIndex = slot;
       detailsBox.innerHTML = '';
@@ -572,9 +747,6 @@
 
     function askConfirm(actionText, cb) {
       $('#confirmText').textContent = actionText;
-      // Заголовок: Подтвердите действие {действие}
-      const title = $('#confirmTitle');
-      title.textContent = `Подтвердите действие`;
       confirmCallback = cb;
       openLayer(confirmBox);
     }
@@ -585,7 +757,6 @@
       loadHistory();
     }
 
-    // ====== EVENTS (DELEGATION) ======
     list.addEventListener('click', (e) => {
       const btn = e.target.closest('button[data-act]');
       if (!btn) return;
@@ -596,6 +767,7 @@
       if (act === 'details') showDetails(slot);
       if (act === 'apply') askConfirm('Применить сохранённые параметры?', () => applyParameters(slot));
     });
+    
     $('#closeModal').addEventListener('click', () => closeLayer(modal));
     $('#applyBtn').addEventListener('click', () => askConfirm('Применить эти параметры?', () => applyParameters(currentIndex)));
     modal.addEventListener('click', (e) => { if (e.target === modal) closeLayer(modal); });
@@ -606,7 +778,6 @@
     $('#goBtn')?.addEventListener('click', () => { window.location.href = 'index.html'; });
     $('#clearBtn').addEventListener('click', () => askConfirm('Удалить всю историю?', clearHistory));
 
-    // Поиск и фильтры
     let tId;
     [search, dateFrom, dateTo, keywordInput].forEach(el => {
       el.addEventListener('input', () => {
@@ -615,50 +786,43 @@
       });
     });
 
-    sortSelect.addEventListener('change', () => {
-      applyFiltersAndSort();
-    });
+    sortSelect.addEventListener('change', applyFiltersAndSort);
 
     document.addEventListener('click', (event) => {
-    const target = event.target;
-
-    // Проверяем, что клик не по интерактивному элементу
-    if (
-        !target.closest('input') &&
-        !target.closest('textarea') &&
-        !target.closest('select') &&
-        !target.closest('button') &&
-        !target.isContentEditable
-    ) {
-        // Снимаем фокус со всех активных элементов
+      const target = event.target;
+      if (!target.closest('input') && !target.closest('textarea') && !target.closest('select') && !target.closest('button') && !target.isContentEditable) {
         if (document.activeElement && typeof document.activeElement.blur === 'function') {
-        document.activeElement.blur();
+          document.activeElement.blur();
         }
-    }
-    });
-    if (/iPhone/i.test(navigator.userAgent)) {
-      if (localStorage.getItem('liquid') === 'Включен') {
-        const style = document.createElement('style');
-        style.textContent = `
-          button, .btn, .btn btn--danger, .btn--neutral {
-            border: 1px solid rgba(255, 255, 255, 0.8) !important;
-          }
-        `;
-        document.head.appendChild(style);
       }
-    }
+    });
 
-    // Initialize Telegram WebApp
     const WebApp = window.Telegram?.WebApp;
     if (WebApp) {
       WebApp.ready();
       WebApp.expand();
-      WebApp.enableClosingConfirmation();
-      // Removed Telegram BackButton usage for story.html (handled via HTML fallback)
+      if (localStorage.getItem('enableconfirmation') === 'true') {
+        WebApp.enableClosingConfirmation();
+      }
+      WebApp.SettingsButton.show();
+      WebApp.onEvent('settingsButtonClicked', () => {
+        window.location.href = 'settings.html';
+      });
     }
 
-    // ====== INIT ======
     document.addEventListener('DOMContentLoaded', loadHistory);
+// iPhone liquid border tweak (оставлено)
+if (/iPhone/i.test(navigator.userAgent)) {
+  if (localStorage.getItem('liquid') === 'Включен') {
+    const style = document.createElement('style');
+    style.textContent = `
+      button, .btn, .btn btn--danger, .btn--neutral {
+        border: 1px solid rgba(255, 255, 255, 0.8) !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
   </script>
   <script type="module" src="security.js"></script>
 </body>

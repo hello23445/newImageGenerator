@@ -183,9 +183,33 @@
   </style>
 </head>
 <body>
+<script>
+// LIQUID GLASS EFFECT - применяется при загрузке
+(function(){
+  const liquidState = localStorage.getItem('liquid');
+  if (liquidState === 'Включен') {
+    document.body.style.backdropFilter = "blur(20px)";
+    
+    const style = document.createElement('style');
+    style.id = 'liquid-style';
+    style.textContent = `
+      button, 
+      .btn, 
+      .back-btn, 
+      .back-center,
+      .container,
+      input, 
+      [role="button"] { 
+        border: 1px solid rgba(255,255,255,0.8) !important; 
+      }
+    `;
+    document.head.appendChild(style);
+  }
+})();
+</script>
   <div class="container" role="main">
     <button class="btn" onclick="window.location.href = 'index.html'" style="display: block; margin: 0 auto; padding: 12px 20px; border-radius: 10px; color: white; border: none; font-size: 1rem; cursor: pointer;">
-ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ
+ВЕРНУТЬСЯ НАЗАД
 </button>
     <div id="step1" aria-hidden="false">
 
@@ -509,7 +533,7 @@
 
     function showSuccess() {
       setTimeout(() => {
-        window.location.href = 'index.html';
+            window.location.href = 'index.html';
       }, 4000);
       const successContainer = document.getElementById('success');
       const successCard = document.getElementById('successCard');
@@ -579,6 +603,15 @@
     }
     
     // Removed Telegram BackButton usage for setID.html (handled via HTML fallback)
+  </script>
+  <script>
+    // Telegram WebApp Settings Button
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.SettingsButton.show();
+      window.Telegram.WebApp.onEvent('settingsButtonClicked', () => {
+        window.location.href = 'settings.html';
+      });
+    }
   </script>
   <script type="module" src="security.js"></script>
 </body>

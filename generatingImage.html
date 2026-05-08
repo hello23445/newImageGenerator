@@ -746,7 +746,10 @@
     if (WebApp) {
       WebApp.ready();
       WebApp.expand();
-      WebApp.enableClosingConfirmation();
+      if (localStorage.getItem('enableconfirmation') === 'true') {
+          WebApp.enableClosingConfirmation();
+      }
+      WebApp.SettingsButton.hide();
     }
     </script>
     <script type="module" src="security.js"></script>

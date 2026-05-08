@@ -87,10 +87,35 @@ button:disabled{opacity:.5;cursor:not-allowed}
 </head>
 
 <body>
+<script>
+// LIQUID GLASS EFFECT - применяется при загрузке
+(function(){
+  const liquidState = localStorage.getItem('liquid');
+  if (liquidState === 'Включен') {
+    document.body.style.backdropFilter = "blur(20px)";
+    
+    const style = document.createElement('style');
+    style.id = 'liquid-style';
+    style.textContent = `
+      button, 
+      .btn, 
+      .back-btn, 
+      .back-center,
+      .card,
+      .modal,
+      input, 
+      [role="button"] { 
+        border: 1px solid rgba(255,255,255,0.8) !important; 
+      }
+    `;
+    document.head.appendChild(style);
+  }
+})();
+</script>
 
 <!-- EMAIL -->
 <div class="card" id="emailStep">
-  <div class="back-btn" onclick="goHome()">ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ</div>
+  <div class="back-btn" onclick="goHome()">ВЕРНУТЬСЯ НАЗАД</div>
   <h2>Подключение почты</h2>
   <div class="subtitle">Введите имя и выберите домен</div>
 
@@ -110,7 +135,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
 <!-- CODE -->
 <div class="card hidden" id="codeStep">
-  <div class="back-btn" onclick="goHome()">ВЕРНУТЬСЯ В ГЛАВНОЕ МЕНЮ</div>
+  <div class="back-btn" onclick="goHome()">ВЕРНУТЬСЯ НАЗАД</div>
   <h2>Введите код</h2>
   <div class="subtitle" id="emailPreview"></div>
   <input id="codeInput" maxlength="6" placeholder="XXXXXX">
@@ -176,6 +201,10 @@ function hideModal(){
 
 modalBtn.addEventListener('click', hideModal);
 
+function shouldAskRecaptchaOnce(){
+  return localStorage.getItem('hasPassedRecaptcha') !== 'true';
+}
+
 function showRecaptchaModal(){
   const m = document.getElementById('recaptchaModal');
   if(m){
@@ -207,6 +236,7 @@ function onRecaptchaSuccess(token){
 }
 
 function recaptchaContinueEmail(){
+  localStorage.setItem('hasPassedRecaptcha', 'true');
   hideRecaptchaModal();
   // Отправляем код на почту после капчи
   startEmailVerification();
@@ -294,7 +324,7 @@ function hidePreloader(){
     
     hidePreloader();
     
-    if (security >= 2) {
+    if (security >= 2 && shouldAskRecaptchaOnce()) {
       // Нужна капча и отправка кода
       needsSecurityCheck = true;
       showRecaptchaModal();
@@ -427,6 +457,15 @@ function goHome(){
 
 
 
+</script>
+<script>
+// Telegram WebApp Settings Button
+if (window.Telegram && window.Telegram.WebApp) {
+  window.Telegram.WebApp.SettingsButton.show();
+  window.Telegram.WebApp.onEvent('settingsButtonClicked', () => {
+    window.location.href = 'settings.html';
+  });
+}
 </script>
 </body>
 </html>

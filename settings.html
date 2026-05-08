@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Настройки</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+<style>
+:root {
+    --bg: #070E1D;
+    --card-bg: #111D32;
+    --text: #FFFFFF;
+    --muted: #8A9BB2;
+    --separator: #1F304A;
+    --danger: #ef4444;
+    --radius: 10px;
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    min-height: 100vh;
+    overflow-y: auto;
+}
+
+.container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 16px 16px 32px;
+}
+
+.back-center {
+    display: block;
+    width: 100%;
+    text-align: center;
+    text-decoration: none;
+    color: white;
+    font-weight: 700;
+    padding: 12px 0;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #7f1d1d, var(--danger));
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.back-center:active {
+    transform: scale(0.98);
+}
+
+h1 {
+    font-size: 13px;
+    font-weight: 400;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 8px 16px;
+    letter-spacing: 0.5px;
+}
+
+.settings-section h2, 
+.settings-section p {
+    display: none;
+}
+
+.settings-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius);
+    padding: 0;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.liquid-toggle {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    background: transparent;
+    position: relative;
+}
+
+.liquid-toggle:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 56px;
+    right: 0;
+    height: 1px;
+    background: var(--separator);
+}
+
+.icon-wrapper {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 14px;
+    flex-shrink: 0;
+    color: #FFFFFF;
+    font-size: 14px;
+}
+
+/* Изменены цвета иконок слева (опционально) */
+.icon-blue { background: #5E5CE6; } /* Был синий, стал фиолетовый */
+.icon-orange { background: #FF375F; } /* Был оранжевый, стал розово-красный */
+
+.liquid-toggle .label {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2px 0;
+}
+
+.liquid-toggle .label h3 {
+    font-size: 17px;
+    font-weight: 400;
+    margin: 0;
+    color: var(--text);
+}
+
+.liquid-toggle .label small {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.3;
+    margin-top: 2px;
+}
+
+@media (max-width: 600px) {
+    .liquid-toggle .label h3 {
+        font-size: 11px;
+    }
+    .liquid-toggle .label small {
+        font-size: 8px;
+    }
+}
+
+/* Изменены цвета переключателей справа */
+.switch {
+    width: 51px;
+    height: 31px;
+    background: #394A66; /* Сделал неактивный фон светлее (был #1F304A) */
+    border-radius: 31px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+    margin-left: 10px;
+}
+
+.switch::after {
+    content: "";
+    position: absolute;
+    width: 27px;
+    height: 27px;
+    background: #FFFFFF;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15), 0 1px 1px rgba(0,0,0,0.16), 0 3px 1px rgba(0,0,0,0.1);
+}
+
+.switch.active {
+    background: #34C759; /* Изменил на зеленый в стиле iOS (был синий #0A84FF) */
+}
+
+.switch.active::after {
+    transform: translateX(20px);
+}
+
+.switch:disabled,
+.liquid-toggle:disabled,
+.liquid-toggle[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+}
+
+.switch:disabled::after,
+.liquid-toggle[disabled] .switch::after {
+    cursor: not-allowed !important;
+}
+
+a:hover{
+    cursor: pointer;
+}
+
+/* ==================== MODAL STYLES ==================== */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(7, 14, 29, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    width: 100%;
+    max-width: 320px;
+    border-radius: 14px;
+    padding: 24px 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    text-align: center;
+    animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-icon {
+    font-size: 32px;
+    color: #0A84FF; /* Синий цвет */
+    margin-bottom: 12px;
+}
+
+.modal-content h2 {
+    color: var(--text);
+    font-size: 19px;
+    font-weight: 600;
+    margin: 0 0 10px;
+}
+
+.modal-content p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.4;
+    margin: 0 0 24px;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    border: none;
+    outline: none;
+    border-radius: 10px;
+    padding: 12px 10px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.btn:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+}
+
+.btn--primary {
+    background: #0A84FF; /* Синий цвет */
+    color: #FFFFFF;
+}
+
+.btn--secondary {
+    background: var(--separator);
+    color: #FFFFFF;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+</style>
+</head>
+<body>
+<script>
+// LIQUID GLASS EFFECT - применяется при загрузке
+(function(){
+  const liquidState = localStorage.getItem('liquid');
+  if (liquidState === 'Включен') {
+    document.body.style.backdropFilter = "blur(20px)";
+    
+    const style = document.createElement('style');
+    style.id = 'liquid-style';
+    style.textContent = `
+      button, 
+      .btn, 
+      .back-btn, 
+      .back-center,
+      .option-item, 
+      .liquid-toggle, 
+      .switch,
+      input, 
+      .faq-item summary,
+      [role="button"] { 
+        border: 1px solid rgba(255,255,255,0.8) !important; 
+      }
+    `;
+    document.head.appendChild(style);
+  }
+})();
+</script>
+<div class="container">
+    <a onclick="goBack()" class="back-center">
+← Вернуться назад
+    </a>
+
+    <div class="settings-card" style="margin-top: 2%">
+        <div class="settings-section">
+            <h2>Интерфейс</h2>
+            <p>Выберите режим отображения приложения</p>
+
+            <div class="liquid-toggle" id="fullscreen-toggle">
+                <div class="icon-wrapper icon-blue">
+                    <i class="fa-solid fa-expand"></i>
+                </div>
+                <div class="label">
+                    <h3>Полноэкранный режим</h3>
+                    <small>Делает приложение на всю ширину экрана вашего устройства.</small>
+                </div>
+                <div id="fullscreenSwitch" class="switch"></div>
+            </div>
+
+            <div id="liquid-section" class="liquid-toggle" style="display: none;">
+                <div class="icon-wrapper icon-orange">
+                    <i class="fa-solid fa-droplet"></i>
+                </div>
+                <div class="label">
+                    <h3>Liquid Glass</h3>
+                </div>
+                <div id="liquidSwitch" class="switch"></div>
+            </div>
+
+            <div class="liquid-toggle">
+                <div class="icon-wrapper icon-blue">
+                    <i class="fa-solid fa-square-xmark"></i>
+                </div>
+                <div class="label">
+                    <h3>Подтверждение перед закрытием</h3>
+                    <small>Запрашивать подтверждение перед выходом из приложения.</small>
+                </div>
+                <div id="confirmationSwitch" class="switch"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="liquidConfirmModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <div class="modal-icon">
+      <i class="fa-solid fa-droplet"></i>
+    </div>
+    <h2>Подтвердите действие</h2>
+    <p>При включении Liquid Glass приложение необходимо перезапустить!</p>
+    
+    <div class="modal-buttons">
+        <button class="btn btn--primary" onclick="confirmLiquidEnable()">Включить</button>
+      <button class="btn btn--secondary" onclick="cancelLiquidEnable()">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const tg = window.Telegram.WebApp || {};
+
+// Готовим WebApp
+tg.ready();
+tg.expand();
+tg.SettingsButton.hide();
+
+// ==================== LIQUID GLASS ====================
+const liquidSection = document.getElementById('liquid-section');
+const liquidSwitch = document.getElementById('liquidSwitch');
+
+function applyLiquid(enabled) {
+    if (enabled) {
+        document.body.style.backdropFilter = "blur(20px)";
+
+        if (!document.getElementById('liquid-style')) {
+            const style = document.createElement('style');
+            style.id = 'liquid-style';
+            style.textContent = `
+                button, 
+                .btn, 
+                .back-center, 
+                .settings-card,
+                .liquid-toggle, 
+                .switch,
+                input, 
+                [role="button"] { 
+                    border: 1px solid rgba(255,255,255,0.15) !important; 
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    } else {
+        document.body.style.backdropFilter = "";
+        const style = document.getElementById('liquid-style');
+        if (style) style.remove();
+    }
+}
+// Основная инициализация
+function initSettings() {
+    // === Fullscreen Toggle ===
+    const fullscreenSwitch = document.getElementById('fullscreenSwitch');
+    let fullscreenEnabled = localStorage.getItem('fullscreenMode') === 'true';
+    if (fullscreenEnabled) {
+        fullscreenSwitch.classList.add('active');
+        // Применяем полноэкранный режим при инициализации
+        tg.requestFullscreen();
+    }
+
+    fullscreenSwitch.addEventListener('click', () => {
+        fullscreenEnabled = !fullscreenEnabled;
+        const modeValue = fullscreenEnabled ? 'true' : 'false';
+        localStorage.setItem('fullscreenMode', modeValue);
+        
+        // Применяем полноэкранный режим через Telegram WebApp API
+        if (fullscreenEnabled) {
+            tg.requestFullscreen();
+        } else {
+            tg.exitFullscreen();
+        }
+        
+        fullscreenSwitch.classList.toggle('active');
+    });
+
+    // === Confirmation Before Close ===
+    const confirmationSwitch = document.getElementById('confirmationSwitch');
+    let confirmationEnabled = localStorage.getItem('enableconfirmation') === 'true';
+    if (confirmationEnabled) {
+        confirmationSwitch.classList.add('active');
+    }
+
+    confirmationSwitch.addEventListener('click', () => {
+        confirmationEnabled = !confirmationEnabled;
+        localStorage.setItem('enableconfirmation', confirmationEnabled.toString());
+        confirmationSwitch.classList.toggle('active');
+        if (localStorage.getItem('enableconfirmation') === 'true') {
+            window.Telegram.WebApp.enableClosingConfirmation();
+        }
+        else{
+            window.Telegram.WebApp.disableClosingConfirmation();
+        }
+        if (!localStorage.getItem('enableconfirmation')) {
+            localStorage.setItem('enableconfirmation', 'false');
+        }
+    });
+
+    // === Liquid Glass (Проверка на Admin или iPhone) ===
+    const isAdmin = localStorage.getItem('admin') === 'true';
+    const isIPhone = /iPhone/i.test(navigator.userAgent);
+
+    if (isAdmin || isIPhone) {
+        liquidSection.style.display = 'flex';
+
+        let state = localStorage.getItem('liquid');
+        if (!state) {
+            localStorage.setItem('liquid', 'Включен');
+            state = 'Включен';
+        }
+
+        const enabled = state === 'Включен';
+        if (enabled) liquidSwitch.classList.add('active');
+
+        applyLiquid(enabled);
+
+        // Переключатель
+        liquidSwitch.addEventListener('click', () => {
+            const currentEnabled = localStorage.getItem('liquid') === 'Включен';
+            const nextEnabled = !currentEnabled;
+            showLiquidConfirmModal(nextEnabled);
+        });
+    }
+}
+
+function showLiquidConfirmModal(enabled) {
+    const modal = document.getElementById('liquidConfirmModal');
+    const title = modal.querySelector('h2');
+    const message = modal.querySelector('p');
+    const button = modal.querySelector('.btn--primary');
+    
+    if (enabled) {
+        title.innerHTML = 'Подтвердите действие';
+        message.textContent = 'При включении Liquid Glass приложение необходимо перезапустить!';
+        button.textContent = 'Включить';
+    } else {
+        title.innerHTML = 'Подтвердите действие';
+        message.textContent = 'При выключении Liquid Glass приложение необходимо перезапустить!';
+        button.textContent = 'Выключить';
+    }
+    
+    modal.pendingEnabled = enabled;
+    modal.style.display = 'flex';
+}
+
+function confirmLiquidEnable() {
+    const modal = document.getElementById('liquidConfirmModal');
+    if (modal && modal.pendingEnabled !== undefined) {
+        const enabled = modal.pendingEnabled;
+        localStorage.setItem('liquid', enabled ? 'Включен' : 'Выключен');
+        liquidSwitch.classList.toggle('active', enabled);
+        applyLiquid(enabled);
+        modal.style.display = 'none';
+        delete modal.pendingEnabled;
+        // Перезагрузка страницы
+        setTimeout(() => {
+            document.querySelectorAll('div').forEach(div => div.remove());
+            window.location.href = 'index.html';
+        }, 500);
+    }
+}
+
+function cancelLiquidEnable() {
+    const modal = document.getElementById('liquidConfirmModal');
+    if (modal) {
+        modal.style.display = 'none';
+        delete modal.pendingEnabled;
+    }
+}
+
+function goBack() {
+    // Попытка вернуться в историю браузера
+    if (window.history.length > 1) {
+        window.history.back();
+    } 
+    // Fallback на сохраненное значение из localStorage
+    else if (localStorage.getItem('windowHistoryBack')) {
+        window.location.href = localStorage.getItem('windowHistoryBack');
+    } 
+    // Итоговый fallback
+    else {
+        window.location.href = 'menu.html';
+    }
+}
+
+
+// Запуск
+document.addEventListener('DOMContentLoaded', initSettings);
+</script>
+
+<script type="module" src="security.js"></script>
+</body>
+</html>

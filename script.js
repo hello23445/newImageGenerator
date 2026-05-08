@@ -121,8 +121,10 @@ function setupStoryModalObserver() {
 window.addEventListener('load', () => {
   try { setupPageBackButtonHandlers(); } catch (e) { console.warn(e); }
   try { setupStoryModalObserver(); } catch (e) { console.warn(e); }
+  try { initializeCrystals(); } catch (e) { console.warn(e); }
 });
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbwL-V0kZja_S8xRsc5EyDEtyjYwPoL2_ZkW3NwD0XkR90Guo3eJXsJoTOBxC5XbFcC-/exec';
+const MYSTATGAS_URL = 'https://script.google.com/macros/s/AKfycbx1X6BoOjqzqVMGAATsKCykLJxNJ1YgHCtXOxDmR1iqP7g0FxRAIkB7LcUwCK0sIbPiCQ/exec';
 const SHEET_NAME = 'Sheet1';
 const limitPromos = [
   { promocode: 'QWERTY', limits: 6 },
@@ -289,28 +291,34 @@ function isValidEmail(email) {
 }
 let formData = JSON.parse(localStorage.getItem('formData')) || {};
 let contactData = JSON.parse(localStorage.getItem('contactData')) || { contact: '', messenger: '' };
+const check1 = document.getElementById('check1');
+const check2 = document.getElementById('check2');
 const checkSpoiler1 = document.getElementById('checkbox1');
 const checkSpoiler2 = document.getElementById('checkbox2');
-check1.addEventListener('change', () => {
-  if (check1.checked) {
-    checkSpoiler1.innerHTML += ' <i class="fa-solid fa-check" style="color: #00ff33;"></i>'
-    checkSpoiler1.style.color = 'green';
-    // тут твой код
-  } else {
-    checkSpoiler1.innerHTML = checkSpoiler1.innerHTML.replace(/<i class="fa-solid fa-check" style="color: #00ff33;"><\/i>/g, '');
-    checkSpoiler1.style.color = '';
-  }
-});
-check2.addEventListener('change', () => {
-  if (check2.checked) {
-    checkSpoiler2.innerHTML += ' <i class="fa-solid fa-check" style="color: #00ff33;"></i>'
-    checkSpoiler2.style.color = 'green';
-    // тут твой код
-  } else {
-    checkSpoiler2.innerHTML = checkSpoiler2.innerHTML.replace(/<i class="fa-solid fa-check" style="color: #00ff33;"><\/i>/g, '');
-    checkSpoiler2.style.color = '';
-  }
-});
+if (check1) {
+  check1.addEventListener('change', () => {
+    if (check1.checked) {
+      checkSpoiler1.innerHTML += ' <i class="fa-solid fa-check" style="color: #00ff33;"></i>'
+      checkSpoiler1.style.color = 'green';
+      // тут твой код
+    } else {
+      checkSpoiler1.innerHTML = checkSpoiler1.innerHTML.replace(/<i class="fa-solid fa-check" style="color: #00ff33;"><\/i>/g, '');
+      checkSpoiler1.style.color = '';
+    }
+  });
+}
+if (check2) {
+  check2.addEventListener('change', () => {
+    if (check2.checked) {
+      checkSpoiler2.innerHTML += ' <i class="fa-solid fa-check" style="color: #00ff33;"></i>'
+      checkSpoiler2.style.color = 'green';
+      // тут твой код
+    } else {
+      checkSpoiler2.innerHTML = checkSpoiler2.innerHTML.replace(/<i class="fa-solid fa-check" style="color: #00ff33;"><\/i>/g, '');
+      checkSpoiler2.style.color = '';
+    }
+  });
+}
 // --- Token ---
 function generateToken24() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-';
@@ -771,6 +779,7 @@ function generateImage() {
     return;
   }
   if (!validateInputs()) return;
+  resetTempOpenedFields();
   if (!checkAttempts()) {
     noAttemptsModal.style.display = 'flex';
     return;
@@ -1179,6 +1188,21 @@ function proceedToSend(messenger, contact) {
   resultModal.style.display = 'flex';
   document.getElementById('successMessage').style.display = 'block';
   document.getElementById('errorMessage').style.display = 'none';
+  fetch(MYSTATGAS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      cell: 'C2',
+      amount: 1,
+      sheet: 'Лист1'
+    })
+  })
+    .then(res => res.json())
+    .then(data => console.log(data))
+    .catch(() => {});
   saveGeneration();
   const message = params.join('\n');
   fetch(`https://api.telegram.org/bot${telegramBotToken}/sendMessage?chat_id=${telegramChatId}&text=${encodeURIComponent(message)}`)
@@ -1280,23 +1304,34 @@ function checkPremium() {
     if (autoTextStyle) autoTextStyle.disabled = false;
     if (autoTextStyleLabel) autoTextStyleLabel.classList.remove('disabled-label');
     if (descriptionInput) descriptionInput.maxLength = 1000;
+    if (sizeInput) sizeInput.disabled = false;
+    if (sizeInput) sizeInput.placeholder = 'Например: 1920x1080';
     document.querySelectorAll('option[disabled]').forEach((opt) => {
       opt.disabled = false;
       opt.textContent = opt.textContent.replace('(Premium)', '').trim();
     });
     writtenPromos = JSON.parse(localStorage.getItem('writtenPromos')) || [];
   } else {
+    const tempOpenedFields = JSON.parse(localStorage.getItem('tempOpenedFields') || '[]');
     const p22 = document.getElementById('p22');
     if (p22) p22.style.display = 'block';
     const appRadio = document.getElementById('app');
     if (appRadio) appRadio.disabled = true;
     if (exclusionsInput) {
-      exclusionsInput.disabled = true;
-      exclusionsInput.placeholder = 'Купите Premium, чтобы писать здесь';
-      exclusionsInput.value = '';
+      if (!tempOpenedFields.includes('exclusions')) {
+        exclusionsInput.disabled = true;
+        exclusionsInput.placeholder = 'Купите Premium, чтобы писать здесь';
+        exclusionsInput.value = '';
+      }
     }
     if (autoTextStyle) autoTextStyle.disabled = true;
     if (autoTextStyleLabel) autoTextStyleLabel.classList.add('disabled-label');
+    if (sizeInput) {
+      if (!tempOpenedFields.includes('sizeInput')) {
+        sizeInput.disabled = true;
+        sizeInput.placeholder = 'Купите Premium, чтобы писать здесь';
+      }
+    }
     document.querySelectorAll('option').forEach((opt) => {
       if (opt.textContent.includes('Premium') || opt.textContent.match(/^\(Premium\)/)) opt.disabled = true;
     });
@@ -1305,6 +1340,7 @@ function checkPremium() {
   updateDescriptionLimit();
   updateTextLimit();
   updateExclusionsLimit();
+  updateFieldUnlockButtons();
 }
 function handleDailyPremium(afterGeneration) {
   const data = getStoredData();
@@ -1459,6 +1495,7 @@ function fastGenerate() {
   if (textInput) textInput.style.background = '';
   if (!checkRulesAgree()) return;
   if (!validateInputs()) return;
+  resetTempOpenedFields();
   localStorage.removeItem('fastGenerationUsed');
   fastGenModal.style.display = 'flex';
   const WebApp = window.Telegram?.WebApp;
@@ -1775,6 +1812,9 @@ document.addEventListener('click', function (event) {
 });
 // --- Edit modal (без "Мнения пользователя") ---
 let currentEditFieldId = null;
+let currentEditOriginalValue = '';
+let currentEditHasChanges = false;
+let currentEditAutoExpand = null;
 const fieldData = {
   'description': {
     title: 'Описание фото (обязательно)',
@@ -1826,12 +1866,16 @@ function openEditModal(fieldId) {
   const modal = document.getElementById('editModal');
   if (modal) modal.style.display = 'flex';
   textarea.focus();
+  currentEditOriginalValue = textarea.value;
+  currentEditHasChanges = false;
   const autoExpand = () => {
     textarea.style.height = 'auto';
     textarea.style.height = `${textarea.scrollHeight}px`;
     updateEditCounter();
+    currentEditHasChanges = textarea.value !== currentEditOriginalValue;
   };
-  textarea.addEventListener('input', autoExpand);
+  currentEditAutoExpand = autoExpand;
+  textarea.addEventListener('input', currentEditAutoExpand);
   autoExpand();
   document.getElementById('saveEdit').onclick = () => {
     const originalEl = document.getElementById(fieldId);
@@ -1839,12 +1883,15 @@ function openEditModal(fieldId) {
     if (fieldId === 'text') updateTextLimit();
     if (fieldId === 'exclusions') updateExclusionsLimit();
     if (fieldId === 'description') updateDescriptionLimit();
+    currentEditHasChanges = false;
     closeEditModal();
-    textarea.removeEventListener('input', autoExpand);
   };
   document.getElementById('cancelEdit').onclick = () => {
+    if (currentEditHasChanges) {
+      openCancelConfirm();
+      return;
+    }
     closeEditModal();
-    textarea.removeEventListener('input', autoExpand);
   };
   document.getElementById('clearEdit').onclick = () => {
     textarea.value = '';
@@ -1862,8 +1909,33 @@ function updateEditCounter() {
 function closeEditModal() {
   const modal = document.getElementById('editModal');
   if (modal) modal.style.display = 'none';
+  const textarea = document.getElementById('editTextarea');
+  if (textarea && currentEditAutoExpand) {
+    textarea.removeEventListener('input', currentEditAutoExpand);
+  }
+  currentEditAutoExpand = null;
   currentEditFieldId = null;
+  currentEditHasChanges = false;
 }
+function openCancelConfirm() {
+  const modal = document.getElementById('cancelConfirmModal');
+  if (modal) modal.style.display = 'flex';
+}
+function closeCancelConfirm() {
+  const modal = document.getElementById('cancelConfirmModal');
+  if (modal) modal.style.display = 'none';
+}
+function confirmCancelEdit() {
+  closeEditModal();
+  closeCancelConfirm();
+}
+function denyCancelEdit() {
+  closeCancelConfirm();
+}
+const confirmCancelButton = document.getElementById('confirmCancel');
+if (confirmCancelButton) confirmCancelButton.onclick = confirmCancelEdit;
+const denyCancelButton = document.getElementById('denyCancel');
+if (denyCancelButton) denyCancelButton.onclick = denyCancelEdit;
 // iPhone liquid border tweak (оставлено)
 if (/iPhone/i.test(navigator.userAgent)) {
   if (localStorage.getItem('liquid') === 'Включен') {
@@ -1937,9 +2009,198 @@ window.updateTextLimit = updateTextLimit;
 window.updateExclusionsLimit = updateExclusionsLimit;
 checkPremium();
 
+// --- CRYSTALS SYSTEM ---
+function initializeCrystals() {
+  if (!localStorage.getItem('userCrystals')) {
+    localStorage.setItem('userCrystals', '100'); // Начальное количество кристаллов
+  }
+  updateCrystalsDisplay();
+  restoreTempOpenedFields();
+  startUnlockButtonObservers();
+  updateFieldUnlockButtons();
+}
+
+function getCrystals() {
+  return parseInt(localStorage.getItem('userCrystals') || '0', 10);
+}
+
+function setCrystals(amount) {
+  localStorage.setItem('userCrystals', Math.max(0, amount).toString());
+  updateCrystalsDisplay();
+}
+
+function spendCrystals(amount) {
+  const current = getCrystals();
+  if (current >= amount) {
+    setCrystals(current - amount);
+    return true;
+  }
+  return false;
+}
+
+function updateCrystalsDisplay() {
+  const crystalCount = document.getElementById('crystalCount');
+  if (crystalCount) {
+    crystalCount.textContent = getCrystals();
+  }
+}
+
+function updateFieldUnlockButtons() {
+  const isPremium = localStorage.getItem('premium') === 'true';
+  const exclusionsBtn = document.getElementById('exclusionsUnlockBtn');
+  const exclusionsField = document.getElementById('exclusions');
+  const sizeBtn = document.getElementById('sizeUnlockBtn');
+  const sizeField = document.getElementById('sizeInput');
+
+  if (!isPremium) {
+    if (exclusionsBtn) {
+      exclusionsBtn.style.display = (exclusionsField && !exclusionsField.disabled && !exclusionsField.hidden) ? 'none' : 'block';
+    }
+    if (sizeBtn) {
+      sizeBtn.style.display = (sizeField && !sizeField.disabled && !sizeField.hidden) ? 'none' : 'block';
+    }
+  } else {
+    if (exclusionsBtn) exclusionsBtn.style.display = 'none';
+    if (sizeBtn) sizeBtn.style.display = 'none';
+  }
+}
+
+function startUnlockButtonObservers() {
+  ['exclusions', 'sizeInput'].forEach((fieldId) => {
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+    const observer = new MutationObserver(() => updateFieldUnlockButtons());
+    observer.observe(field, { attributes: true, attributeFilter: ['disabled', 'hidden', 'style'] });
+  });
+}
+
+function restoreTempOpenedFields() {
+  const tempOpenedFields = JSON.parse(localStorage.getItem('tempOpenedFields') || '[]');
+  tempOpenedFields.forEach((fieldId) => {
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+    field.disabled = false;
+    if (fieldId === 'exclusions') {
+      field.placeholder = '';
+    } else if (fieldId === 'sizeInput') {
+      field.placeholder = 'Например: 1920x1080';
+    }
+    const btn = document.getElementById(fieldId + 'UnlockBtn');
+    if (btn) btn.style.display = 'none';
+  });
+}
+
+function unlockFieldWithCrystals(fieldId, cost) {
+  const currentCrystals = getCrystals();
+  if (currentCrystals >= cost) {
+    // Show confirmation modal
+    showCrystalSpendConfirmModal(fieldId, cost);
+  } else {
+    showInsufficientCrystalsModal();
+  }
+}
+
+function showInsufficientCrystalsModal() {
+  const modal = document.getElementById('insufficientCrystalsModal');
+  if (modal) {
+    modal.style.display = 'flex';
+  }
+}
+
+function closeInsufficientCrystalsModal() {
+  const modal = document.getElementById('insufficientCrystalsModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
+function showCrystalSpendConfirmModal(fieldId, cost) {
+  const modal = document.getElementById('crystalSpendConfirmModal');
+  const message = document.getElementById('crystalSpendMessage');
+  if (modal && message) {
+    message.textContent = `Потратить ${cost} кристаллов на разблокировку поля?`;
+    modal.pendingFieldId = fieldId;
+    modal.pendingCost = cost;
+    modal.style.display = 'flex';
+  }
+}
+
+function confirmCrystalSpend() {
+  const modal = document.getElementById('crystalSpendConfirmModal');
+  if (modal && modal.pendingFieldId && modal.pendingCost) {
+    const fieldId = modal.pendingFieldId;
+    const cost = modal.pendingCost;
+    if (spendCrystals(cost)) {
+      const field = document.getElementById(fieldId);
+      if (field) {
+        field.disabled = false;
+        field.placeholder = '';
+        
+        // Скрыть кнопку для этого поля
+        const btn = document.getElementById(fieldId + 'UnlockBtn');
+        if (btn) btn.style.display = 'none';
+        
+        // Фокус на поле
+        field.focus();
+        
+        // Сохраняем, что это поле открыто только для этой генерации
+        const tempOpenedFields = JSON.parse(localStorage.getItem('tempOpenedFields') || '[]');
+        if (!tempOpenedFields.includes(fieldId)) {
+          tempOpenedFields.push(fieldId);
+          localStorage.setItem('tempOpenedFields', JSON.stringify(tempOpenedFields));
+        }
+      }
+    }
+    modal.style.display = 'none';
+    delete modal.pendingFieldId;
+    delete modal.pendingCost;
+  }
+}
+
+function cancelCrystalSpend() {
+  const modal = document.getElementById('crystalSpendConfirmModal');
+  if (modal) {
+    modal.style.display = 'none';
+    delete modal.pendingFieldId;
+    delete modal.pendingCost;
+  }
+}
+
+function resetTempOpenedFields() {
+  const tempOpenedFields = JSON.parse(localStorage.getItem('tempOpenedFields') || '[]');
+  
+  tempOpenedFields.forEach((fieldId) => {
+    const field = document.getElementById(fieldId);
+    if (field) {
+      field.disabled = true;
+      // Восстанавливаем placeholder
+      if (fieldId === 'exclusions') {
+        field.placeholder = 'Купите Premium, чтобы писать здесь';
+      } else if (fieldId === 'sizeInput') {
+        field.placeholder = 'Например: 1920x1080';
+      }
+      field.value = '';
+      
+      // Показываем кнопку снова
+      const btn = document.getElementById(fieldId + 'UnlockBtn');
+      if (btn) btn.style.display = 'block';
+    }
+  });
+  
+  localStorage.removeItem('tempOpenedFields');
+}
+
+window.unlockFieldWithCrystals = unlockFieldWithCrystals;
+window.showInsufficientCrystalsModal = showInsufficientCrystalsModal;
+window.closeInsufficientCrystalsModal = closeInsufficientCrystalsModal;
+window.showCrystalSpendConfirmModal = showCrystalSpendConfirmModal;
+window.confirmCrystalSpend = confirmCrystalSpend;
+window.cancelCrystalSpend = cancelCrystalSpend;
+window.initializeCrystals = initializeCrystals;
+
 // Initialize Telegram WebApp
 const WebAppInit = window.Telegram?.WebApp;
-if (WebAppInit) {
+if (WebAppInit && localStorage.getItem('enableconfirmation ') === 'true') {
   WebAppInit.ready();
   WebAppInit.enableClosingConfirmation();
 }

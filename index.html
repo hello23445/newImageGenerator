@@ -12,6 +12,14 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div id="pagePreloader" class="page-preloader" aria-live="polite" aria-label="Загрузка сайта">
+    <div class="page-preloader__content">
+      <div class="page-preloader__badge">CrN PhotoAI</div>
+      <div class="page-preloader__ring"></div>
+      <div class="page-preloader__label">Подготовка приложения...</div>
+      <div class="page-preloader__hint">Скоро вы сможете создать новое изображение.</div>
+    </div>
+  </div>
   <!-- Top bar -->
   <header class="topbar">
     <button id="menuButton" class="icon-btn" onclick="window.location.href='menu.html'" aria-label="Меню">
@@ -19,7 +27,10 @@
     </button>
     <div class="topbar-title">
       <div class="app-title">CrN PhotoAI </div>
-      <div class="app-subtitle">Настрой параметры и нажимай кнопку генерации.</div>
+    </div>
+    <div id="crystalsDisplay" class="crystals-display" style="display: flex; align-items: center; gap: 8px; margin-left: auto; font-weight: bold; color: #7eb3ff;">
+      <i class="fa-solid fa-gem"></i>
+      <span id="crystalCount">0</span>
     </div>
   </header>
   <!-- Main -->
@@ -28,14 +39,14 @@
     <section class="card card--primary">
       <div class="section-title">
         <i class="fa-solid fa-wand-magic-sparkles"></i>
-        <span style="font-size: larger;">Генерация фото</span>
+        <span style="font-size: larger; user-select: none;">Параметры для генерации фото</span>
       </div>
       <!-- {Поле описание(большого размера)} -->
       <div class="field">
         <label for="description">Описание фото (обязательно)</label>
         <textarea id="description" rows="8" required maxlength="500" oninput="updateDescriptionLimit()" placeholder="Пример: город будущего в неоне."></textarea>
         <div class="counter" id="descriptionCounter">0/500</div>
-        <div class="hint">Бесплатно до 500 символов, Premium — до 1000.</div>
+        <div class="hint">Бесплатно до 500 символов, Premium — до 1000.<br>Опишите каким должно быть изображение.</div>
       </div>
       <!-- {Поле ввода текста}{Поле ввода исключений}(Фон фото и галочка размытия) -->
       <div class="grid grid-2">
@@ -43,7 +54,7 @@
           <label for="text">Текст на фото (необязательно)</label>
           <input type="text" id="text" maxlength="30" oninput="updateTextLimit()" placeholder="Например: Hello!" />
           <div class="counter" id="textCounter">0/30</div>
-          <div class="hint">Premium — до 500 символов.</div>
+          <div class="hint">С премиумом можно вводить до 500 символов.</div>
           <!-- Автоматический выбор стиля текста -->
           <label class="checkbox" for="autoTextStyle" id="autoTextStyleLabel" style="margin-top: 12px; display: block;">
             <input type="checkbox" id="autoTextStyle" />
@@ -60,6 +71,9 @@
           <input type="text" id="exclusions" disabled placeholder="Купите Premium, чтобы писать здесь" maxlength="250" oninput="if(this.value.length>250)this.value=this.value.slice(0,250);" />
           <div class="counter" id="exclusionsCounter">0/250</div>
           <div class="hint">Например: люди, животные, текст, логотипы и т.д.</div>
+          <button id="exclusionsUnlockBtn" class="btn btn--secondary" style="margin-top: 12px; width: 100%; display: none;" onclick="unlockFieldWithCrystals('exclusions', 50)">
+            <span>Открыть за 50<i class="fa-solid fa-gem" style="margin-left: 4px;"></i></span>
+          </button>
         </div>
       </div>
       <!-- Сжали расстояния между блоками: фон + размытие -->
@@ -306,7 +320,7 @@
             <i class="fa-solid fa-upload"></i>
             <span>Загрузить</span>
           </button>
-          <div class="hint">Бесплатно до 3 фото, Premium до 6.</div>
+          <div class="hint">Бесплатно до 3 фото, Premium до 6. <br>Загрузите фото для примера и так далее, чтобы получить более точные результаты.</div>
           <div id="preloader" class="small-preloader" aria-live="polite">Загрузка...</div>
           <div id="result" class="result"></div>
         </div>
@@ -316,7 +330,7 @@
     <section class="card">
       <div class="section-title">
         <i class="fa-solid fa-sliders"></i>
-        <span style="font-size: larger;">Дополнительные параметры</span>
+        <span style="font-size: larger; user-select: none;">Дополнительные параметры</span>
       </div>
       <!-- ВАЖНО: Качество/Освещение/Уровень детализации сразу под "Параметры" -->
       <div class="grid grid-3">
@@ -334,7 +348,7 @@
             <option value="2160p60" disabled>(Premium)2160p60 (4K)</option>
             <option value="4320p" disabled>(Premium)4320p (8K)</option>
           </select>
-          <div class="hint">Чем выше — тем “тяжелее” генерация.</div>
+          <div class="hint">Качество фото — это то, насколько изображение выглядит чётким и приятным для восприятия.</div>
         </div>
         <div class="field">
           <label for="osvecheniye">Тип освещения</label>
@@ -376,6 +390,9 @@
             oninput="if (document.getElementById('sizeInput').value !== '' && document.getElementById('sizeSelect').value !== ''){document.getElementById('soot').disabled = true}else{document.getElementById('soot').disabled = false}"
           />
           <div class="hint">Можно вручную или выбрать из списка.</div>
+          <button id="sizeUnlockBtn" class="btn btn--secondary" style="margin-top: 12px; width: 100%; display: none;" onclick="unlockFieldWithCrystals('sizeInput', 50)">
+            <span>Открыть за 50<i class="fa-solid fa-gem" style="margin-left: 4px;"></i></span>
+          </button>
         </div>
         <div class="field">
           <label for="sizeSelect">Выбор размера</label>
@@ -423,7 +440,7 @@
           <label for="soot">Соотношение сторон</label>
           <select
             id="soot"
-            onchange="if (document.getElementById('soot').value !== '9:16'){document.getElementById('sizeSelect').disabled = true; localStorage.getItem('premium') === 'true' ? sizeInput.disabled = true : ''}else{document.getElementById('sizeSelect').disabled = false ; localStorage.getItem('premium') === 'true' ? sizeInput.disabled = false : '';}">
+            onchange="if (document.getElementById('soot').value !== '9:16'){document.getElementById('sizeSelect').disabled = true;}else{document.getElementById('sizeSelect').disabled = false;}">
             <optgroup label="По-умолчанию">
               <option value="9:16" selected>9:16 (Вертикаль / Сторис)</option>
             </optgroup>
@@ -712,10 +729,17 @@
               <option value="fabric">Тканевая</option>
               <option value="leather">Кожаная</option>
               <option value="crystal">Кристаллическая</option>
+              <option value="stained-glass">Витражная</option>
+              <option value="oil-paint">Масляная</option>
+              <option value="chalk">Меловая</option>
+              <option value="etched">Гравированная</option>
+              <option value="glossy">Глянцевая</option>
+              <option value="matte">Матовая</option>
               <option value="fire" disabled>(Premium)Огненная</option>
               <option value="ice">Ледяная</option>
               <option value="glowing" disabled>(Premium)Светящаяся</option>
               <option value="rustic">Рустикальная</option>
+              <option value="pastel">Пастельная</option>
               <option value="ornate" disabled>(Premium)Орнаментальная</option>
             </optgroup>
             <optgroup label="🖌 Кисти и штрихи">
@@ -789,6 +813,11 @@
               <option value="valentine">День святого Валентина (сердца, розы)</option>
               <option value="easter">Пасхальная (яйца, кролики)</option>
               <option value="mystical">Мистическая (рунные символы)</option>
+              <option value="safari">Сафари (пальмы и песок)</option>
+              <option value="midnight-garden">Ночной сад</option>
+              <option value="city-neon">Городской неон</option>
+              <option value="floral">Цветочная (розы, лепестки)</option>
+              <option value="night-sky">Ночное небо (луна, звёзды)</option>
               <option value="steampunk-ram" disabled>(Premium)Стимпанк-рамка</option>
               <option value="cyberpunk-ram">Киберпанк-рамка</option>
               <option value="fairy-tale" disabled>(Premium)Сказочная</option>
@@ -807,10 +836,16 @@
               <option value="engrave">Гравированная</option>
               <option value="outline">Контурная</option>
               <option value="shadow-drop">С тенью</option>
+              <option value="film-grain">Киноплёночная</option>
+              <option value="prismatic">Призматическая</option>
+              <option value="ripple">Рябь</option>
               <option value="bevel">Скошенная</option>
               <option value="gradient-glow">Градиентное свечение</option>
               <option value="neon-glow">Неоновое свечение</option>
               <option value="sparkle">Блестящий</option>
+              <option value="wave-edge">Волнообразная</option>
+              <option value="misty">Туманная</option>
+              <option value="pixelated">Пиксельная</option>
               <option value="distorted" disabled>(Premium)Искаженный</option>
               <option value="hologram">Голографический</option>
               <option value="embroidery" disabled>(Premium)Вышитый</option>
@@ -886,7 +921,7 @@
           <span>Сгенерировать (Максимально быстро)</span>
         </button>
       </div>
-      <div class="grid grid-3" style="margin-top: 2%;">
+      <div class="grid grid-2" style="margin-top: 2%;">
         <button class="btn btn--secondary" onclick="surpriseMode()" title="Нажмите чтобы получить случайные параметры генерации.">
           <i class="fa-solid fa-dice"></i>
           <span>Удиви меня</span>
@@ -895,7 +930,13 @@
           <i class="fa-solid fa-key"></i>
           <span>Мой API-ключ</span>
         </button>
-        <button class="btn btn--secondary" onclick="BuyPremium()" title="Нажмите чтобы купить Premium-подписку и получить доступ ко всем функциям.">
+      </div>
+      <div class="grid grid-2 crystals-premium-buttons">
+        <button class="btn btn--secondary" style="margin-top: 4%;" onclick="localStorage.setItem('crystalReturnPage', 'index.html'); window.location.href='crystals.html'" title="Нажмите чтобы открыть страницу покупки кристаллов.">
+          <i class="fa-solid fa-gem"></i>
+          <span>Кристаллы</span>
+        </button>
+        <button class="btn btn--secondary" style="margin-top: 4%;" onclick="BuyPremium()" title="Нажмите чтобы открыть страницу премиума.">
           <i class="fa-solid fa-crown"></i>
           <span>Premium</span>
         </button>
@@ -947,6 +988,16 @@
         <h2 style="color: #d9d9d9; text-align: center;">Ошибка</h2>
         <p id="validationErrorText" style="color: #d9d9d9; text-align: center;"></p>
         <button class="btn btn--primary" onclick="closeValidationModal()" style="width: 100%;" title="Закрыть.">Закрыть</button>
+      </div>
+    </div>
+    <!-- INSUFFICIENT CRYSTALS MODAL -->
+    <div id="insufficientCrystalsModal" class="modal" style="display: none;">
+      <div class="modal-content" style="background: var(--panel-bg); max-width: 400px;">
+        <h2 style="color: #ff6b6b; text-align: center;">
+          <i class="fa-solid fa-gem"></i> Недостаточно кристаллов!
+        </h2>
+        <p style="color: #d9d9d9; text-align: center;">У вас недостаточно кристаллов для выполнения этого действия.</p>
+        <button class="btn btn--primary" onclick="closeInsufficientCrystalsModal()" style="width: 100%;" title="Закрыть.">Закрыть</button>
       </div>
     </div>
     <!-- MESSENGER MODAL -->
@@ -1186,15 +1237,27 @@
     <!-- Edit Modal -->
     <div id="editModal" class="modal" style="display: none;">
       <div class="modal-content" style="background-color: black;">
-        <h2 id="editTitle" style="color: white;"></h2>
-        <textarea id="editTextarea" style="width: 100%;"></textarea>
-        <div id="editCounter" class="counter" style="color:white;"></div>
-        <div id="editDesc" class="hint" style="color:white;"></div>
-        <div class="modal-buttons" style="align-items: center; justify-content: center; display: flex;">
+        <div class="edit-modal-body">
+          <h2 id="editTitle" style="color: white;"></h2>
+          <textarea id="editTextarea" style="width: 100%;"></textarea>
+          <div id="editCounter" class="counter" style="color:white;"></div>
+          <div id="editDesc" class="hint" style="color:white;"></div>
+        </div>
+        <div class="modal-buttons" style="align-items: center; justify-content: center; display: flex; gap: 10px; flex-wrap: wrap;">
           <button id="saveEdit" class="btn btn--primary" title="Сохранить изменения.">Сохранить</button>
           <button id="cancelEdit" class="btn btn--secondary" title="Отменить изменения.">Отмена</button>
           <button id="copy" class="btn btn--secondary" title="Скопировать текст из поля в буфер обмена."><i class="fa-solid fa-copy"></i></button>
           <button id="clearEdit" class="btn btn--secondary" title="Очистить поле.">Очистить</button>
+        </div>
+      </div>
+    </div>
+    <div id="cancelConfirmModal" class="modal" style="display: none;">
+      <div class="modal-content" style="background: var(--panel-bg); max-width: 400px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <h2 style="color: #7eb3ff; text-align: center;">Вы не сохранили текущие изменения</h2>
+        <p style="color: var(--text); text-align: center; margin-top: 10px;">Уверены, что хотите отменить?<br>Все несохраненные изменения будут отменены.</p>
+        <div class="modal-buttons" style="justify-content: center; display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+          <button id="confirmCancel" class="btn btn--primary" style="flex: 1;">Да, отменить</button>
+          <button id="denyCancel" class="btn btn--secondary" style="flex: 1;">Нет, продолжить</button>
         </div>
       </div>
     </div>
@@ -1314,6 +1377,20 @@ text.addEventListener('input', function () {
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <script type="module" src="security.js"></script>
 
+<!-- Crystal Spend Confirmation Modal -->
+<div id="crystalSpendConfirmModal" class="modal" style="display: none;">
+  <div class="modal-content" style="background: var(--panel-bg); max-width: 400px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+    <h2 style="color: #7eb3ff; text-align: center; margin-bottom: 10px;">
+      <i class="fa-solid fa-gem"></i> Подтверждение
+    </h2>
+    <p id="crystalSpendMessage" style="color: var(--text); text-align: center; margin-bottom: 20px; font-size: 16px;"></p>
+    <div style="display: flex; gap: 10px; justify-content: center;">
+      <button class="btn btn--primary" onclick="confirmCrystalSpend()" style="flex: 1;">Да</button>
+      <button class="btn btn--secondary" onclick="cancelCrystalSpend()" style="flex: 1;">Отмена</button>
+    </div>
+  </div>
+</div>
+
 <!-- recaptcha modal -->
 <div id="recaptchaModal" class="modal hidden" role="dialog" aria-modal="true">
   <div class="modal-box">
@@ -1321,15 +1398,48 @@ text.addEventListener('input', function () {
     <button id="recaptchaContinue" class="modal-btn" disabled onclick="recaptchaContinue();">Продолжить</button>
   </div>
 </div>
-
+<script src="settings_script.js"></script>
 <script>
-function onGenerateClick(){
-  const securityLevel = parseInt(localStorage.getItem('security')||'0',10);
-  if(securityLevel>=3){
-    showRecaptchaModal();
-  } else {
-    checkBadWords();
+  window.addEventListener('load', () => {
+    const preloader = document.getElementById('pagePreloader');
+    if (!preloader) return;
+    preloader.classList.add('page-preloader--hidden');
+    setTimeout(() => {
+      preloader.remove();
+    }, 360);
+
+    // Проверяем и применяем полноэкранный режим
+    const fullscreenMode = localStorage.getItem('fullscreenMode');
+    if (window.Telegram && window.Telegram.WebApp) {
+      if (fullscreenMode === 'true') {
+        window.Telegram.WebApp.requestFullscreen();
+      } else {
+        window.Telegram.WebApp.exitFullscreen();
+      }
+    }
+  });
+
+  // Telegram WebApp Settings Button
+  if (window.Telegram && window.Telegram.WebApp) {
+    window.Telegram.WebApp.SettingsButton.show();
+    window.Telegram.WebApp.onEvent('settingsButtonClicked', () => {
+      window.location.href = 'settings.html';
+    });
   }
+</script>
+<script>
+localStorage.removeItem('fromCrystals');
+function shouldAskRecaptchaOnce(){
+  return localStorage.getItem('hasPassedRecaptcha') !== 'true';
+}
+
+function onGenerateClick(){
+  if (shouldAskRecaptchaOnce()) {
+    showRecaptchaModal();
+    return;
+  }
+
+  checkBadWords();
 }
 
 function showRecaptchaModal(){
@@ -1364,17 +1474,87 @@ function onRecaptchaSuccess(token){
 }
 
 function recaptchaContinue(){
-  let security = parseInt(localStorage.getItem("security")) || 0;
-
-  security = security - 1;
-
-  localStorage.setItem("security", security);
-
-  console.log("Новое значение:", security);
+  localStorage.setItem('hasPassedRecaptcha', 'true');
   hideRecaptchaModal();
   checkBadWords();
 }
 </script>
+
+<!-- Fullscreen Mode Handler -->
+<script>
+// Функция для входа в полноэкранный режим (кроссбраузерная)
+function requestFullscreen() {
+  const elem = document.documentElement;
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen().catch(err => {
+      console.warn('Не удалось включить полноэкранный режим:', err);
+    });
+  } else if (elem.webkitRequestFullscreen) {
+    elem.webkitRequestFullscreen();
+  } else if (elem.mozRequestFullScreen) {
+    elem.mozRequestFullScreen();
+  } else if (elem.msRequestFullscreen) {
+    elem.msRequestFullscreen();
+  }
+}
+
+// Функция для выхода из полноэкранного режима (кроссбраузерная)
+function exitFullscreen() {
+  if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement) {
+    if (document.exitFullscreen) {
+      document.exitFullscreen().catch(err => {
+        console.warn('Не удалось выключить полноэкранный режим:', err);
+      });
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
+  }
+}
+
+// Функция для переключения полноэкранного режима
+function toggleFullscreen() {
+  const currentMode = localStorage.getItem('fullscreenMode') || 'false';
+  const newMode = currentMode === 'true' ? 'false' : 'true';
+  localStorage.setItem('fullscreenMode', newMode);
+  applyFullscreenMode();
+}
+
+// Функция для применения режима на основе localStorage
+function applyFullscreenMode() {
+  const fullscreenMode = localStorage.getItem('fullscreenMode') || 'false';
+  
+  if (fullscreenMode === 'true') {
+    requestFullscreen();
+  } else {
+    exitFullscreen();
+  }
+}
+
+// Проверка и применение режима при загрузке страницы
+window.addEventListener('load', () => {
+  // Небольшая задержка для корректного применения
+  setTimeout(() => {
+    applyFullscreenMode();
+  }, 500);
+});
+
+// Инициализация: если значение не установлено, по умолчанию установить 'false'
+if (!localStorage.getItem('fullscreenMode')) {
+  localStorage.setItem('fullscreenMode', 'false');
+}
+
+// Слушаем изменения полноэкранного режима из других вкладок/окон
+window.addEventListener('storage', (event) => {
+  if (event.key === 'fullscreenMode') {
+    applyFullscreenMode();
+  }
+});
+</script>
+
 <style>body{overflow-y:auto !important; -webkit-overflow-scrolling: touch; touch-action: auto;}</style>
 </body>
 </html>
