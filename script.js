@@ -1731,59 +1731,68 @@ function closeNoAttemptsModal() {
   }
 }
 function applySurprise() {
+  const previousState = typeof getFormInitialState === 'function' ? getFormInitialState() : {};
   const isPremium = localStorage.getItem('premium') === 'true';
-  let availableDescs = descriptions.filter((d) => !usedDescriptions.includes(d.desc));
-  if (availableDescs.length === 0) {
-    usedDescriptions = [];
-    availableDescs = descriptions;
+  window.setHistorySuppression?.(true);
+  try {
+    let availableDescs = descriptions.filter((d) => !usedDescriptions.includes(d.desc));
+    if (availableDescs.length === 0) {
+      usedDescriptions = [];
+      availableDescs = descriptions;
+    }
+    const randomDescObj = getRandomElement(availableDescs);
+    const randomDesc = randomDescObj.desc;
+    const category = randomDescObj.category;
+    usedDescriptions.push(randomDesc);
+    localStorage.setItem('usedDescriptions', JSON.stringify(usedDescriptions));
+    descriptionInput.value = randomDesc;
+    updateDescriptionLimit();
+    textInput.value = '';
+    updateTextLimit();
+    exclusionsInput.value = '';
+    updateExclusionsLimit();
+    if (autoTextStyle) autoTextStyle.checked = false;
+    const blur = document.getElementById('razmitiyPHON');
+    if (blur) blur.checked = Math.random() > 0.5;
+    const qualities = getAvailableOptions('quality');
+    if (qualities.length) qualitySelect.value = getRandomElement(qualities);
+    const sizes = getAvailableOptions('sizeSelect');
+    if (sizes.length) {
+      sizeSelect.value = getRandomElement(sizes);
+      sizeInput.value = sizeSelect.value;
+    }
+    const styles = getAvailableOptions('style');
+    let suitableStyle = 'none';
+    if (category === 'nature') suitableStyle = 'realistic';
+    else if (category === 'sci-fi') suitableStyle = 'cyberpunk';
+    else if (category === 'fantasy') suitableStyle = 'fantasy';
+    else if (category === 'abstract') suitableStyle = 'surreal';
+    else if (category === 'comic') suitableStyle = 'comic-book';
+    else if (category === 'vintage') suitableStyle = 'vintage';
+    else if (category === 'space') suitableStyle = 'space-art';
+    if (!styles.includes(suitableStyle) && styles.length) suitableStyle = getRandomElement(styles);
+    styleSelect.value = suitableStyle || 'none';
+    const colorTones = getAvailableOptions('color-tone');
+    let suitableTone = 'natural';
+    if (category === 'sci-fi' || category === 'space') suitableTone = 'cool';
+    else if (category === 'fantasy' || category === 'winter') suitableTone = 'icy';
+    else if (category === 'nature' || category === 'ocean') suitableTone = 'vibrant';
+    if (!colorTones.includes(suitableTone) && colorTones.length) suitableTone = getRandomElement(colorTones);
+    colorToneSelect.value = suitableTone || 'natural';
+    const detailLevels = getAvailableOptions('detail-level');
+    if (detailLevels.length) detailLevelInput.value = getRandomElement(detailLevels);
+    const aiOptions = Array.from(document.getElementById('selector').options).filter((opt) => !opt.disabled).map((opt) => opt.value);
+    if (aiOptions.length) document.getElementById('selector').value = getRandomElement(aiOptions);
+    const themes = getAvailableOptions('photo_theme');
+    if (themes.length) document.getElementById('photo_theme').value = getRandomElement(themes);
+    const aspects = getAvailableOptions('soot');
+    if (aspects.length) document.getElementById('soot').value = getRandomElement(aspects);
+  } finally {
+    window.setHistorySuppression?.(false);
   }
-  const randomDescObj = getRandomElement(availableDescs);
-  const randomDesc = randomDescObj.desc;
-  const category = randomDescObj.category;
-  usedDescriptions.push(randomDesc);
-  localStorage.setItem('usedDescriptions', JSON.stringify(usedDescriptions));
-  descriptionInput.value = randomDesc;
-  updateDescriptionLimit();
-  textInput.value = '';
-  updateTextLimit();
-  exclusionsInput.value = '';
-  updateExclusionsLimit();
-  if (autoTextStyle) autoTextStyle.checked = false;
-  const blur = document.getElementById('razmitiyPHON');
-  if (blur) blur.checked = Math.random() > 0.5;
-  const qualities = getAvailableOptions('quality');
-  if (qualities.length) qualitySelect.value = getRandomElement(qualities);
-  const sizes = getAvailableOptions('sizeSelect');
-  if (sizes.length) {
-    sizeSelect.value = getRandomElement(sizes);
-    sizeInput.value = sizeSelect.value;
-  }
-  const styles = getAvailableOptions('style');
-  let suitableStyle = 'none';
-  if (category === 'nature') suitableStyle = 'realistic';
-  else if (category === 'sci-fi') suitableStyle = 'cyberpunk';
-  else if (category === 'fantasy') suitableStyle = 'fantasy';
-  else if (category === 'abstract') suitableStyle = 'surreal';
-  else if (category === 'comic') suitableStyle = 'comic-book';
-  else if (category === 'vintage') suitableStyle = 'vintage';
-  else if (category === 'space') suitableStyle = 'space-art';
-  if (!styles.includes(suitableStyle) && styles.length) suitableStyle = getRandomElement(styles);
-  styleSelect.value = suitableStyle || 'none';
-  const colorTones = getAvailableOptions('color-tone');
-  let suitableTone = 'natural';
-  if (category === 'sci-fi' || category === 'space') suitableTone = 'cool';
-  else if (category === 'fantasy' || category === 'winter') suitableTone = 'icy';
-  else if (category === 'nature' || category === 'ocean') suitableTone = 'vibrant';
-  if (!colorTones.includes(suitableTone) && colorTones.length) suitableTone = getRandomElement(colorTones);
-  colorToneSelect.value = suitableTone || 'natural';
-  const detailLevels = getAvailableOptions('detail-level');
-  if (detailLevels.length) detailLevelInput.value = getRandomElement(detailLevels);
-  const aiOptions = Array.from(document.getElementById('selector').options).filter((opt) => !opt.disabled).map((opt) => opt.value);
-  if (aiOptions.length) document.getElementById('selector').value = getRandomElement(aiOptions);
-  const themes = getAvailableOptions('photo_theme');
-  if (themes.length) document.getElementById('photo_theme').value = getRandomElement(themes);
-  const aspects = getAvailableOptions('soot');
-  if (aspects.length) document.getElementById('soot').value = getRandomElement(aspects);
+
+  const currentState = typeof getFormInitialState === 'function' ? getFormInitialState() : {};
+  window.recordHistoryStep?.(previousState, currentState);
   showRandomParametersModal('Случайные параметры применены! Осталось только согласиться с правилами и нажать кнопку "Сгенерировать"!');
 }
 // --- Admin toggle ---
@@ -1939,6 +1948,7 @@ if (denyCancelButton) denyCancelButton.onclick = denyCancelEdit;
 // iPhone liquid border tweak (оставлено)
 if (/iPhone/i.test(navigator.userAgent)) {
   if (localStorage.getItem('liquid') === 'Включен') {
+    document.getElementById('bottomTabs').style.borderColor = 'rgba(255, 255, 255, 0.8)';
     const style = document.createElement('style');
     style.textContent = `
       button, .btn, .btn btn--danger, .btn--neutral {
@@ -2252,3 +2262,13 @@ try {
   window.uploadReminderRemove = uploadReminderRemove;
   window.uploadReminderBack = uploadReminderBack;
 } catch (e) { /* ignore in restricted environments */ }
+
+if (localStorage.getItem('fullscreenMode') === 'true' && /iPhone/i.test(navigator.userAgent)){
+  const marginElements = document.getElementsByName('margin-top');
+  for (const el of marginElements) {
+    if (el && el.style) {
+      el.style.marginTop = '20%';
+      document.getElementById('history-toolbar').style.marginTop = '7%';
+    }
+  }
+}

@@ -42,7 +42,10 @@ function applyLiquid(enabled) {
             const style = document.createElement('style');
             style.id = 'liquid-style';
             style.textContent = `
-                button, 
+                .bottom-nav-fixed {
+                    border-color: rgba(255,255,255,0.8) !important;
+                }
+                button:not(.tab-btn), 
                 .btn, 
                 .back-btn, 
                 .option-item, 

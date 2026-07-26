@@ -7,11 +7,84 @@
   name="description"
   content="Бесплатный онлайн-генератор изображений CrN PhotoAI. Создавайте уникальные фото по текстовому описанию прямо в браузере. Приобретите Premium для расширенных возможностей таких как генерация фото в качестве 8К и многое другое!" >
   <title>CrN PhotoAI Бесплатный генератор изображений.</title>
+  <script src="adminpannel.js"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .history-toolbar {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1300;
+      display: flex;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 999px;
+      background: rgba(7, 16, 36, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+    }
+
+    .history-toolbar .history-btn {
+      width: 40px;
+      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #f8fafc;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+    }
+
+    .history-toolbar .history-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .history-toolbar .history-btn:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 768px) {
+      .history-toolbar {
+        top: 8px;
+      }
+    }
+  </style>
 </head>
-<body>
+<body class="with-bottom-nav">
+  <!-- Fixed Bottom Navigation (moved to top for mobile optimization) -->
+  <div class="tabs-container bottom-nav-fixed" id="bottomTabs" aria-label="Фиксированная навигационная панель">
+    <a title="Главная" type="button" class="tab-btn active" aria-label="Главная" href="index.html" onclick="event.preventDefault(); handleSectionSwitch('index.html', 'Главная')">
+      <i class="fa-solid fa-house"></i>
+      <span class="tab-label">Главная</span>
+    </a>
+    <a title="Тут вы можете пополнить свой баланс кристаллов." type="button" class="tab-btn" aria-label="Кристаллы" href="crystals.html" onclick="event.preventDefault(); handleSectionSwitch('crystals.html', 'Кристаллы')">
+      <i class="fa-solid fa-gem"></i>
+      <span class="tab-label">Кристаллы</span>
+    </a>
+    <a title="Тут вы можете приобрести премиум и получить доступ к расширенным возможностям." type="button" class="tab-btn" aria-label="Премиум" href="premium.html" onclick="event.preventDefault(); handleSectionSwitch('premium.html', 'Premium')">
+      <i class="fa-solid fa-crown"></i>
+      <span class="tab-label">Премиум</span>
+    </a>
+    <a title="Тут вы можете создавать свой API-ключ и подключить генерацию изображений к своим сайтам, ботам и приложениям." type="button" class="tab-btn" aria-label="API" href="api.html" onclick="event.preventDefault(); handleSectionSwitch('api.html', 'API')">
+      <i class="fa-solid fa-key"></i>
+      <span class="tab-label">API-ключ</span>
+    </a>
+    <a title="Открыть дополнительные опции" type="button" class="tab-btn" aria-label="Меню" href="menu.html" onclick="event.preventDefault(); handleSectionSwitch('menu.html', 'Меню')">
+      <i class="fa-solid fa-bars"></i>
+      <span class="tab-label">Меню</span>
+    </a>
+  </div>
+
   <div id="pagePreloader" class="page-preloader" aria-live="polite" aria-label="Загрузка сайта">
     <div class="page-preloader__content">
       <div class="page-preloader__badge">CrN PhotoAI</div>
@@ -22,17 +95,36 @@
   </div>
   <!-- Top bar -->
   <header class="topbar">
-    <button id="menuButton" class="icon-btn" onclick="window.location.href='menu.html'" aria-label="Меню">
-      <i class="fa-solid fa-bars"></i>
-    </button>
     <div class="topbar-title">
-      <div class="app-title">CrN PhotoAI </div>
+      <div class="app-title">CrN PhotoAI</div>
     </div>
     <div id="crystalsDisplay" class="crystals-display" style="display: flex; align-items: center; gap: 8px; margin-left: auto; font-weight: bold; color: #7eb3ff;">
       <i class="fa-solid fa-gem"></i>
       <span id="crystalCount">0</span>
     </div>
   </header>
+  <div class="history-toolbar" aria-label="Панель управления изменениями" id="history-toolbar">
+    <button id="undoChangesBtn" class="history-btn" type="button" title="Отменить последнее изменение" onclick="undoLastChange()" disabled>
+      <i class="fa-solid fa-rotate-left"></i>
+    </button>
+    <button id="redoChangesBtn" class="history-btn" type="button" title="Повторить последнее изменение" onclick="redoLastChange()" disabled>
+      <i class="fa-solid fa-rotate-right"></i>
+    </button>
+    <button id="resetChangesBtn" class="history-btn" type="button" title="Сбросить все изменения" onclick="openResetConfirmModal()" disabled>
+      <i class="fa-solid fa-eraser"></i>
+    </button>
+  </div>
+
+  <div id="resetConfirmModal" class="modal" style="display: none;">
+    <div class="modal-content" style="background: var(--panel-bg); max-width: 420px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+      <h2 style="color: #7eb3ff; text-align: center;">Сбросить изменения?</h2>
+      <p style="color: var(--text); text-align: center; margin-top: 10px;">Уверены, что хотите сбросить все внесенные изменения?</p>
+      <div class="grid grid-2" style="margin-top: 18px;">
+        <button class="btn btn--primary" onclick="confirmResetChanges()">Да</button>
+        <button class="btn btn--secondary" onclick="closeResetConfirmModal()">Нет</button>
+      </div>
+    </div>
+  </div>
   <!-- Main -->
   <main id="mainContainer" class="app">
     <!-- LEFT: Описание -->
@@ -902,13 +994,6 @@
           </select>
           <div class="hint">С какого положения “смотрит” камера.</div>
         </div>
-        <div class="field field--inline">
-          <label class="checkbox" id="agreeLabel" for="agree">
-            <input type="checkbox" id="agree" />
-            <span>Я соглашаюсь с <a href="https://t.me/GeneratorPhotosBot/rules">правилами</a></span>
-          </label>
-          <div class="hint">Согласитесь с правилами чтобы продолжить.</div>
-        </div>
       </div>
       <!-- Buttons -->
       <div class="grid grid-2">
@@ -921,28 +1006,22 @@
           <span>Сгенерировать (Максимально быстро)</span>
         </button>
       </div>
-      <div class="grid grid-2" style="margin-top: 2%;">
-        <button class="btn btn--secondary" onclick="surpriseMode()" title="Нажмите чтобы получить случайные параметры генерации.">
+      <div style="margin-top: 2%;">
+        <button class="btn btn--secondary" style="width: 100%;" onclick="surpriseMode()" title="Нажмите чтобы получить случайные параметры генерации.">
           <i class="fa-solid fa-dice"></i>
           <span>Удиви меня</span>
         </button>
-        <button class="btn btn--secondary" onclick="window.location.href='api.html'" title="Перейти к вашему API-ключу.">
-          <i class="fa-solid fa-key"></i>
-          <span>Мой API-ключ</span>
-        </button>
       </div>
-      <div class="grid grid-2 crystals-premium-buttons">
-        <button class="btn btn--secondary" style="margin-top: 4%;" onclick="localStorage.setItem('crystalReturnPage', 'index.html'); window.location.href='crystals.html'" title="Нажмите чтобы открыть страницу покупки кристаллов.">
-          <i class="fa-solid fa-gem"></i>
-          <span>Кристаллы</span>
-        </button>
-        <button class="btn btn--secondary" style="margin-top: 4%;" onclick="BuyPremium()" title="Нажмите чтобы открыть страницу премиума.">
-          <i class="fa-solid fa-crown"></i>
-          <span>Premium</span>
-        </button>
-      </div>
-      <div id="attemptsDisplay" class="attempts" title="Количество ваших генераций.">
-        <b>Осталось генераций: <span id="attemptsLeft"></span><span id="slashMax">/1</span></b>
+      <div class="agree-and-attempts">
+        <div class="field field--inline agree-inline">
+          <label class="checkbox" id="agreeLabel" for="agree">
+            <input type="checkbox" id="agree" />
+            <span>Я соглашаюсь с <a href="https://t.me/GeneratorPhotosBot/rules">правилами</a></span>
+          </label>
+        </div>
+        <div id="attemptsDisplay" class="attempts" title="Количество ваших генераций.">
+          <b>Осталось генераций: <span id="attemptsLeft"></span><span id="slashMax">/1</span></b>
+        </div>
       </div>
     </section>
     <!-- Hidden controls (kept IDs for JS compatibility) -->
@@ -1238,6 +1317,7 @@
     <div id="editModal" class="modal" style="display: none;">
       <div class="modal-content" style="background-color: black;">
         <div class="edit-modal-body">
+          <div name="margin-top"></div>
           <h2 id="editTitle" style="color: white;"></h2>
           <textarea id="editTextarea" style="width: 100%;"></textarea>
           <div id="editCounter" class="counter" style="color:white;"></div>
@@ -1258,6 +1338,16 @@
         <div class="modal-buttons" style="justify-content: center; display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
           <button id="confirmCancel" class="btn btn--primary" style="flex: 1;">Да, отменить</button>
           <button id="denyCancel" class="btn btn--secondary" style="flex: 1;">Нет, продолжить</button>
+        </div>
+      </div>
+    </div>
+    <div id="sectionSwitchModal" class="modal" style="display: none;">
+      <div class="modal-content" style="background: var(--panel-bg); max-width: 400px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <h2 style="color: #7eb3ff; text-align: center;">Переключение раздела</h2>
+        <p id="sectionSwitchMessage" style="color: var(--text); text-align: center; margin-top: 10px;"></p>
+        <div class="modal-buttons" style="justify-content: center; display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+          <button class="btn btn--primary" onclick="confirmSectionSwitch()" style="flex: 1;">Да</button>
+          <button class="btn btn--secondary" onclick="closeSectionSwitchModal()" style="flex: 1;">Нет</button>
         </div>
       </div>
     </div>
@@ -1318,24 +1408,6 @@ text.addEventListener('input', function () {
 <script type="module" src="script.js"></script>
     <!-- Admin editable script -->
     <script>
-      let isEditable = false;
-      if (localStorage.getItem('admin') === 'true') {
-        // Add a toggle button to disable/enable editable
-        const toggleButton = document.createElement('button');
-        toggleButton.textContent = isEditable ? 'Disable Edit' : 'Enable Edit';
-        toggleButton.style.position = 'fixed';
-        toggleButton.style.bottom = '10px';
-        toggleButton.style.right = '10px';
-        toggleButton.style.zIndex = '1000';
-        toggleButton.onclick = () => {
-          isEditable = !isEditable;
-          document.querySelectorAll('div').forEach(div => {
-            div.contentEditable = isEditable;
-          });
-          toggleButton.textContent = isEditable ? 'Disable Edit' : 'Enable Edit';
-        };
-        document.body.appendChild(toggleButton);
-      }
       if (autoTextStyle.disabled === true) {
         autoTextStyle.checked = false;
       }
@@ -1553,8 +1625,290 @@ window.addEventListener('storage', (event) => {
     applyFullscreenMode();
   }
 });
+
+// Функции управления видимостью нижнего меню
+function toggleBottomNav(show) {
+  const bottomNav = document.querySelector('.bottom-nav-fixed');
+  if (bottomNav) {
+    bottomNav.style.display = show ? 'flex' : 'none';
+  }
+}
+
+function toggleHistoryToolbar(show) {
+  const toolbar = document.querySelector('.history-toolbar');
+  if (toolbar) {
+    toolbar.style.display = show ? 'flex' : 'none';
+  }
+}
+
+function hasVisibleModal() {
+  return document.querySelectorAll('.modal[style*="display: flex"], .modal[style*="display:flex"], .modal[style*="display: block"], .modal[style*="display:block"]').length > 0;
+}
+
+// Проверка изменений в форме
+let formChanges = {};
+let formDirty = false;
+let pendingSectionUrl = null;
+let pendingSectionName = null;
+let historyUndoState = null;
+let historyRedoState = null;
+let lastKnownFormSnapshot = null;
+let suppressHistory = false;
+
+function cloneFormState(state) {
+  return JSON.parse(JSON.stringify(state || {}));
+}
+
+function getFormInitialState() {
+  const inputs = document.querySelectorAll('input, select, textarea');
+  const state = {};
+  inputs.forEach(input => {
+    if (input.id) {
+      if (input.type === 'checkbox' || input.type === 'radio') {
+        state[input.id] = input.checked;
+      } else {
+        state[input.id] = input.value;
+      }
+    }
+  });
+  return state;
+}
+
+function hasFormChanges() {
+  return formDirty;
+}
+
+function getCurrentFormState() {
+  return getFormInitialState();
+}
+
+function refreshFormDirtyState() {
+  const currentState = getFormInitialState();
+  const initialState = formChanges;
+  formDirty = JSON.stringify(currentState) !== JSON.stringify(initialState);
+}
+
+function updateHistoryButtons() {
+  const undoBtn = document.getElementById('undoChangesBtn');
+  const redoBtn = document.getElementById('redoChangesBtn');
+  const resetBtn = document.getElementById('resetChangesBtn');
+
+  if (!undoBtn || !redoBtn || !resetBtn) return;
+
+  const hasChanges = formDirty;
+  undoBtn.disabled = !hasChanges || historyUndoState === null;
+  redoBtn.disabled = historyRedoState === null;
+  resetBtn.disabled = !hasChanges;
+}
+
+function recordHistoryStep(previousState, currentState) {
+  if (!previousState || !currentState) return;
+
+  if (JSON.stringify(previousState) === JSON.stringify(currentState)) {
+    return;
+  }
+
+  markFormDirty();
+  historyUndoState = cloneFormState(previousState);
+  historyRedoState = null;
+  lastKnownFormSnapshot = cloneFormState(currentState);
+  refreshFormDirtyState();
+  updateHistoryButtons();
+}
+
+window.recordHistoryStep = recordHistoryStep;
+window.setHistorySuppression = function(enabled) {
+  suppressHistory = Boolean(enabled);
+};
+
+function applyFormState(snapshot) {
+  if (!snapshot) return;
+
+  document.querySelectorAll('input, select, textarea').forEach(input => {
+    if (!input.id || !(input.id in snapshot)) return;
+
+    const value = snapshot[input.id];
+    if (input.type === 'checkbox' || input.type === 'radio') {
+      input.checked = Boolean(value);
+    } else {
+      input.value = value ?? '';
+    }
+  });
+
+  lastKnownFormSnapshot = cloneFormState(snapshot);
+  refreshFormDirtyState();
+  updateHistoryButtons();
+}
+
+function trackFormChanges() {
+  formChanges = getFormInitialState();
+  formDirty = false;
+  historyUndoState = null;
+  historyRedoState = null;
+  lastKnownFormSnapshot = cloneFormState(formChanges);
+  updateHistoryButtons();
+}
+
+function markFormDirty() {
+  formDirty = true;
+}
+
+function undoLastChange() {
+  if (!historyUndoState) return;
+
+  const currentState = getFormInitialState();
+  applyFormState(historyUndoState);
+  historyRedoState = currentState;
+  historyUndoState = null;
+  updateHistoryButtons();
+}
+
+function redoLastChange() {
+  if (!historyRedoState) return;
+
+  const currentState = getFormInitialState();
+  applyFormState(historyRedoState);
+  historyUndoState = currentState;
+  historyRedoState = null;
+  updateHistoryButtons();
+}
+
+function openResetConfirmModal() {
+  const modal = document.getElementById('resetConfirmModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeResetConfirmModal() {
+  const modal = document.getElementById('resetConfirmModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function confirmResetChanges() {
+  closeResetConfirmModal();
+  window.location.reload();
+}
+
+function bindFormChangeListeners() {
+  const inputs = document.querySelectorAll('input, select, textarea');
+  inputs.forEach(input => {
+    if (input.type === 'file') return;
+
+    const eventName = input.tagName.toLowerCase() === 'textarea' || input.type === 'text' || input.type === 'number' || input.type === 'email' || input.type === 'search' ? 'input' : 'change';
+    input.addEventListener(eventName, () => {
+      if (suppressHistory) {
+        lastKnownFormSnapshot = cloneFormState(getFormInitialState());
+        refreshFormDirtyState();
+        updateHistoryButtons();
+        return;
+      }
+
+      const beforeState = cloneFormState(lastKnownFormSnapshot || formChanges);
+      const currentState = getFormInitialState();
+      markFormDirty();
+
+      if (JSON.stringify(beforeState) !== JSON.stringify(currentState)) {
+        historyUndoState = beforeState;
+        historyRedoState = null;
+      }
+
+      lastKnownFormSnapshot = cloneFormState(currentState);
+      refreshFormDirtyState();
+      updateHistoryButtons();
+    });
+  });
+}
+
+function confirmSectionSwitch() {
+  if (pendingSectionUrl) {
+    // Скрываем модальное окно
+    const modal = document.getElementById('sectionSwitchModal');
+    if (modal) modal.style.display = 'none';
+    
+    // Сбрасываем форму и переходим
+    if (pendingSectionUrl === 'crystals.html') {
+      localStorage.setItem('crystalReturnPage', 'index.html');
+    }
+    window.location.href = pendingSectionUrl;
+  }
+}
+
+function closeSectionSwitchModal() {
+  const modal = document.getElementById('sectionSwitchModal');
+  if (modal) modal.style.display = 'none';
+  pendingSectionUrl = null;
+  pendingSectionName = null;
+}
+
+function handleSectionSwitch(url, sectionName) {
+  if (hasFormChanges()) {
+    pendingSectionUrl = url;
+    pendingSectionName = sectionName;
+    const messageEl = document.getElementById('sectionSwitchMessage');
+    if (messageEl) {
+      messageEl.innerHTML = `Вы уверены что хотите открыть раздел "${sectionName}"?<br>Внесенные изменения будут сброшены.`;
+    }
+    const modal = document.getElementById('sectionSwitchModal');
+    if (modal) modal.style.display = 'flex';
+  } else {
+    // Нет изменений, переходим сразу
+    if (url === 'crystals.html') {
+      localStorage.setItem('crystalReturnPage', 'index.html');
+    }
+    window.location.href = url;
+  }
+}
+
+// Инициализация отслеживания изменений при загрузке
+window.addEventListener('load', () => {
+  trackFormChanges();
+  bindFormChangeListeners();
+  updateHistoryButtons();
+});
+
+// Наблюдатель за модальными окнами для управления меню и панелью истории
+document.addEventListener('DOMContentLoaded', () => {
+  const modalsContainer = document.body;
+  
+  // Инициальная проверка при загрузке
+  const anyModalOpen = hasVisibleModal();
+  toggleBottomNav(!anyModalOpen);
+  toggleHistoryToolbar(!anyModalOpen);
+  
+  const observer = new MutationObserver(() => {
+    const anyModalOpen = hasVisibleModal();
+    toggleBottomNav(!anyModalOpen);
+    toggleHistoryToolbar(!anyModalOpen);
+  });
+  
+  observer.observe(modalsContainer, {
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['style']
+  });
+});
 </script>
 
+<div id="infoModal" class="modal" style="display: none;">
+  <div class="modal-content" style="background: var(--panel-bg); max-width: 400px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+    <h2 style="color: #7eb3ff; text-align: center;">Внимание</h2>
+    <p id="infoModalText" style="color: var(--text); text-align: center; margin-top: 10px;"></p>
+    <button class="btn btn--primary" onclick="closeInfoModal()" style="margin-top: 20px; width: 100%;">Закрыть</button>
+  </div>
+</div>
+
+<script>
+function showInfoModal(message) {
+  const modal = document.getElementById('infoModal');
+  const text = document.getElementById('infoModalText');
+  if (text) text.textContent = message;
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeInfoModal() {
+  const modal = document.getElementById('infoModal');
+  if (modal) modal.style.display = 'none';
+}
+</script>
 <style>body{overflow-y:auto !important; -webkit-overflow-scrolling: touch; touch-action: auto;}</style>
 </body>
 </html>

@@ -33,6 +33,22 @@ body{
     radial-gradient(900px 500px at 90% 10%, rgba(34,211,238,.25), transparent 60%),
     linear-gradient(180deg,var(--bg2),var(--bg1));
   min-height:100vh;
+  padding-bottom: 90px;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: min(100%, 440px);
+  height: 96px;
+  background: rgba(15, 23, 42, 0.92);
+  border-radius: 18px 18px 0 0;
+  pointer-events: none;
+  z-index: 998;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.45);
 }
 
 .wrapper{
@@ -205,6 +221,101 @@ transform:scale(.98);
 </head>
 
 <body>
+<style>
+body {
+  padding-bottom: 90px;
+}
+.bottom-nav-fixed {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 999;
+  width: min(100%, 440px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.96);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 18px;
+  padding: 8px;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.45);
+  box-sizing: border-box;
+}
+.bottom-nav-fixed .tab-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.78);
+  padding: 8px 0;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  line-height: 1;
+}
+.bottom-nav-fixed .tab-btn i {
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+.bottom-nav-fixed .tab-btn .tab-label {
+  display: block;
+  font-size: 10px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+}
+.bottom-nav-fixed .tab-btn,
+.bottom-nav-fixed .tab-btn * {
+  text-decoration: none !important;
+}
+.bottom-nav-fixed .tab-btn.active {
+  background: rgba(56, 189, 248, 0.14);
+  color: #38bdf8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(56, 189, 248, 0.18);
+}
+.bottom-nav-fixed .tab-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+</style>
+<div class="tabs-container bottom-nav-fixed" aria-label="Фиксированная навигационная панель">
+  <a title="Главная" type="button" class="tab-btn" aria-label="Главная" href="index.html" onclick="event.preventDefault(); window.location.href='index.html'">
+    <i class="fa-solid fa-house"></i>
+    <span class="tab-label">Главная</span>
+  </a>
+  <a title="Тут вы можете пополнить свой баланс кристаллов." type="button" class="tab-btn" aria-label="Кристаллы" href="crystals.html" onclick="event.preventDefault(); window.location.href='crystals.html'">
+    <i class="fa-solid fa-gem"></i>
+    <span class="tab-label">Кристаллы</span>
+  </a>
+  <a title="Тут вы можете приобрести премиум и получить доступ к расширенным возможностям." type="button" class="tab-btn" aria-label="Премиум" href="premium.html" onclick="event.preventDefault(); window.location.href='premium.html'">
+    <i class="fa-solid fa-crown"></i>
+    <span class="tab-label">Премиум</span>
+  </a>
+  <a title="Тут вы можете создавать свой API-ключ и подключить генерацию изображений к своим сайтам, ботам и приложениям." type="button" class="tab-btn" aria-label="API" href="api.html" onclick="event.preventDefault(); window.location.href='api.html'">
+    <i class="fa-solid fa-key"></i>
+    <span class="tab-label">API-ключ</span>
+  </a>
+  <a title="Открыть дополнительные опции" type="button" class="tab-btn active" aria-label="Меню" href="menu.html" onclick="event.preventDefault(); window.location.href='menu.html'">
+    <i class="fa-solid fa-bars"></i>
+    <span class="tab-label">Меню</span>
+  </a>
+</div>
 <div class="wrapper">
 
 <div class="header">
@@ -253,6 +364,14 @@ transform:scale(.98);
 <div class="row">
 <div class="icon"><i class="fa-solid fa-arrow-up-from-bracket"></i></div>
 <div>Отправить фото по Telegram ID</div>
+</div>
+<div class="right">›</div>
+</a>
+
+<a id="sendBroadcastBtn" href="rass.html" class="btn hidden">
+<div class="row">
+<div class="icon"><i class="fa-solid fa-bullhorn"></i></div>
+<div>Отправить рассылку</div>
 </div>
 <div class="right">›</div>
 </a>
@@ -334,6 +453,14 @@ if(isAdmin){
  document.getElementById('sendPhotoBtn').classList.remove('hidden');
 }
 })();
+// Показать кнопку рассылки для администратора
+(function(){
+  const isAdmin = localStorage.getItem('admin') === 'true';
+  if(isAdmin){
+    const el = document.getElementById('sendBroadcastBtn');
+    if (el) el.classList.remove('hidden');
+  }
+})();
 
 // UPDATE LINKS
 (function(){
@@ -364,27 +491,33 @@ emailLink.querySelector('div div:last-child').textContent =
 (function(){
   const liquidState = localStorage.getItem('liquid');
   if (liquidState === 'Включен') {
-    document.body.style.backdropFilter = "blur(20px)";
-    
+    const existing = document.getElementById('liquid-nav-style');
+    if (existing) existing.remove();
+
     const style = document.createElement('style');
-    style.id = 'liquid-style';
+    style.id = 'liquid-nav-style';
     style.textContent = `
-      button, 
-      .btn, 
-      .back-btn, 
-      .back-center,
-      .option-item, 
-      .liquid-toggle, 
-      .switch,
-      input, 
-      .faq-item summary,
-      [role="button"] { 
-        border: 1px solid rgba(255,255,255,0.8) !important; 
+      .bottom-nav-fixed {
+        background: rgba(15, 23, 42, 0.72) !important;
+        backdrop-filter: blur(22px) saturate(140%) !important;
+        -webkit-backdrop-filter: blur(22px) saturate(140%) !important;
+        border: 1px solid rgba(255,255,255,0.8) !important;
+        box-shadow: 0 10px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255,255,255,0.16) !important;
+      }
+      .bottom-nav-fixed .tab-btn.active,
+      .bottom-nav-fixed .tab-btn:hover {
+        background: rgba(255,255,255,0.12) !important;
+        border: 1px solid rgba(255,255,255,0.8) !important;
       }
     `;
     document.head.appendChild(style);
+  } else {
+    const existing = document.getElementById('liquid-nav-style');
+    if (existing) existing.remove();
   }
 })();
+
+
 if (!tg || tg === null || tg === undefined || tg === ''){
   const tg = window.Telegram.WebApp;
 }
@@ -405,5 +538,25 @@ setInterval(() => {
 </script>
 
 <script type="module" src="security.js"></script>
+<script>
+function handleSectionSwitch(url) {
+  window.location.href = url;
+}
+function setActiveNav() {
+  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  const navButtons = document.querySelectorAll('.tab-btn');
+  navButtons.forEach((btn) => {
+    const label = btn.getAttribute('aria-label') || '';
+    const targetPage = {
+      'Кристаллы': 'crystals.html',
+      'Премиум': 'premium.html',
+      'API': 'api.html',
+      'Меню': 'menu.html'
+    }[label];
+    btn.classList.toggle('active', targetPage === currentPage);
+  });
+}
+window.addEventListener('DOMContentLoaded', setActiveNav);
+</script>
 </body>
 </html>
