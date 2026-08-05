@@ -663,14 +663,16 @@
     font-size: 11px;
     font-weight: 700;
     cursor: pointer;
-    text-decoration: none;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 2px;
+    text-decoration: none;
     line-height: 1;
+    -webkit-tap-highlight-color: transparent;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   }
   .bottom-nav-fixed .tab-btn i {
     font-size: 16px;
@@ -678,6 +680,7 @@
     align-items: center;
     justify-content: center;
     text-decoration: none;
+    line-height: 1;
   }
   .bottom-nav-fixed .tab-btn .tab-label {
     display: block;
@@ -686,7 +689,10 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 100%;
     text-decoration: none;
+    font-weight: 700;
+    letter-spacing: 0.01em;
   }
   .bottom-nav-fixed .tab-btn,
   .bottom-nav-fixed .tab-btn * {
@@ -695,11 +701,26 @@
   .bottom-nav-fixed .tab-btn.active {
     background: rgba(56, 189, 248, 0.14);
     color: #38bdf8;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
     border: 1px solid rgba(56, 189, 248, 0.18);
   }
   .bottom-nav-fixed .tab-btn:hover {
     background: rgba(255, 255, 255, 0.05);
+  }
+  .bottom-nav-fixed .tab-btn:focus-visible {
+    outline: 2px solid rgba(56, 189, 248, 0.45);
+    outline-offset: 2px;
+  }
+  @media (max-width: 520px) {
+    .bottom-nav-fixed {
+      width: calc(100% - 20px);
+      bottom: 12px;
+      padding: 6px;
+    }
+    .bottom-nav-fixed .tab-btn {
+      padding: 10px 6px;
+      font-size: 12px;
+    }
   }
   .modal {
     position: fixed;

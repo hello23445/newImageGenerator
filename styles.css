@@ -279,7 +279,7 @@ input:disabled, select:disabled, textarea:disabled{
   justify-content: center;
   align-items: center;
   gap: 6px;
-  background: rgba(15, 23, 42, 0.92);
+  background: rgba(15, 23, 42, 0.96);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(56, 189, 248, 0.25);
   border-radius: 18px;
@@ -293,7 +293,7 @@ input:disabled, select:disabled, textarea:disabled{
   min-width: 0;
   background: transparent;
   border: none;
-  color: var(--muted);
+  color: rgba(255,255,255,0.78);
   padding: 8px 0;
   border-radius: 12px;
   font-size: 11px;
@@ -327,16 +327,6 @@ input:disabled, select:disabled, textarea:disabled{
   text-overflow: ellipsis;
   max-width: 100%;
   text-decoration: none;
-}
-
-.bottom-nav-fixed .tab-btn,
-.bottom-nav-fixed .tab-btn * {
-  text-decoration: none !important;
-}
-
-.bottom-nav-fixed .tab-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #e2e8f0;
 }
 
 .bottom-nav-fixed .tab-btn.active {

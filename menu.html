@@ -218,13 +218,7 @@ transform:scale(.98);
 
 
 </style>
-</head>
-
-<body>
 <style>
-body {
-  padding-bottom: 90px;
-}
 .bottom-nav-fixed {
   position: fixed;
   left: 50%;
@@ -255,14 +249,16 @@ body {
   font-size: 11px;
   font-weight: 700;
   cursor: pointer;
-  text-decoration: none;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 2px;
+  text-decoration: none;
   line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 .bottom-nav-fixed .tab-btn i {
   font-size: 16px;
@@ -270,6 +266,7 @@ body {
   align-items: center;
   justify-content: center;
   text-decoration: none;
+  line-height: 1;
 }
 .bottom-nav-fixed .tab-btn .tab-label {
   display: block;
@@ -278,7 +275,10 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
   text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 .bottom-nav-fixed .tab-btn,
 .bottom-nav-fixed .tab-btn * {
@@ -287,11 +287,34 @@ body {
 .bottom-nav-fixed .tab-btn.active {
   background: rgba(56, 189, 248, 0.14);
   color: #38bdf8;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(56, 189, 248, 0.18);
 }
 .bottom-nav-fixed .tab-btn:hover {
   background: rgba(255, 255, 255, 0.05);
+}
+.bottom-nav-fixed .tab-btn:focus-visible {
+  outline: 2px solid rgba(56, 189, 248, 0.45);
+  outline-offset: 2px;
+}
+@media (max-width: 520px) {
+  .bottom-nav-fixed {
+    width: calc(100% - 20px);
+    bottom: 12px;
+    padding: 6px;
+  }
+  .bottom-nav-fixed .tab-btn {
+    padding: 10px 6px;
+    font-size: 12px;
+  }
+}
+</style>
+</head>
+
+<body>
+<style>
+body {
+  padding-bottom: 90px;
 }
 </style>
 <div class="tabs-container bottom-nav-fixed" aria-label="Фиксированная навигационная панель">
@@ -490,51 +513,40 @@ emailLink.querySelector('div div:last-child').textContent =
 // LIQUID GLASS EFFECT
 (function(){
   const liquidState = localStorage.getItem('liquid');
+  const existing = document.getElementById('liquid-nav-style');
+
   if (liquidState === 'Включен') {
-    const existing = document.getElementById('liquid-nav-style');
     if (existing) existing.remove();
 
     const style = document.createElement('style');
     style.id = 'liquid-nav-style';
     style.textContent = `
-      .bottom-nav-fixed {
+      .tabs-container:not(.bottom-nav-fixed) {
         background: rgba(15, 23, 42, 0.72) !important;
         backdrop-filter: blur(22px) saturate(140%) !important;
         -webkit-backdrop-filter: blur(22px) saturate(140%) !important;
         border: 1px solid rgba(255,255,255,0.8) !important;
-        box-shadow: 0 10px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255,255,255,0.16) !important;
-      }
-      .bottom-nav-fixed .tab-btn.active,
-      .bottom-nav-fixed .tab-btn:hover {
-        background: rgba(255,255,255,0.12) !important;
-        border: 1px solid rgba(255,255,255,0.8) !important;
       }
     `;
     document.head.appendChild(style);
-  } else {
-    const existing = document.getElementById('liquid-nav-style');
-    if (existing) existing.remove();
+  } else if (existing) {
+    existing.remove();
   }
 })();
 
-
-if (!tg || tg === null || tg === undefined || tg === ''){
-  const tg = window.Telegram.WebApp;
-}
-tg.expand();
-if (localStorage.getItem('enableconfirmation') === 'true') {
-  tg.enableClosingConfirmation();
-}
-else{
-    window.Telegram.WebApp.disableClosingConfirmation();
-}
-
-setInterval(() => {
-  tg.SettingsButton.show();
-  tg.onEvent('settingsButtonClicked', () => {
+const tgInstance = window.Telegram?.WebApp || null;
+if (tgInstance) {
+  tgInstance.expand();
+  if (localStorage.getItem('enableconfirmation') === 'true') {
+    tgInstance.enableClosingConfirmation();
+  } else {
+    tgInstance.disableClosingConfirmation();
+  }
+  tgInstance.SettingsButton.show();
+  tgInstance.onEvent('settingsButtonClicked', () => {
     window.location.href = 'settings.html';
   });
-}, 1000);
+}
 </script>
 
 <script type="module" src="security.js"></script>

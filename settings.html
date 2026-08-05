@@ -420,6 +420,21 @@ a:hover{
   </div>
 </div>
 
+<div id="fullscreenConfirmModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <div class="modal-icon">
+      <i class="fa-solid fa-expand"></i>
+    </div>
+    <h2>Подтвердите действие</h2>
+    <p>При включении/выключении полноэкранного режима приложение необходимо перезапустить!</p>
+    
+    <div class="modal-buttons">
+      <button class="btn btn--primary" onclick="confirmFullscreenEnable()">Применить</button>
+      <button class="btn btn--secondary" onclick="cancelFullscreenEnable()">Отмена</button>
+    </div>
+  </div>
+</div>
+
 <div id="newsSubscriptionModal" class="modal" style="display: none;">
   <div class="modal-content">
     <div id="newsModalForm">
@@ -466,6 +481,8 @@ tg.SettingsButton.hide();
 // ==================== LIQUID GLASS ====================
 const liquidSection = document.getElementById('liquid-section');
 const liquidSwitch = document.getElementById('liquidSwitch');
+let fullscreenSwitch = null;
+let fullscreenEnabled = false;
 
 function applyLiquid(enabled) {
     if (enabled) {
@@ -497,32 +514,14 @@ function applyLiquid(enabled) {
 // Основная инициализация
 function initSettings() {
     // === Fullscreen Toggle ===
-    const fullscreenSwitch = document.getElementById('fullscreenSwitch');
-    let fullscreenEnabled = localStorage.getItem('fullscreenMode') === 'true';
+    fullscreenSwitch = document.getElementById('fullscreenSwitch');
+    fullscreenEnabled = localStorage.getItem('fullscreenMode') === 'true';
     if (fullscreenEnabled) {
         fullscreenSwitch.classList.add('active');
-        // Применяем полноэкранный режим при инициализации
-        tg.requestFullscreen();
     }
 
     fullscreenSwitch.addEventListener('click', () => {
-        fullscreenEnabled = !fullscreenEnabled;
-        const modeValue = fullscreenEnabled ? 'true' : 'false';
-        localStorage.setItem('fullscreenMode', modeValue);
-        
-        // Применяем полноэкранный режим через Telegram WebApp API
-        if (fullscreenEnabled) {
-            tg.requestFullscreen();
-        } else {
-            tg.exitFullscreen();
-        }
-        
-        fullscreenSwitch.classList.toggle('active');
-        
-        // Перезагружаем сайт
-        setTimeout(() => {
-            window.location.reload();
-        }, 300);
+        showFullscreenConfirmModal(!fullscreenEnabled);
     });
 
     // === Confirmation Before Close ===
@@ -636,6 +635,51 @@ function cancelLiquidEnable() {
     }
 }
 
+function showFullscreenConfirmModal(enabled) {
+    const modal = document.getElementById('fullscreenConfirmModal');
+    const title = modal.querySelector('h2');
+    const message = modal.querySelector('p');
+    const button = modal.querySelector('.btn--primary');
+
+    title.textContent = 'Подтвердите действие';
+    message.textContent = enabled
+        ? 'При включении полноэкранного режима приложение необходимо перезапустить!'
+        : 'При выключении полноэкранного режима приложение необходимо перезапустить!';
+    button.textContent = enabled ? 'Включить' : 'Выключить';
+
+    modal.pendingEnabled = enabled;
+    modal.style.display = 'flex';
+}
+
+function confirmFullscreenEnable() {
+    const modal = document.getElementById('fullscreenConfirmModal');
+    if (!modal || modal.pendingEnabled === undefined) return;
+
+    const enabled = modal.pendingEnabled;
+    localStorage.setItem('fullscreenMode', enabled ? 'true' : 'false');
+    fullscreenEnabled = enabled;
+    fullscreenSwitch.classList.toggle('active', enabled);
+    modal.style.display = 'none';
+
+    try {
+        if (enabled) {
+            tg.requestFullscreen?.();
+        } else {
+            tg.exitFullscreen?.();
+        }
+    } catch (error) {
+        console.warn('Fullscreen change failed:', error);
+    }
+}
+
+function cancelFullscreenEnable() {
+    const modal = document.getElementById('fullscreenConfirmModal');
+    if (modal) {
+        modal.style.display = 'none';
+        delete modal.pendingEnabled;
+    }
+}
+
 function goBack() {
     // Попытка вернуться в историю браузера
     if (window.history.length > 1) {
@@ -678,10 +722,10 @@ function showNewsSubscriptionModal(action) {
     pendingNewsAction = action;
     
     if (action === 'enable') {
-        message.textContent = 'Эту функцию вы сможете выключить через 2 часа после включения, уверены что хотите её включить?';
+        message.textContent = 'Эту функцию вы сможете выключить через 2 минуты после включения, уверены что хотите её включить?';
         confirmBtn.textContent = 'Включить';
     } else {
-        message.textContent = 'Эту функцию вы сможете включить через 2 часа после выключения, уверены что хотите её выключить?';
+        message.textContent = 'Эту функцию вы сможете включить через 2 минуты после выключения, уверены что хотите её выключить?';
         confirmBtn.textContent = 'Выключить';
     }
     
@@ -712,9 +756,9 @@ function confirmNewsSubscription() {
     const lastToggleTime = localStorage.getItem('newsSubscriptionLastToggle');
     if (lastToggleTime) {
         const timePassed = Date.now() - parseInt(lastToggleTime);
-        const twoHours = 2 * 60 * 60 * 1000;
-        if (timePassed < twoHours) {
-            const remainingMinutes = Math.ceil((twoHours - timePassed) / 60000);
+        const twoMinutes = 2 * 60 * 1000;
+        if (timePassed < twoMinutes) {
+            const remainingMinutes = Math.ceil((twoMinutes - timePassed) / 60000);
             showInfoModal('Ограничение по времени', `Вы сможете изменить эту настройку через ${remainingMinutes} минут`, 'fa-hourglass-end');
             modal.style.display = 'none';
             pendingNewsAction = null;
@@ -801,9 +845,9 @@ function handleNewsSubscriptionToggle() {
     const lastToggleTime = localStorage.getItem('newsSubscriptionLastToggle');
     if (lastToggleTime) {
         const timePassed = Date.now() - parseInt(lastToggleTime);
-        const twoHours = 2 * 60 * 60 * 1000;
-        if (timePassed < twoHours) {
-            const remainingMinutes = Math.ceil((twoHours - timePassed) / 60000);
+        const twoMinutes = 2 * 60 * 1000;
+        if (timePassed < twoMinutes) {
+            const remainingMinutes = Math.ceil((twoMinutes - timePassed) / 60000);
             showInfoModal('Ограничение по времени', `Вы сможете изменить эту настройку через ${remainingMinutes} минут`, 'fa-hourglass-end');
             return;
         }

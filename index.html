@@ -1346,8 +1346,9 @@
         <h2 style="color: #7eb3ff; text-align: center;">Переключение раздела</h2>
         <p id="sectionSwitchMessage" style="color: var(--text); text-align: center; margin-top: 10px;"></p>
         <div class="modal-buttons" style="justify-content: center; display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
-          <button class="btn btn--primary" onclick="confirmSectionSwitch()" style="flex: 1;">Да</button>
-          <button class="btn btn--secondary" onclick="closeSectionSwitchModal()" style="flex: 1;">Нет</button>
+          <button class="btn btn--secondary" onclick="confirmSectionSwitch()" style="flex: 1;">Перейти</button>
+          <button class="btn btn--primary" onclick="saveAndProceedSectionSwitch()" style="flex: 1;">Сохранить и перейти</button>
+          <button class="btn btn--secondary" onclick="closeSectionSwitchModal()" style="flex: 1;">Отмена</button>
         </div>
       </div>
     </div>
@@ -1659,19 +1660,27 @@ function cloneFormState(state) {
   return JSON.parse(JSON.stringify(state || {}));
 }
 
-function getFormInitialState() {
+function getFormState(includeAgree = true) {
   const inputs = document.querySelectorAll('input, select, textarea');
   const state = {};
   inputs.forEach(input => {
-    if (input.id) {
-      if (input.type === 'checkbox' || input.type === 'radio') {
-        state[input.id] = input.checked;
-      } else {
-        state[input.id] = input.value;
-      }
+    if (!input.id || (input.id === 'agree' && !includeAgree)) return;
+
+    if (input.type === 'checkbox' || input.type === 'radio') {
+      state[input.id] = input.checked;
+    } else {
+      state[input.id] = input.value;
     }
   });
   return state;
+}
+
+function getFormInitialState() {
+  return getFormState(true);
+}
+
+function getTrackedFormState() {
+  return getFormState(false);
 }
 
 function hasFormChanges() {
@@ -1683,7 +1692,7 @@ function getCurrentFormState() {
 }
 
 function refreshFormDirtyState() {
-  const currentState = getFormInitialState();
+  const currentState = getTrackedFormState();
   const initialState = formChanges;
   formDirty = JSON.stringify(currentState) !== JSON.stringify(initialState);
 }
@@ -1740,8 +1749,29 @@ function applyFormState(snapshot) {
   updateHistoryButtons();
 }
 
+function saveFormStateForSectionSwitch() {
+  try {
+    const state = getFormInitialState();
+    localStorage.setItem('savedSectionSwitchFormState', JSON.stringify(state));
+  } catch (error) {
+    console.warn('Unable to save form state:', error);
+  }
+}
+
+function restoreSavedFormState() {
+  const savedData = localStorage.getItem('savedSectionSwitchFormState');
+  if (!savedData) return;
+  try {
+    const snapshot = JSON.parse(savedData);
+    applyFormState(snapshot);
+    localStorage.removeItem('savedSectionSwitchFormState');
+  } catch (error) {
+    console.warn('Unable to restore saved form state:', error);
+  }
+}
+
 function trackFormChanges() {
-  formChanges = getFormInitialState();
+  formChanges = getTrackedFormState();
   formDirty = false;
   historyUndoState = null;
   historyRedoState = null;
@@ -1791,7 +1821,7 @@ function confirmResetChanges() {
 function bindFormChangeListeners() {
   const inputs = document.querySelectorAll('input, select, textarea');
   inputs.forEach(input => {
-    if (input.type === 'file') return;
+    if (input.type === 'file' || input.id === 'agree') return;
 
     const eventName = input.tagName.toLowerCase() === 'textarea' || input.type === 'text' || input.type === 'number' || input.type === 'email' || input.type === 'search' ? 'input' : 'change';
     input.addEventListener(eventName, () => {
@@ -1803,7 +1833,7 @@ function bindFormChangeListeners() {
       }
 
       const beforeState = cloneFormState(lastKnownFormSnapshot || formChanges);
-      const currentState = getFormInitialState();
+      const currentState = getTrackedFormState();
       markFormDirty();
 
       if (JSON.stringify(beforeState) !== JSON.stringify(currentState)) {
@@ -1820,16 +1850,26 @@ function bindFormChangeListeners() {
 
 function confirmSectionSwitch() {
   if (pendingSectionUrl) {
-    // Скрываем модальное окно
     const modal = document.getElementById('sectionSwitchModal');
     if (modal) modal.style.display = 'none';
-    
-    // Сбрасываем форму и переходим
     if (pendingSectionUrl === 'crystals.html') {
       localStorage.setItem('crystalReturnPage', 'index.html');
     }
     window.location.href = pendingSectionUrl;
   }
+}
+
+function saveAndProceedSectionSwitch() {
+  if (!pendingSectionUrl) return;
+
+  saveFormStateForSectionSwitch();
+  const modal = document.getElementById('sectionSwitchModal');
+  if (modal) modal.style.display = 'none';
+
+  if (pendingSectionUrl === 'crystals.html') {
+    localStorage.setItem('crystalReturnPage', 'index.html');
+  }
+  window.location.href = pendingSectionUrl;
 }
 
 function closeSectionSwitchModal() {
@@ -1850,7 +1890,6 @@ function handleSectionSwitch(url, sectionName) {
     const modal = document.getElementById('sectionSwitchModal');
     if (modal) modal.style.display = 'flex';
   } else {
-    // Нет изменений, переходим сразу
     if (url === 'crystals.html') {
       localStorage.setItem('crystalReturnPage', 'index.html');
     }
@@ -1860,6 +1899,7 @@ function handleSectionSwitch(url, sectionName) {
 
 // Инициализация отслеживания изменений при загрузке
 window.addEventListener('load', () => {
+  restoreSavedFormState();
   trackFormChanges();
   bindFormChangeListeners();
   updateHistoryButtons();

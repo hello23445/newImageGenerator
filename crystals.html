@@ -349,15 +349,18 @@ body::after {
 .badge {
     position: absolute;
     top: 10px;
-    right: 10px;
-    padding: 3px 8px;
-    border-radius: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 10px;
+    border-radius: 999px;
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 0.5px;
     text-transform: uppercase;
     z-index: 2;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    background: rgba(56, 189, 248, 0.18);
+    color: #38bdf8;
 }
 
 /* --- МОДАЛЬНЫЕ ОКНА --- */
@@ -569,7 +572,7 @@ function getAdWatchInfo() {
     const storedStart = Number(localStorage.getItem('adWatchWindowStart') || '0');
     const storedCount = Number(localStorage.getItem('adWatchCount') || '0');
     const now = Date.now();
-    const maxWindow = 1 * 60 * 60 * 1000;
+    const maxWindow = 15 * 60 * 1000;
 
     if (!storedStart || now - storedStart > maxWindow) {
         localStorage.setItem('adWatchWindowStart', String(now));
@@ -587,7 +590,7 @@ function canWatchAd() {
 function getAdWatchRemainingText() {
     const { count, windowStart } = getAdWatchInfo();
     if (count >= 2) {
-        const remainingMs = Math.max(0, (windowStart + 1 * 60 * 60 * 1000) - Date.now());
+        const remainingMs = Math.max(0, (windowStart + 15 * 60 * 1000) - Date.now());
         const minutes = Math.ceil(remainingMs / 60000);
         return `Вы уже посмотрели рекламу 2 раза. Следующий просмотр будет доступен через ${minutes} минут.`;
     }
@@ -728,7 +731,13 @@ function generateCards() {
             glow = 'filter: drop-shadow(0 0 6px rgba(125,211,252,0.4));';
         }
 
+        let badgeText = '';
+        if (isPopular) badgeText = 'ПОПУЛЯРНО';
+        else if (isEco) badgeText = 'ВЫГОДНО';
+        else if (isVip) badgeText = 'VIP';
+
         div.innerHTML = `
+            ${badgeText ? `<span class="badge">${badgeText}</span>` : ''}
             <div style="display: flex; align-items: center; gap: 8px; flex: 1; ${glow}">
                 <i class="fa-solid fa-gem" style="font-size: 16px; color: ${iconColor}; flex-shrink: 0;"></i>
                 <div style="display: flex; align-items: center; gap: 3px;">

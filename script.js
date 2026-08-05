@@ -2268,7 +2268,7 @@ if (localStorage.getItem('fullscreenMode') === 'true' && /iPhone/i.test(navigato
   for (const el of marginElements) {
     if (el && el.style) {
       el.style.marginTop = '20%';
-      document.getElementById('history-toolbar').style.marginTop = '7%';
+      document.getElementById('history-toolbar').style.marginTop = '10%';
     }
   }
 }
