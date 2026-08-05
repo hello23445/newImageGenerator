@@ -322,11 +322,12 @@ input:disabled, select:disabled, textarea:disabled{
   display: block;
   font-size: 10px;
   line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
   max-width: 100%;
   text-decoration: none;
+  word-break: break-word;
 }
 
 .bottom-nav-fixed .tab-btn.active {

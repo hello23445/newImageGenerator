@@ -619,11 +619,7 @@ function confirmLiquidEnable() {
         applyLiquid(enabled);
         modal.style.display = 'none';
         delete modal.pendingEnabled;
-        // Перезагрузка страницы
-        setTimeout(() => {
-            document.querySelectorAll('div').forEach(div => div.remove());
-            window.location.href = 'index.html';
-        }, 500);
+        window.location.href = 'index.html';
     }
 }
 
