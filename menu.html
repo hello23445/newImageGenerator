@@ -25,6 +25,7 @@
 }
 
 body{
+  user-select: none;
   margin:0;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   color:var(--text);
@@ -323,9 +324,9 @@ body {
     <i class="fa-solid fa-house"></i>
     <span class="tab-label">Главная</span>
   </a>
-  <a title="Тут вы можете пополнить свой баланс кристаллов." type="button" class="tab-btn" aria-label="Кристаллы" href="crystals.html" onclick="event.preventDefault(); window.location.href='crystals.html'">
+  <a title="Тут вы можете пополнить свой баланс кристаллов." type="button" class="tab-btn" aria-label="Баланс" href="crystals.html" onclick="event.preventDefault(); window.location.href='crystals.html'">
     <i class="fa-solid fa-gem"></i>
-    <span class="tab-label">Кристаллы</span>
+    <span class="tab-label" style="white-space: nowrap; font-size: 11px;">Баланс</span>
   </a>
   <a title="Тут вы можете приобрести премиум и получить доступ к расширенным возможностям." type="button" class="tab-btn" aria-label="Премиум" href="premium.html" onclick="event.preventDefault(); window.location.href='premium.html'">
     <i class="fa-solid fa-crown"></i>
@@ -522,10 +523,16 @@ emailLink.querySelector('div div:last-child').textContent =
     const style = document.createElement('style');
     style.id = 'liquid-nav-style';
     style.textContent = `
-      .tabs-container, .tabs-container:not(.bottom-nav-fixed) {
+      .tabs-container, .bottom-nav-fixed {
         background: rgba(15, 23, 42, 0.72) !important;
         backdrop-filter: blur(22px) saturate(140%) !important;
         -webkit-backdrop-filter: blur(22px) saturate(140%) !important;
+        border: 1px solid rgba(255,255,255,0.8) !important;
+        box-shadow: 0 10px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255,255,255,0.16) !important;
+      }
+      .card,
+      .btn,
+      .back-center {
         border: 1px solid rgba(255,255,255,0.8) !important;
       }
     `;

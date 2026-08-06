@@ -271,7 +271,7 @@ body::after {
     backdrop-filter: blur(16px);
     cursor: pointer;
     transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-    overflow: hidden;
+    overflow: visible;
     transform: perspective(800px) rotateY(var(--card-tilt, 0deg)) translateY(0);
     transform-style: preserve-3d;
     touch-action: manipulation;
@@ -349,7 +349,7 @@ body::after {
 .badge {
     position: absolute;
     top: 10px;
-    left: 50%;
+    left: calc(50% + 10px);
     transform: translateX(-50%);
     padding: 4px 10px;
     border-radius: 999px;
@@ -361,6 +361,52 @@ body::after {
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     background: rgba(56, 189, 248, 0.18);
     color: #38bdf8;
+    cursor: help;
+}
+.badge::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    white-space: normal;
+    max-width: 420px;
+    min-width: 260px;
+    background: rgba(15, 23, 42, 0.96);
+    color: #f8fafc;
+    padding: 10px 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(56, 189, 248, 0.18);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    font-size: 10px;
+    line-height: 1.4;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    z-index: 10;
+}
+.badge::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 10px;
+    height: 10px;
+    background: rgba(15, 23, 42, 0.96);
+    border-left: 1px solid rgba(56, 189, 248, 0.18);
+    border-top: 1px solid rgba(56, 189, 248, 0.18);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    z-index: 10;
+}
+.badge:hover::after,
+.badge:hover::before {
+    opacity: 1;
+    visibility: visible;
 }
 
 /* --- МОДАЛЬНЫЕ ОКНА --- */
@@ -464,6 +510,16 @@ body::after {
     .modal-title { font-size: 15px; margin-bottom: 12px; }
     .modal-icon { font-size: 32px; margin-bottom: 10px; }
     .modal-btn { padding: 9px; font-size: 13px; }
+    .crystal-counter { font-size: 12px; padding: 5px 10px; }
+    .header, .card { gap: 6px; }
+    .crystals { font-size: 12px; }
+    .price { font-size: 8px; }
+    .price-tag { font-size: 10px; padding: 4px 8px; }
+    .badge { font-size: 8px; padding: 3px 8px; }
+    .badge::after { font-size: 8px; min-width: 220px; max-width: 340px; padding: 8px 12px; }
+    .bottom-nav-fixed .tab-btn { padding: 6px 0; }
+    .bottom-nav-fixed .tab-btn .tab-label { font-size: 8px; }
+    .back-center, .ad-center { font-size: 12px; padding: 12px 0; }
 }
 
 @media (min-width: 1024px) {
@@ -487,9 +543,9 @@ body::after {
     <i class="fa-solid fa-house"></i>
     <span class="tab-label">Главная</span>
   </a>
-  <a title="Тут вы можете пополнить свой баланс кристаллов." type="button" class="tab-btn active" aria-label="Кристаллы" href="crystals.html" onclick="event.preventDefault(); window.location.href='crystals.html'">
+  <a title="Тут вы можете пополнить свой баланс кристаллов." type="button" class="tab-btn active" aria-label="Баланс" href="crystals.html" onclick="event.preventDefault(); window.location.href='crystals.html'">
     <i class="fa-solid fa-gem"></i>
-    <span class="tab-label">Кристаллы</span>
+    <span class="tab-label" style="white-space: nowrap; font-size: 11px;">Баланс</span>
   </a>
   <a title="Тут вы можете приобрести премиум и получить доступ к расширенным возможностям." type="button" class="tab-btn" aria-label="Премиум" href="premium.html" onclick="event.preventDefault(); window.location.href='premium.html'">
     <i class="fa-solid fa-crown"></i>
@@ -677,14 +733,14 @@ updateCrystalCounter();
 
 const products = [
     { crystals: 10, price: 5, buttonText: "5🌟", type: 'just' },
-    { crystals: 25, price: 10, buttonText: "10🌟", type: 'just' },
+    { crystals: 25, price: 10, buttonText: "10🌟", type: 'popular' },
     { crystals: 50, price: 18, buttonText: "18🌟", type: 'just' },
     { crystals: 80, price: 25, buttonText: "25🌟", type: 'just' },
-    { crystals: 120, price: 35, buttonText: "35🌟", type: 'popular' },
+    { crystals: 120, price: 35, buttonText: "35🌟", type: 'cheaper' },
     { crystals: 200, price: 55, buttonText: "55🌟", type: 'just' },
     { crystals: 350, price: 85, buttonText: "85🌟", type: 'popular' },
     { crystals: 500, price: 120, buttonText: "120🌟", type: 'just' },
-    { crystals: 800, price: 180, buttonText: "180🌟", type: 'popular' },
+    { crystals: 800, price: 180, buttonText: "180🌟", type: 'just' },
     { crystals: 1200, price: 250, buttonText: "250🌟(Выгодно)", type: 'cheaper' },
     { crystals: 1800, price: 350, buttonText: "350🌟", type: 'cheaper' },
     { crystals: 2500, price: 470, buttonText: "470🌟", type: 'just' },
@@ -692,7 +748,7 @@ const products = [
     { crystals: 5000, price: 850, buttonText: "850🌟", type: 'just' },
     { crystals: 7500, price: 1200, buttonText: "1 200🌟", type: 'popular' },
     { crystals: 10000, price: 1500, buttonText: "1 500🌟", type: 'just' },
-    { crystals: 50000, price: 7500, buttonText: "7 500🌟", type: 'VIP' },
+    { crystals: 50000, price: 7500, buttonText: "7 500🌟", type: 'just' },
     { crystals: 100000, price: 13000, buttonText: "13 000🌟", type: 'VIP' },
     { crystals: 500000, price: 65000, buttonText: "65 000🌟", type: 'VIP' },
     { crystals: 1000000, price: 90000, buttonText: "90 000🌟", type: 'VIP' }
@@ -732,12 +788,22 @@ function generateCards() {
         }
 
         let badgeText = '';
-        if (isPopular) badgeText = 'ПОПУЛЯРНО';
-        else if (isEco) badgeText = 'ВЫГОДНО';
-        else if (isVip) badgeText = 'VIP';
+        let badgeTooltip = '';
+        if (isPopular) {
+            badgeText = 'ПОПУЛЯРНО';
+            badgeTooltip = 'Данный пакет является популярным, и его выбирают чаще всего.';
+        } else if (isEco) {
+            badgeText = 'ВЫГОДНО';
+            badgeTooltip = 'Выгодная цена для данного пакета.';
+        } else if (isVip) {
+            badgeText = item.crystals >= 1000000 ? 'GOLD' : 'VIP';
+            badgeTooltip = item.crystals >= 1000000
+                ? 'Особый пакет, созданный специально для вас.'
+                : 'Данный пакет чаще всего выбирают VIP-пользователи.';
+        }
 
         div.innerHTML = `
-            ${badgeText ? `<span class="badge">${badgeText}</span>` : ''}
+            ${badgeText ? `<span class="badge" data-tooltip="${badgeTooltip}">${badgeText}</span>` : ''}
             <div style="display: flex; align-items: center; gap: 8px; flex: 1; ${glow}">
                 <i class="fa-solid fa-gem" style="font-size: 16px; color: ${iconColor}; flex-shrink: 0;"></i>
                 <div style="display: flex; align-items: center; gap: 3px;">
