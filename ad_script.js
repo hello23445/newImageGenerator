@@ -100,15 +100,23 @@ function formatRichText(text) {
         html = html.replace(pattern, replacement);
     });
 
-    html = html.replace(/(^|\s)(@([\w_]+)|t\.me\/([\w_]+)|https?:\/\/[^\s<]+|www\.[^\s<]+)/g, (match, prefix, link) => {
+    // ИСПРАВЛЕННЫЙ БЛОК ДЛЯ ССЫЛОК
+    // Добавлен поиск символа ">" (а также скобок/кавычек) перед ссылкой. 
+    // Теперь ссылки успешно обнаруживаются и оборачиваются в тег <a> даже внутри <strong> или <em>.
+    html = html.replace(/(^|[\s>\(\[«"'])(@[\w_]+|t\.me\/[\w_\+]+|https?:\/\/[^\s<]+|www\.[^\s<]+)/gi, (match, prefix, link) => {
         let href = link;
+        
         if (link.startsWith('@')) {
+            // Убираем "@" и подставляем ссылку на Telegram
             href = 'https://t.me/' + link.slice(1);
-        } else if (link.startsWith('t.me/')) {
+        } else if (link.toLowerCase().startsWith('t.me/')) {
+            // Добавляем https:// к t.me/...
             href = 'https://' + link;
-        } else if (!/^https?:\/\//i.test(link) && !/^www\./i.test(link)) {
-            href = 'https://t.me/' + link;
+        } else if (link.toLowerCase().startsWith('www.')) {
+            // Добавляем https:// к www...
+            href = 'https://' + link;
         }
+
         return `${prefix}<a href="${href}" target="_blank" rel="noopener noreferrer">${link}</a>`;
     });
 
