@@ -7,10 +7,9 @@
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+    <!-- Стили -->
     <link rel="stylesheet" href="ad_styles.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -19,13 +18,8 @@
 <div id="toastContainer"></div>
 
 <div class="container">
-
     <div class="video-wrapper">
-        <iframe
-            id="adIframe"
-            src=""
-            allow="autoplay; fullscreen"
-        ></iframe>
+        <iframe id="adIframe" src="" allow="autoplay; fullscreen"></iframe>
     </div>
 
     <div id="adText" class="ad-text"></div>
@@ -47,18 +41,18 @@
     </div>
 
     <div class="security-note">
-        <i class="fa-solid fa-circle-check fa-lg" style="color: #005eff;"></i>
-        Эта реклама и её ссылки были проверены средством CrN Ads’ Security
+        <i class="fa-solid fa-shield-check"></i>
+        <i class="fa-solid fa-shield-halved"></i>Эта реклама и её ссылки проверены средством CrN Ads’ Security<i class="fa-solid fa-shield-halved"></i>
     </div>
 </div>
 
 <!-- Жалоба -->
 <div id="complainModal" class="modal">
     <div class="modal-content">
-        <h3>Жалоба</h3>
+        <h3>Жалоба на рекламу</h3>
 
         <select id="complainSelect">
-            <option value="">Выберите причину</option>
+            <option value="" disabled selected>Выберите причину</option>
             <option value="Спам">Спам</option>
             <option value="Обман">Обман</option>
             <option value="Неприемлемый контент">Неприемлемый контент</option>
@@ -68,8 +62,8 @@
         <input id="complainInput" type="text" placeholder="Опишите причину" style="display:none;">
 
         <div class="modal-buttons">
+            <button id="cancelComplain" class="btn secondary">Отмена</button>
             <button id="sendComplain" class="btn primary">Отправить</button>
-            <button id="cancelComplain" class="btn danger">Отмена</button>
         </div>
     </div>
 </div>
@@ -77,29 +71,29 @@
 <!-- Комментарий -->
 <div id="commentModal" class="modal">
     <div class="modal-content">
-        <h3>Комментарий</h3>
+        <h3>Ваш комментарий</h3>
 
-        <input id="commentInput" type="text" placeholder="Введите комментарий">
-        <p class="hint">Комментарий анонимный</p>
+        <input id="commentInput" type="text" placeholder="Введите текст...">
+        <p class="hint"><i class="fa-solid fa-lock" style="font-size: 10px;"></i> Комментарий анонимный</p>
 
         <div class="modal-buttons">
+            <button id="cancelComment" class="btn secondary">Отмена</button>
             <button id="sendComment" class="btn primary">Отправить</button>
-            <button id="cancelComment" class="btn danger">Отмена</button>
         </div>
     </div>
 </div>
 
 <!-- Загрузка -->
 <div id="loadingModal" class="modal">
-    <div class="modal-content">
-        <h3>Загрузка...</h3>
+    <div class="modal-content loading-content">
         <div class="loader"></div>
+        <p style="margin-top: 15px; color: #94a3b8; font-size: 14px;">Загрузка...</p>
     </div>
 </div>
+
 <script type="module" src="security.js"></script>
 <script src="ad_script.js"></script>
 <script>
-// Telegram WebApp Settings Button
 if (window.Telegram && window.Telegram.WebApp) {
   window.Telegram.WebApp.SettingsButton.hide();
 }

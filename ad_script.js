@@ -58,21 +58,73 @@ function escapeHtml(str) {
         .replace(/'/g, '&#39;');
 }
 
-function linkify(text) {
-    const escaped = escapeHtml(text);
-    const regex = /(^|\s)(@[\w_]+|https?:\/\/[^\s<]+|t\.me\/[\w_]+)/g;
-    return escaped.replace(regex, (match, before, link) => {
-        let href = '';
+function escapeRegExp(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function formatRichText(text) {
+    let raw = String(text ?? '');
+
+    const safeMap = new Map();
+    const allowedHtml = [
+        '<br>', '<br/>', '<br />', '<p>', '</p>',
+        '<b>', '</b>', '<strong>', '</strong>',
+        '<i>', '</i>', '<em>', '</em>',
+        '<u>', '</u>', '<s>', '</s>', '<del>', '</del>',
+        '<span>', '</span>', '<code>', '</code>'
+    ];
+
+    allowedHtml.forEach((tag, index) => {
+        const token = `__SAFE_HTML_${index}__`;
+        safeMap.set(token, tag);
+        raw = raw.replace(new RegExp(escapeRegExp(tag), 'gi'), token);
+    });
+
+    let html = escapeHtml(raw)
+        .replace(/\r\n/g, '\n')
+        .replace(/\n/g, '<br>');
+
+    const markdownRules = [
+        [/\*\*(.+?)\*\*/g, '<strong>$1</strong>'],
+        [/__(.+?)__/g, '<strong>$1</strong>'],
+        [/\/\/\*(.+?)\*\/\//g, '<em>$1</em>'],
+        [/\/\*(.+?)\*\//g, '<em>$1</em>'],
+        [/~~(.+?)~~/g, '<del>$1</del>'],
+        [/\+\+(.+?)\+\+/g, '<span class="underline">$1</span>'],
+        [/\[\[(.+?)\]\]/g, '<u>$1</u>'],
+        [/``([\s\S]+?)``/g, '<code>$1</code>'],
+        [/```([\s\S]+?)```/g, '<pre><code>$1</code></pre>']
+    ];
+
+    markdownRules.forEach(([pattern, replacement]) => {
+        html = html.replace(pattern, replacement);
+    });
+
+    html = html.replace(/(^|\s)(@([\w_]+)|t\.me\/([\w_]+)|https?:\/\/[^\s<]+|www\.[^\s<]+)/g, (match, prefix, link) => {
+        let href = link;
         if (link.startsWith('@')) {
             href = 'https://t.me/' + link.slice(1);
         } else if (link.startsWith('t.me/')) {
             href = 'https://' + link;
-        } else {
-            href = link;
+        } else if (!/^https?:\/\//i.test(link) && !/^www\./i.test(link)) {
+            href = 'https://t.me/' + link;
         }
-        return `${before}<a href="${href}" target="_blank" rel="noopener noreferrer">${link}</a>`;
+        return `${prefix}<a href="${href}" target="_blank" rel="noopener noreferrer">${link}</a>`;
     });
+
+    safeMap.forEach((tag, token) => {
+        html = html.replace(new RegExp(escapeRegExp(token), 'g'), tag);
+    });
+
+    return html;
 }
+
+function linkify(text) {
+    return formatRichText(text);
+}
+
+window.formatRichText = formatRichText;
+window.linkify = linkify;
 
 async function fetchAdsData() {
     showLoader();
@@ -179,7 +231,8 @@ function loadNextAd() {
             hideLoader();
             loaderLocked = true;
             const rawText = currentAd[0] || '';
-            adText.innerHTML = linkify(rawText);
+            const renderText = window.formatRichText || formatRichText || linkify;
+            adText.innerHTML = renderText(rawText);
             if (currentAd[4] == 1) {
                 commentBtn.style.display = 'block';
             } else {
